@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000000;
+  color: #ff2222;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #030000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #440000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #660000;
+}
+
+input, select, textarea {
+  outline: none;
+}
+
+input::placeholder {
+  color: #550000;
+}
+
+a {
+  color: inherit;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.1); }
+}
+
+@keyframes scan {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+.leaflet-container {
+  background: #050000 !important;
+}
+
+.leaflet-tile {
+  filter: invert(1) hue-rotate(180deg) brightness(0.4) saturate(2);
+}
+
+.leaflet-popup-content-wrapper {
+  background: #0d0000 !important;
+  border: 1px solid #ff0000 !important;
+  border-radius: 0 !important;
+  color: #ff2222 !important;
+}
+
+.leaflet-popup-tip {
+  background: #ff0000 !important;
+}

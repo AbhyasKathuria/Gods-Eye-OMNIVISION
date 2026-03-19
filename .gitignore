@@ -1,0 +1,41 @@
+# API Keys - NEVER commit these
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+backend/venv/
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/node_modules/
+dist/
+.vite/
+frontend/dist/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Reports & Uploads (user generated)
+reports/
+uploads/
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+build/
+*.zip 
