@@ -14,7 +14,7 @@ def get_groq():
         raise ValueError("GROQ_API_KEY not found")
     return Groq(api_key=GROQ_API_KEY)
 
-def truncate_data_dict(data, max_chars=8000) -> str:
+def truncate_data_dict(data, max_chars=6000) -> str:
     """
     Cleans and truncates complex threat/OSINT dictionaries to fit within 
     LLM prompt boundaries and prevent 413 'Request Entity Too Large' errors.
@@ -83,7 +83,7 @@ Be specific, analytical and professional.
 Mark all data as sourced from PUBLIC SOURCES ONLY.
 """
         response = client.chat.completions.create(
-            model="groq/compound",
+            model="qwen/qwen3.6-27b",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1500
         )
@@ -112,7 +112,7 @@ Provide:
 Be specific and professional.
 """
         response = client.chat.completions.create(
-            model="groq/compound",
+            model="qwen/qwen3.6-27b",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1024
         )
@@ -136,7 +136,7 @@ Provide:
 4. RISK INDICATORS
 """
         response = client.chat.completions.create(
-            model="groq/compound",
+            model="qwen/qwen3.6-27b",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1024
         )
@@ -162,7 +162,7 @@ Provide:
 4. RISK ASSESSMENT
 """
         response = client.chat.completions.create(
-            model="groq/compound",
+            model="qwen/qwen3.6-27b",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1024
         )
@@ -191,7 +191,7 @@ Generate a complete OSINT summary including:
 6. CONFIDENCE LEVEL
 """
         response = client.chat.completions.create(
-            model="groq/compound",
+            model="qwen/qwen3.6-27b",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1500
         )

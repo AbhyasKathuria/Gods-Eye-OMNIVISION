@@ -32,7 +32,7 @@ async def groq_chat(messages: list, system: str = None) -> str:
             all_messages.append({"role": "system", "content": system})
         all_messages.extend(messages)
         response = client.chat.completions.create(
-            model="groq/compound",
+            model="qwen/qwen3.6-27b",
             messages=all_messages,
             max_tokens=2048
         )

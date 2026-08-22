@@ -157,7 +157,7 @@ async def analyze_image_ai(image_data: str) -> dict:
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
         response = client.chat.completions.create(
-            model="groq/compound",
+            model="qwen/qwen3.6-27b",
             messages=[
                 {
                     "role": "system",
