@@ -1,5 +1,6 @@
 import os
 import pathlib
+import json
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -13,15 +14,61 @@ def get_groq():
         raise ValueError("GROQ_API_KEY not found")
     return Groq(api_key=GROQ_API_KEY)
 
+def truncate_data_dict(data, max_chars=8000) -> str:
+    """
+    Cleans and truncates complex threat/OSINT dictionaries to fit within 
+    LLM prompt boundaries and prevent 413 'Request Entity Too Large' errors.
+    """
+    try:
+        if not data:
+            return "No data collected."
+            
+        raw_str = str(data)
+        if len(raw_str) <= max_chars:
+            return raw_str
+            
+        if isinstance(data, dict):
+            truncated = {}
+            for k, v in data.items():
+                if isinstance(v, list):
+                    # For lists (like news articles or transactions), keep only the first 5 records
+                    truncated[k] = v[:5]
+                elif isinstance(v, str):
+                    # Truncate extremely long single string values
+                    truncated[k] = v[:800] + "... [TRUNCATED]" if len(v) > 800 else v
+                elif isinstance(v, dict):
+                    # Recurse one level down
+                    sub_dict = {}
+                    for sk, sv in v.items():
+                        if isinstance(sv, list):
+                            sub_dict[sk] = sv[:5]
+                        elif isinstance(sv, str):
+                            sub_dict[sk] = sv[:500] + "... [TRUNCATED]" if len(sv) > 500 else sv
+                        else:
+                            sub_dict[sk] = sv
+                    truncated[k] = sub_dict
+                else:
+                    truncated[k] = v
+            
+            res_str = json.dumps(truncated, indent=2, default=str)
+            if len(res_str) > max_chars:
+                return res_str[:max_chars] + "\n... [TRUNCATED DUE TO SIZE]"
+            return res_str
+            
+        return raw_str[:max_chars] + "\n... [TRUNCATED]"
+    except Exception as e:
+        return f"Error truncating data: {str(e)}\nRaw preview: {str(data)[:2000]}"
+
 async def generate_identity_report(data: dict) -> str:
     try:
         client = get_groq()
+        clean_data = truncate_data_dict(data)
         prompt = f"""
 You are Gods Eye, an advanced OSINT intelligence system.
 Based on the following publicly available data, generate a detailed intelligence report.
 
 Data collected:
-{data}
+{clean_data}
 
 Generate a structured intelligence report with these sections:
 1. SUBJECT SUMMARY
@@ -48,11 +95,12 @@ Mark all data as sourced from PUBLIC SOURCES ONLY.
 async def analyze_cyber_threat(data: dict) -> str:
     try:
         client = get_groq()
+        clean_data = truncate_data_dict(data)
         prompt = f"""
 You are Gods Eye cyber intelligence module.
 Analyze this threat data and provide a detailed assessment:
 
-{data}
+{clean_data}
 
 Provide:
 1. THREAT LEVEL (Critical/High/Medium/Low)
@@ -76,9 +124,10 @@ Be specific and professional.
 async def analyze_news_sentiment(data: dict) -> str:
     try:
         client = get_groq()
+        clean_data = truncate_data_dict(data)
         prompt = f"""
 Analyze the sentiment and key themes from these news articles:
-{data}
+{clean_data}
 
 Provide:
 1. OVERALL SENTIMENT
@@ -99,11 +148,12 @@ Provide:
 async def generate_geo_report(data: dict) -> str:
     try:
         client = get_groq()
+        clean_data = truncate_data_dict(data)
         prompt = f"""
 You are Gods Eye geo intelligence module.
 Analyze this location and tracking data:
 
-{data}
+{clean_data}
 
 Provide:
 1. LOCATION SUMMARY
@@ -124,12 +174,13 @@ Provide:
 async def generate_osint_summary(query: str, data: dict) -> str:
     try:
         client = get_groq()
+        clean_data = truncate_data_dict(data)
         prompt = f"""
 You are Gods Eye OSINT module.
 Target: {query}
 
 Collected data from public sources:
-{data}
+{clean_data}
 
 Generate a complete OSINT summary including:
 1. IDENTITY OVERVIEW
