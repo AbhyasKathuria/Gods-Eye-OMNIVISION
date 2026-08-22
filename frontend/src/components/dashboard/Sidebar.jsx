@@ -13,6 +13,8 @@ const modules = [
   { icon: "[ U ]", label: "USERNAME RECON", path: "/recon" },
   { icon: "[ GR ]", label: "INTEL GRAPH", path: "/graph" },
   { icon: "[ PB ]", label: "PLAYBOOKS", path: "/playbooks" },
+  { icon: "[ W ]", label: "WIRELESS RECON", path: "/wifi-recon" },
+  { icon: "[ CR ]", label: "CRYPTO TRACKER", path: "/crypto-tracker" },
 ];
 
 const tools = [

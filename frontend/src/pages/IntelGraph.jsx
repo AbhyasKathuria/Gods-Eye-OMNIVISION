@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import { useState, useRef } from "react";
 
 const API = "http://localhost:8000";
 
@@ -30,7 +29,7 @@ const NODE_ICONS = {
   center: "[ T ]",
 };
 
-function buildGraph(target, type, aiData) {
+function buildGraph(target, type) {
   const nodes = [];
   const edges = [];
   const cx = 500, cy = 300;
@@ -191,7 +190,7 @@ export default function IntelGraph() {
     setLoading(true);
     setSelected(null);
     setTimeout(() => {
-      const g = buildGraph(target.trim(), type, null);
+      const g = buildGraph(target.trim(), type);
       setGraph(g);
       setNodeCount(g.nodes.length);
       setEdgeCount(g.edges.length);
@@ -427,7 +426,7 @@ export default function IntelGraph() {
               })}
 
               {/* Nodes */}
-              {graph.nodes.map((node, i) => {
+              {graph.nodes.map((node) => {
                 const color = NODE_COLORS[node.type] || "#ff0000";
                 const isSelected = selected?.id === node.id;
                 const isCenter = node.id === "center";

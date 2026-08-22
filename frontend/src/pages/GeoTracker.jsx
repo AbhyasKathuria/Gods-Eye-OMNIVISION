@@ -18,49 +18,6 @@ export default function GeoTracker() {
   const leafletMapRef = useRef(null);
   const markersRef = useRef([]);
 
-  useEffect(() => {
-    if (activeTab === "LIVE FLIGHTS") {
-      loadFlights();
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
-    if (activeTab === "LIVE FLIGHTS" && !leafletMapRef.current && mapRef.current) {
-      initMap();
-    }
-  }, [activeTab, flights]);
-
-  const initMap = () => {
-    if (leafletMapRef.current) return;
-    if (!window.L) {
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-      script.onload = () => createMap();
-      document.head.appendChild(script);
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-      document.head.appendChild(link);
-    } else {
-      createMap();
-    }
-  };
-
-  const createMap = () => {
-    if (!mapRef.current || leafletMapRef.current) return;
-    const L = window.L;
-    const map = L.map(mapRef.current, {
-      center: [20, 0],
-      zoom: 2,
-      zoomControl: true,
-    });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "OpenStreetMap"
-    }).addTo(map);
-    leafletMapRef.current = map;
-    plotFlights(map, flights);
-  };
-
   const plotFlights = (map, flightData) => {
     if (!map || !window.L) return;
     const L = window.L;
@@ -89,6 +46,37 @@ export default function GeoTracker() {
     });
   };
 
+  const createMap = () => {
+    if (!mapRef.current || leafletMapRef.current) return;
+    const L = window.L;
+    const map = L.map(mapRef.current, {
+      center: [20, 0],
+      zoom: 2,
+      zoomControl: true,
+    });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "OpenStreetMap"
+    }).addTo(map);
+    leafletMapRef.current = map;
+    plotFlights(map, flights);
+  };
+
+  const initMap = () => {
+    if (leafletMapRef.current) return;
+    if (!window.L) {
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.onload = () => createMap();
+      document.head.appendChild(script);
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+    } else {
+      createMap();
+    }
+  };
+
   const loadFlights = async () => {
     setLoading(true);
     try {
@@ -104,6 +92,21 @@ export default function GeoTracker() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (activeTab === "LIVE FLIGHTS") {
+      loadFlights();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === "LIVE FLIGHTS" && !leafletMapRef.current && mapRef.current) {
+      initMap();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, flights]);
+
 
   const handleSearch = async () => {
     if (!input.trim() && !lat && !lon) return;
@@ -182,7 +185,6 @@ export default function GeoTracker() {
   );
 
   const renderShips = () => {
-    const ships = results?.data;
     return (
       <div>
         <div style={s.section}>

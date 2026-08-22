@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const API = "http://localhost:8000";
@@ -19,6 +19,18 @@ export default function IdentityEngine() {
   const [preview, setPreview] = useState(null);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("ge_identity_history");
+    if (stored) {
+      try {
+        setHistory(JSON.parse(stored));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
   const [faceResults, setFaceResults] = useState(null);
   const [luxand, setLuxand] = useState(null);
   const [facepp, setFacepp] = useState(null);
@@ -94,21 +106,38 @@ export default function IdentityEngine() {
         window.open("https://yandex.com/images/search?rpt=imageview", "_blank");
       }
     } catch (e) {
+      console.error(e);
       window.open("https://yandex.com/images/search?rpt=imageview", "_blank");
     }
     setLoadingFace(false);
   };
 
-  const handlePersonSearch = async () => {
-    if (!query) return;
+  const handlePersonSearch = async (forcedQuery) => {
+    const targetQuery = forcedQuery || query;
+    if (!targetQuery) return;
     setLoading(true);
     try {
       const res = await axios.get(
-        `${API}/identity/search?query=${encodeURIComponent(query)}`
+        `${API}/identity/search?query=${encodeURIComponent(targetQuery)}`
       );
       setResults(res.data);
       setSummary(res.data.summary);
       setActiveTab("person");
+
+      // Save to search history
+      const item = {
+        query: targetQuery,
+        timestamp: new Date().toLocaleString(),
+        totalResults: res.data.total,
+        summarySnippet: res.data.summary ? res.data.summary.slice(0, 100) + "..." : "No summary available"
+      };
+
+      setHistory(prev => {
+        const filtered = prev.filter(h => h.query.toLowerCase() !== targetQuery.toLowerCase());
+        const updated = [item, ...filtered].slice(0, 10);
+        localStorage.setItem("ge_identity_history", JSON.stringify(updated));
+        return updated;
+      });
     } catch (e) {
       console.error(e);
     }
@@ -292,6 +321,41 @@ export default function IdentityEngine() {
             ))}
           </>
         )}
+
+        {history.length > 0 && (
+          <>
+            <div style={{ borderTop: "1px solid #220000", marginTop: "12px", paddingTop: "12px" }} />
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                <span style={{ color: "#882222", fontSize: "11px", letterSpacing: "1px", fontWeight: "bold" }}>RECENT INVESTIGATIONS</span>
+                <span onClick={() => {
+                  setHistory([]);
+                  localStorage.removeItem("ge_identity_history");
+                }} style={{ color: "#ff0000", fontSize: "9px", cursor: "pointer", letterSpacing: "1px" }}>CLEAR</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                {history.map((h, i) => (
+                  <div key={i} onClick={() => {
+                    setQuery(h.query);
+                    handlePersonSearch(h.query);
+                  }} style={{
+                    padding: "8px", background: "#060000", border: "1px solid #220000",
+                    borderLeft: "3px solid #882222", cursor: "pointer", transition: "all 0.3s"
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = "#ff0000"}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = "#220000"}
+                  >
+                    <div style={{ color: "#ff2222", fontWeight: "bold", fontSize: "11px" }}>{h.query}</div>
+                    <div style={{ color: "#666", fontSize: "9px", marginTop: "2px" }}>{h.timestamp} | Found: {h.totalResults}</div>
+                    <div style={{ color: "#444", fontSize: "9px", marginTop: "4px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                      {h.summarySnippet}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* RIGHT PANEL */}
@@ -309,7 +373,6 @@ export default function IdentityEngine() {
               borderBottom: activeTab === tab.key ? "2px solid #ff0000" : "2px solid transparent",
               background: "transparent", fontFamily: "Courier New",
               cursor: "pointer", border: "none",
-              borderBottom: activeTab === tab.key ? "2px solid #ff0000" : "2px solid transparent",
             }}>
               {tab.label}
             </button>

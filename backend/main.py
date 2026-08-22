@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from routers import identity, cyber, geo, news, ai, auth, visual, recon
+from routers import identity, cyber, geo, news, ai, auth, visual, recon, sigint, crypto
 import os
 
 load_dotenv("../.env")
@@ -34,6 +34,8 @@ app.include_router(news.router)
 app.include_router(ai.router)
 app.include_router(visual.router)
 app.include_router(recon.router)
+app.include_router(sigint.router)
+app.include_router(crypto.router)
 
 
 @app.get("/")
@@ -60,5 +62,9 @@ async def health():
             "twitter": bool(os.getenv("TWITTER_BEARER_TOKEN")),
             "abuseipdb": bool(os.getenv("ABUSEIPDB_API_KEY")),
             "saucenao": bool(os.getenv("SAUCENAO_API_KEY")),
+            "wigle": bool(os.getenv("WIGLE_API_ENCODED")),
+            "etherscan": bool(os.getenv("ETHERSCAN_API_KEY")),
+            "blockcypher": bool(os.getenv("BLOCKCYPHER_TOKEN")),
+            "alienvault": bool(os.getenv("ALIENVAULT_OTX_KEY")),
         }
     }

@@ -7,6 +7,7 @@ from services.cyber_service import (
     shodan_lookup,
     urlhaus_check
 )
+from services.otx_service import check_otx_threat
 from services.claude_service import analyze_cyber_threat
 import pathlib
 from dotenv import load_dotenv
@@ -98,5 +99,14 @@ async def urlhaus_scan(payload: dict):
             raise HTTPException(status_code=400, detail="URL required")
         data = await urlhaus_check(url)
         return {"status": "success", "data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/otx/{indicator_type}/{indicator}")
+async def investigate_otx(indicator_type: str, indicator: str):
+    try:
+        data = await check_otx_threat(indicator, indicator_type)
+        return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

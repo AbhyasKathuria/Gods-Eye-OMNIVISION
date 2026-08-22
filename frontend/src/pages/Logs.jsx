@@ -12,8 +12,6 @@ export default function Logs() {
 
   const MODULES = ["ALL", "AUTH", "IDENTITY", "CYBER", "GEO", "NEWS", "AI"];
 
-  useEffect(() => { loadLogs(); }, []);
-
   const loadLogs = async () => {
     setLoading(true);
     try {
@@ -24,6 +22,9 @@ export default function Logs() {
     }
     setLoading(false);
   };
+
+  useEffect(() => { setTimeout(loadLogs, 0); }, []);
+
 
   const filtered = filter === "ALL" ? logs : logs.filter(l => l.module === filter);
 

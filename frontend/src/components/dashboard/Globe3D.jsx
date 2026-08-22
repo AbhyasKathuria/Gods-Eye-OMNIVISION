@@ -1,4 +1,3 @@
-import { useRef, useEffect } from "react";
 
 const hotspots = [
   { cx: 88, cy: 110, label: "TARGET", delay: "0s" },

@@ -1,4 +1,5 @@
-import { useState, useEffect, useContext, createContext } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { useState, useContext, createContext } from "react";
 
 // Theme Context
 export const ThemeContext = createContext({

@@ -31,7 +31,7 @@ const MODULES = [
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("FEED");
   const [time, setTime] = useState(new Date());
-  const [feedIndex, setFeedIndex] = useState(0);
+  const [, setFeedIndex] = useState(0);
   const [visibleFeeds, setVisibleFeeds] = useState(LIVE_FEEDS.slice(0, 5));
 
   useEffect(() => {

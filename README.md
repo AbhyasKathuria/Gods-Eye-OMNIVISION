@@ -115,17 +115,18 @@ God's_Eye/
 
 ---
 
-## 🧠 Intelligence Modules (12)
+## 🧠 Intelligence Modules (14)
 
 ### 1. Dashboard `/`
 - Animated globe with radar sweep + threat hotspots
 - Live threat feed auto-updating every 2.5 seconds
-- 9 module quick-access cards
+- 11 module quick-access cards
 - 3-tab right panel: FEED / STATUS / ACTIONS
 - API status mini-dashboard
 - Live IST clock
 
 ### 2. Identity Engine `/identity`
+- **Recent Investigations Search History:** Local memory search history card grid (persists on reload, single-click search).
 - Face upload → Luxand AI + Face++ (age, gender, emotions, beauty score)
 - Yandex / Google / Bing / SauceNAO reverse image search
 - FaceCheck.id facial recognition
@@ -134,6 +135,7 @@ God's_Eye/
 - AI-generated OSINT intelligence report
 
 ### 3. Cyber Intelligence `/cyber`
+- **AlienVault OTX Pulse Checker:** Integrates Open Threat Exchange pulses for scanned IPs/domains.
 - IP tracker (IPGeolocation + IPInfo + AbuseIPDB)
 - Domain investigator (WhoisXML + URLScan + Google DNS)
 - VirusTotal scanner (URL / IP / Domain — 70+ engines)
@@ -186,29 +188,28 @@ God's_Eye/
 - Pre-built presets for common scenarios
 
 ### 10. API Health Dashboard `/api-health`
-- Real-time ping of all 14 major APIs
+- Real-time ping of all 18 major APIs (including Wigle, Etherscan, Blockcypher, AlienVault)
 - ONLINE / DEGRADED / OFFLINE with latency (ms)
 - Overall health percentage gauge
 - Auto-refresh every 30 seconds
 - Quota exhaustion warnings
 
 ### 11. Intelligence Graph `/graph`
-- Maltego-style node relationship visualization
-- 4 types: PERSON / IP / DOMAIN / EMAIL
+- Renders Maltego-style relationship maps dynamically (IPs, Domains, Emails, Names) using animated SVGs
 - Drag to pan, scroll to zoom, click nodes for details
 - Animated edges and pulsing nodes
 - Shows full intelligence correlation chain
 
 ### 12. OSINT Playbooks `/playbooks`
-- 6 pre-built investigation templates:
-  - Person Investigation (6 steps)
-  - IP Threat Analysis (7 steps)
-  - Domain Reconnaissance (7 steps)
-  - Email Breach Investigation (6 steps)
-  - Image Forensics (6 steps)
-  - Cyber Threat Hunt (7 steps)
-- Animated step execution
-- Click any step to navigate directly to that module
+- 6 pre-built incident SOP templates with jump-to-module links and checkmarks
+
+### 13. Wireless Airspace Recon `/wifi-recon`
+- **Wigle.net Wi-Fi Mapping:** Queries nearby Wi-Fi network coordinates on an interactive dark Leaflet map.
+- Extracts SSID, BSSID (MAC Address), signal strength (QoS), encryption, and channels.
+
+### 14. Crypto Wallet Tracker `/crypto-tracker`
+- **Ledger Wallet Auditing:** Connects to Etherscan (ETH) and Blockcypher (BTC) to check balances and transaction tables.
+- **Transfer Route Visualizer:** Graphs visual hop relays for financial forensics.
 
 ### + Reports `/reports`
 - 5 report types (Person, Cyber, Geo, News, General)

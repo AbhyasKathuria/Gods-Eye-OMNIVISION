@@ -9,16 +9,6 @@ export default function APIHealth() {
   const [lastChecked, setLastChecked] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
 
-  useEffect(() => {
-    loadHealth();
-  }, []);
-
-  useEffect(() => {
-    if (!autoRefresh) return;
-    const interval = setInterval(loadHealth, 30000);
-    return () => clearInterval(interval);
-  }, [autoRefresh]);
-
   const loadHealth = async () => {
     setLoading(true);
     try {
@@ -30,6 +20,16 @@ export default function APIHealth() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    setTimeout(loadHealth, 0);
+  }, []);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(loadHealth, 30000);
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
 
   const getStatusColor = (status) => {
     if (status === "ONLINE") return "#00aa44";

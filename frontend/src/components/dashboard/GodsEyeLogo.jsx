@@ -49,7 +49,6 @@ export default function GodsEyeLogo({ size = 48, showText = false }) {
   const irisR = r * 0.22;
 
   // Blink: eyelid closes
-  const lidY = isBlinking ? cy : cy - eyeH;
   const eyePath = `M ${cx - eyeW} ${cy}
     Q ${cx} ${cy - eyeH} ${cx + eyeW} ${cy}
     Q ${cx} ${cy + eyeH} ${cx - eyeW} ${cy} Z`;

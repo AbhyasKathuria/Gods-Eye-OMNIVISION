@@ -20,6 +20,8 @@ import APIHealth from "./pages/APIHealth";
 import ThreatScore from "./pages/ThreatScore";
 import IntelGraph from "./pages/IntelGraph";
 import Playbooks from "./pages/Playbooks";
+import WirelessRecon from "./pages/WirelessRecon";
+import CryptoTracker from "./pages/CryptoTracker";
 
 function ProtectedLayout() {
   const { user, loading } = useAuth();
@@ -59,6 +61,8 @@ function ProtectedLayout() {
             <Route path="/graph" element={<IntelGraph />} />
             <Route path="/playbooks" element={<Playbooks />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/wifi-recon" element={<WirelessRecon />} />
+            <Route path="/crypto-tracker" element={<CryptoTracker />} />
             <Route path="/logs" element={<Logs />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/" replace />} />

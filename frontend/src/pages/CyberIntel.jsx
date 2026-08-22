@@ -3,7 +3,7 @@ import axios from "axios";
 
 const API = "http://localhost:8000";
 
-const TABS = ["IP TRACKER", "DOMAIN INTEL", "BREACH CHECK", "SHODAN", "VIRUSTOTAL"];
+const TABS = ["IP TRACKER", "DOMAIN INTEL", "BREACH CHECK", "SHODAN", "VIRUSTOTAL", "ALIENVAULT OTX"];
 
 export default function CyberIntel() {
   const [activeTab, setActiveTab] = useState("IP TRACKER");
@@ -37,6 +37,12 @@ export default function CyberIntel() {
         case "VIRUSTOTAL":
           res = await axios.get(`${API}/cyber/virustotal?target=${encodeURIComponent(input.trim())}&scan_type=${scanType}`);
           break;
+        case "ALIENVAULT OTX": {
+          const isIP = input.trim().includes(".") && !isNaN(input.trim().split(".")[0]);
+          const indType = isIP ? "ip" : "domain";
+          res = await axios.get(`${API}/cyber/otx/${indType}/${input.trim()}`);
+          break;
+        }
         default:
           break;
       }
@@ -53,6 +59,7 @@ export default function CyberIntel() {
     "BREACH CHECK": "Enter email address",
     "SHODAN": "Enter search query e.g. apache port:80",
     "VIRUSTOTAL": "Enter URL, IP or domain",
+    "ALIENVAULT OTX": "Enter IP or domain e.g. 8.8.8.8 or google.com",
   };
 
   const s = {
@@ -434,6 +441,66 @@ export default function CyberIntel() {
     );
   };
 
+  const renderOTXResults = (data) => {
+    const pulses = data?.pulses || [];
+
+    return (
+      <div>
+        <div style={s.section}>
+          <div style={s.title}>ALIENVAULT OTX SUMMARY</div>
+          <div style={s.grid2}>
+            <div style={s.row}><span style={s.label}>INDICATOR: </span><span style={s.value}>{data.indicator}</span></div>
+            <div style={s.row}><span style={s.label}>TYPE: </span><span style={s.value}>{data.type?.toUpperCase()}</span></div>
+            <div style={s.row}><span style={s.label}>PULSE COUNT: </span><span style={s.value}>{data.pulse_count}</span></div>
+            <div style={s.row}>
+              <span style={s.label}>REPUTATION: </span>
+              <span style={s.badge(data.reputation === "MALICIOUS" ? "red" : "yellow")}>{data.reputation}</span>
+            </div>
+          </div>
+        </div>
+
+        {pulses.length > 0 && (
+          <div style={s.section}>
+            <div style={s.title}>THREAT PULSES DETECTED ({pulses.length})</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px" }}>
+              {pulses.map((p, i) => (
+                <div key={i} style={{ borderBottom: "1px solid #220000", paddingBottom: "10px" }}>
+                  <div style={{ color: "#ff2222", fontSize: "11px", fontWeight: "bold" }}>{p.name}</div>
+                  <div style={{ color: "#666", fontSize: "9px", marginTop: "2px" }}>
+                    Author: {p.author} | Created: {p.created ? new Date(p.created).toLocaleDateString() : "N/A"}
+                  </div>
+                  <div style={{ color: "#aaa", fontSize: "10px", marginTop: "4px", lineHeight: "1.4" }}>
+                    {p.description || "No description available."}
+                  </div>
+                  {p.tags && p.tags.length > 0 && (
+                    <div style={{ marginTop: "6px" }}>
+                      {p.tags.map((t, idx) => (
+                        <span key={idx} style={{
+                          display: "inline-block", padding: "1px 6px", fontSize: "8px",
+                          background: "#0c0606", border: "1px solid #ff4444", color: "#ff4444", marginRight: "4px"
+                        }}>{t}</span>
+                      ))}
+                    </div>
+                  )}
+                  {p.references && p.references.length > 0 && (
+                    <div style={{ marginTop: "6px", fontSize: "9px" }}>
+                      <span style={{ color: "#ff4400" }}>References: </span>
+                      {p.references.map((r, idx) => (
+                        <a key={idx} href={r} target="_blank" rel="noreferrer" style={{ color: "#882222", marginRight: "8px", textDecoration: "underline" }}>
+                          Link {idx + 1}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderResults = () => {
     if (!results) return null;
     switch (activeTab) {
@@ -442,6 +509,7 @@ export default function CyberIntel() {
       case "BREACH CHECK": return renderBreachResults(results);
       case "SHODAN": return renderShodanResults(results);
       case "VIRUSTOTAL": return renderVTResults(results);
+      case "ALIENVAULT OTX": return renderOTXResults(results);
       default: return null;
     }
   };
