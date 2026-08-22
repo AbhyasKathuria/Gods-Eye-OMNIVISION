@@ -36,7 +36,7 @@ Be specific, analytical and professional.
 Mark all data as sourced from PUBLIC SOURCES ONLY.
 """
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="groq/compound",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1500
         )
@@ -64,7 +64,7 @@ Provide:
 Be specific and professional.
 """
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="groq/compound",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1024
         )
@@ -87,7 +87,7 @@ Provide:
 4. RISK INDICATORS
 """
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="groq/compound",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1024
         )
@@ -112,7 +112,7 @@ Provide:
 4. RISK ASSESSMENT
 """
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="groq/compound",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1024
         )
@@ -140,7 +140,7 @@ Generate a complete OSINT summary including:
 6. CONFIDENCE LEVEL
 """
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="groq/compound",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1500
         )
