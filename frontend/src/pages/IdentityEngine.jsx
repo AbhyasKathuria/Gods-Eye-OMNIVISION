@@ -113,7 +113,7 @@ export default function IdentityEngine() {
   };
 
   const handlePersonSearch = async (forcedQuery) => {
-    const targetQuery = forcedQuery || query;
+    const targetQuery = (forcedQuery && typeof forcedQuery === "string") ? forcedQuery : query;
     if (!targetQuery) return;
     setLoading(true);
     try {
