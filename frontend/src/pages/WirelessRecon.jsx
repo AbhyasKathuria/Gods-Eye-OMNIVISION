@@ -24,18 +24,8 @@ export default function WirelessRecon() {
     };
   }, []);
 
-  const initMap = (center = [13.1678, 77.5350], zoom = 15) => {
-    if (!mapRef.current) return;
-    if (leafletMapRef.current) {
-      leafletMapRef.current.setView(center, zoom);
-      return;
-    }
-
-    if (!window.L) {
-      console.error("Leaflet not loaded on window object");
-      return;
-    }
-
+  const createMap = (center, zoom) => {
+    if (!mapRef.current || leafletMapRef.current) return;
     const L = window.L;
     const map = L.map(mapRef.current, {
       center: center,
@@ -49,6 +39,27 @@ export default function WirelessRecon() {
     }).addTo(map);
 
     leafletMapRef.current = map;
+  };
+
+  const initMap = (center = [13.1678, 77.5350], zoom = 15) => {
+    if (!mapRef.current) return;
+    if (leafletMapRef.current) {
+      leafletMapRef.current.setView(center, zoom);
+      return;
+    }
+
+    if (!window.L) {
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.onload = () => createMap(center, zoom);
+      document.head.appendChild(script);
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+    } else {
+      createMap(center, zoom);
+    }
   };
 
   const plotWifiBeacons = (wifiData) => {
@@ -76,6 +87,9 @@ export default function WirelessRecon() {
         iconSize: [12, 12],
       });
 
+      const latStr = n.lat ? n.lat.toFixed(4) : "N/A";
+      const lonStr = n.lon ? n.lon.toFixed(4) : "N/A";
+
       const marker = L.marker([n.lat, n.lon], { icon })
         .bindPopup(`
           <div style="background:#0d0000;color:#ff2222;font-family:Courier New;font-size:11px;padding:8px;border:1px solid #ff0000;min-width:180px">
@@ -84,7 +98,7 @@ export default function WirelessRecon() {
             <div>ENCRYPTION: <span style="color:#ff6600">${n.encryption || "OPEN"}</span></div>
             <div>CHANNEL: <span style="color:#aaa">${n.channel || "N/A"}</span></div>
             <div>TYPE: <span style="color:#aaa">${n.type || "WIFI"}</span></div>
-            <div>COORD: <span style="color:#aaa">${n.lat.toFixed(4)}, ${n.lon.toFixed(4)}</span></div>
+            <div>COORD: <span style="color:#aaa">${latStr}, ${lonStr}</span></div>
           </div>
         `)
         .addTo(leafletMapRef.current);
@@ -111,7 +125,10 @@ export default function WirelessRecon() {
       });
       if (res.data.status === "success") {
         setResults(res.data);
-        plotWifiBeacons(res.data.networks);
+        // Delay plotting slightly to ensure map ref has registered
+        setTimeout(() => {
+          plotWifiBeacons(res.data.networks);
+        }, 100);
       } else {
         setError(res.data.message || "Failed to query SIGINT parameters");
       }
@@ -248,7 +265,9 @@ export default function WirelessRecon() {
                       <td style={{ padding: "4px" }}>{n.bssid}</td>
                       <td style={{ padding: "4px" }}>{n.encryption || "OPEN"}</td>
                       <td style={{ padding: "4px" }}>{n.channel || "N/A"}</td>
-                      <td style={{ padding: "4px", textAlign: "right", color: "#888" }}>{n.lat.toFixed(4)}, {n.lon.toFixed(4)}</td>
+                      <td style={{ padding: "4px", textAlign: "right", color: "#888" }}>
+                        {n.lat ? n.lat.toFixed(4) : "N/A"}, {n.lon ? n.lon.toFixed(4) : "N/A"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
