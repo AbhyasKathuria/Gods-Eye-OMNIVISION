@@ -308,6 +308,7 @@ def analyze_face_metadata(exif_data: dict) -> dict:
 
 async def identify_face_gemini(image_bytes: bytes) -> dict:
     try:
+        import re
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             return {"error": "GEMINI_API_KEY not configured"}
@@ -316,9 +317,9 @@ async def identify_face_gemini(image_bytes: bytes) -> dict:
             img = Image.open(io.BytesIO(image_bytes))
             if img.mode in ("RGBA", "P"):
                 img = img.convert("RGB")
-            img.thumbnail((512, 512))
+            img.thumbnail((1024, 1024))
             jpeg_buffer = io.BytesIO()
-            img.save(jpeg_buffer, format="JPEG", quality=90)
+            img.save(jpeg_buffer, format="JPEG", quality=95)
             jpeg_bytes = jpeg_buffer.getvalue()
         except Exception as e:
             return {"error": f"Image conversion failed: {str(e)}"}
@@ -326,13 +327,22 @@ async def identify_face_gemini(image_bytes: bytes) -> dict:
         img_b64 = base64.b64encode(jpeg_bytes).decode()
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        
+        prompt = """
+You are a highly accurate facial recognition AI. Analyze the image step by step:
+1. Describe the key facial features of the person (hair color, hairstyle, face shape, eyes, nose, age estimation, expressions).
+2. Note any clothing, background, or contextual cues.
+3. List candidate names of famous public figures, executives, developers, or celebrities who match these features.
+4. Conclude with the most likely identity.
+
+Write your final conclusion at the very end of your response inside double square brackets, like this: [[Name of Person]] (or [[Unknown]] if you cannot identify them).
+"""
+
         payload = {
             "contents": [
                 {
                     "parts": [
-                        {
-                            "text": "Identify the person in this image. If they are a public figure, celebrity, or well-known person, return their full name (e.g. 'Sam Altman'). If you cannot identify the person, or if they are a private citizen, respond with 'Unknown'. Return ONLY the name or 'Unknown' without any additional text, markdown, or punctuation."
-                        },
+                        {"text": prompt},
                         {
                             "inlineData": {
                                 "mimeType": "image/jpeg",
@@ -344,13 +354,17 @@ async def identify_face_gemini(image_bytes: bytes) -> dict:
             ]
         }
 
-        async with httpx.AsyncClient(timeout=15) as client:
+        async with httpx.AsyncClient(timeout=25) as client:
             resp = await client.post(url, json=payload)
             if resp.status_code == 200:
                 data = resp.json()
                 try:
-                    name = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                    name = name.replace('"', '').replace("'", "").strip()
+                    full_text = data["candidates"][0]["content"]["parts"][0]["text"]
+                    match = re.search(r"\[\[(.*?)\]\]", full_text)
+                    if match:
+                        name = match.group(1).strip()
+                    else:
+                        name = "Unknown"
                     return {
                         "status": "success",
                         "identified_name": name
