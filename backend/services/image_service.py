@@ -304,3 +304,60 @@ def analyze_face_metadata(exif_data: dict) -> dict:
     if "Software" in exif_data:
         intelligence["software"] = exif_data["Software"]
     return intelligence
+
+
+async def identify_face_gemini(image_bytes: bytes) -> dict:
+    try:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            return {"error": "GEMINI_API_KEY not configured"}
+
+        try:
+            img = Image.open(io.BytesIO(image_bytes))
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+            img.thumbnail((512, 512))
+            jpeg_buffer = io.BytesIO()
+            img.save(jpeg_buffer, format="JPEG", quality=90)
+            jpeg_bytes = jpeg_buffer.getvalue()
+        except Exception as e:
+            return {"error": f"Image conversion failed: {str(e)}"}
+
+        img_b64 = base64.b64encode(jpeg_bytes).decode()
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": "Identify the person in this image. If they are a public figure, celebrity, or well-known person, return their full name (e.g. 'Sam Altman'). If you cannot identify the person, or if they are a private citizen, respond with 'Unknown'. Return ONLY the name or 'Unknown' without any additional text, markdown, or punctuation."
+                        },
+                        {
+                            "inlineData": {
+                                "mimeType": "image/jpeg",
+                                "data": img_b64
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(url, json=payload)
+            if resp.status_code == 200:
+                data = resp.json()
+                try:
+                    name = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    name = name.replace('"', '').replace("'", "").strip()
+                    return {
+                        "status": "success",
+                        "identified_name": name
+                    }
+                except (KeyError, IndexError) as e:
+                    return {"error": f"Failed to parse Gemini response: {str(e)}"}
+            else:
+                return {"error": f"Gemini error: {resp.status_code} {resp.text}"}
+    except Exception as e:
+        return {"error": str(e)}

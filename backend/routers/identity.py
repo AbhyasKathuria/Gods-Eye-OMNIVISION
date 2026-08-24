@@ -6,7 +6,8 @@ from services.image_service import (
     search_face_facecheck,
     yandex_reverse_search,
     luxand_face_analyze,
-    facepp_detect
+    facepp_detect,
+    identify_face_gemini
 )
 from services.claude_service import generate_identity_report, generate_osint_summary
 import httpx
@@ -26,10 +27,11 @@ async def face_search(file: UploadFile = File(...)):
     try:
         contents = await file.read()
 
-        results, luxand, facepp = await asyncio.gather(
+        results, luxand, facepp, gemini_id = await asyncio.gather(
             reverse_image_search(contents, file.filename),
             luxand_face_analyze(contents),
             facepp_detect(contents),
+            identify_face_gemini(contents),
         )
 
         exif = extract_exif(contents)
@@ -42,6 +44,7 @@ async def face_search(file: UploadFile = File(...)):
             "metadata_intelligence": metadata_intel,
             "luxand": luxand,
             "facepp": facepp,
+            "gemini_id": gemini_id,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

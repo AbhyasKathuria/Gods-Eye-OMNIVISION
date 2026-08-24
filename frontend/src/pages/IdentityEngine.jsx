@@ -34,6 +34,7 @@ export default function IdentityEngine() {
   const [faceResults, setFaceResults] = useState(null);
   const [luxand, setLuxand] = useState(null);
   const [facepp, setFacepp] = useState(null);
+  const [geminiId, setGeminiId] = useState(null);
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingFace, setLoadingFace] = useState(false);
@@ -54,6 +55,7 @@ export default function IdentityEngine() {
     setYandexUrl(null);
     setLuxand(null);
     setFacepp(null);
+    setGeminiId(null);
   };
 
   const handleFaceSearch = async () => {
@@ -68,6 +70,7 @@ export default function IdentityEngine() {
       setMetaIntel(res.data.metadata_intelligence);
       setLuxand(res.data.luxand);
       setFacepp(res.data.facepp);
+      setGeminiId(res.data.gemini_id);
       if (res.data.results?.yandex_url) {
         setYandexUrl(res.data.results.yandex_url);
       }
@@ -412,6 +415,18 @@ export default function IdentityEngine() {
           {/* FACE TAB */}
           {activeTab === "face" && !loadingFace && (
             <div>
+
+              {/* Gemini Visual Identification */}
+              {geminiId?.identified_name && geminiId.identified_name !== "Unknown" && (
+                <div style={{ ...s.section, border: "1px solid #ff0000", background: "#0d0000" }}>
+                  <div style={{ ...s.sectionTitle, color: "#ff0000", borderBottom: "1px solid #ff0000", paddingBottom: "6px" }}>
+                    VISUAL IDENTIFICATION (AI)
+                  </div>
+                  <div style={{ fontSize: "16px", fontWeight: "bold", color: "#ffffff", letterSpacing: "2px", fontFamily: "Courier New", marginTop: "8px" }}>
+                    IDENTIFIED SUBJECT: <span style={{ color: "#ff0000" }}>{geminiId.identified_name.toUpperCase()}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Luxand Results */}
               {luxand?.results?.length > 0 && (
