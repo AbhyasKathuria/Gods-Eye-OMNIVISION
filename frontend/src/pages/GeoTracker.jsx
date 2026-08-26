@@ -78,7 +78,47 @@ export default function GeoTracker() {
   const [voiceCommand, setVoiceCommand] = useState("");
   const [speechError, setSpeechError] = useState("");
   const [recognition, setRecognition] = useState(null);
+  const getHeaderTitle = () => {
+    switch (activeTab) {
+      case "LIVE FLIGHTS":
+        return `LIVE FLIGHT TRACKER — ${results?.total || results?.flights?.length || 0} AIRCRAFT DETECTED`;
+      case "MILITARY FLIGHTS":
+        return `TACTICAL AIR PATROLS — ${results?.count || 0} TARGETS ACQUIRED`;
+      case "EARTHQUAKES":
+        return `SEISMIC ACTIVITY MONITOR — ${results?.count || 0} RECENT EVENTS PLOTTED`;
+      case "SATELLITE ORBITS":
+        return `ORBITAL TELEMETRY — ${results?.count || 0} SATELLITES TRACKED`;
+      case "BIKESHARE":
+        return `BIKESHARE NETWORK — ${results?.count || 0} STATIONS ONLINE`;
+      case "RADIO BROWSER":
+        return `GLOBAL RADIO NODES — ${results?.count || 0} STATIONS LOADED`;
+      case "CCTV MONITOR":
+        return `TACTICAL CCTV CAMERA FEEDS — ${results?.cameras || 0} SENSORS DETECTED`;
+      default:
+        return "TACTICAL GEO INTELLIGENCE MONITOR";
+    }
+  };
 
+  const getHeaderBadgeState = () => {
+    switch (activeTab) {
+      case "LIVE FLIGHTS":
+        return "LIVE";
+      case "MILITARY FLIGHTS":
+        return results?.flights?.[0]?.type === "LIVE" ? "LIVE" : "ESTIMATE";
+      case "EARTHQUAKES":
+        return results?.events?.[0]?.properties?.place ? "LIVE" : "SIMULATED";
+      case "SATELLITE ORBITS":
+        return "LIVE";
+      case "BIKESHARE":
+        return results?.stations?.[0]?.station_id ? "LIVE" : "SIMULATED";
+      case "RADIO BROWSER":
+        return results?.stations?.[0]?.type === "LIVE" ? "LIVE" : "SIMULATED";
+      case "CCTV MONITOR":
+        return "SIMULATED";
+      default:
+        return "LIVE";
+    }
+  };
   // URL query updates
   const updateQueryParams = (lt, ln, zm, tb, st) => {
     const params = new URLSearchParams();
@@ -441,6 +481,7 @@ export default function GeoTracker() {
           if (map && L) {
             const markers = plotBikeshare(map, data, L);
             markersRef.current = markers;
+            map.setView([30.2680, -97.7420], 13);
           }
           break;
         case "RADIO BROWSER":
@@ -455,6 +496,7 @@ export default function GeoTracker() {
           setResults({ cameras: 3 });
           if (map && L) {
             plotCctvCameras(map, L);
+            map.setView([13.1682, 77.5354], 15);
           }
           break;
         case "SHIP TRACKER":
@@ -561,9 +603,9 @@ export default function GeoTracker() {
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{ padding: "8px 0", marginBottom: "8px", display: "flex", alignItems: "center" }}>
         <div style={{ color: "#ff0000", fontSize: "11px", letterSpacing: "3px" }}>
-          LIVE FLIGHT TRACKER — {results?.total || 0} AIRCRAFT DETECTED
+          {getHeaderTitle()}
         </div>
-        <DataIntegrityBadge state="LIVE" />
+        <DataIntegrityBadge state={getHeaderBadgeState()} />
       </div>
       <div style={{ position: "relative", flex: 1, minHeight: "450px" }}>
         {/* Leaflet Map */}
