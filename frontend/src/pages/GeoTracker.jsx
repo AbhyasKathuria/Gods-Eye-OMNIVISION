@@ -68,6 +68,7 @@ export default function GeoTracker() {
   const [mapCenter, setMapCenter] = useState([20, 0]);
   const [mapZoom, setMapZoom] = useState(2);
 
+  const [userCoords, setUserCoords] = useState(null);
   const mapRef = useRef(null);
   const leafletMapRef = useRef(null);
   const markersRef = useRef([]);
@@ -485,11 +486,16 @@ export default function GeoTracker() {
           }
           break;
         case "RADIO BROWSER":
-          data = await fetchRadioStations();
+          const uLat = userCoords ? userCoords[0] : null;
+          const uLon = userCoords ? userCoords[1] : null;
+          data = await fetchRadioStations(uLat, uLon);
           setResults({ stations: data, count: data.length });
           if (map && L) {
             const markers = plotRadioStations(map, data, L);
             markersRef.current = markers;
+            if (uLat !== null && uLon !== null) {
+              map.setView([uLat, uLon], 5);
+            }
           }
           break;
         case "CCTV MONITOR":
@@ -510,6 +516,20 @@ export default function GeoTracker() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserCoords([latitude, longitude]);
+        },
+        (error) => {
+          console.warn("Geolocation query failed or was denied:", error);
+        }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     loadData();
