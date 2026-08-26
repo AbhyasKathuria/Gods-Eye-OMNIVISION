@@ -1,9 +1,11 @@
-import axios from 'axios';
-
 export async function fetchMilitaryFlights() {
   try {
-    const response = await axios.get('https://api.adsb.one/v2/mil/');
-    const aircraft = response.data?.ac || [];
+    const response = await fetch('https://api.adsb.one/v2/mil/');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    const aircraft = data?.ac || [];
     return aircraft.slice(0, 50).map(ac => ({
       icao: ac.hex || "MIL-HEX",
       callsign: ac.flight ? ac.flight.trim() : "MILITARY",

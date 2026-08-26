@@ -1,9 +1,10 @@
-import axios from 'axios';
-
 export async function fetchSatellites() {
   try {
-    const issRes = await axios.get('https://api.wheretheiss.at/v1/satellites/25544');
-    const iss = issRes.data;
+    const response = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const iss = await response.json();
     
     const time = Date.now() / 1000;
     const sentinelLat = 50 * Math.sin(time / 1000);

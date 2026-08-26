@@ -151,9 +151,17 @@ export default function GeoTracker() {
       return;
     }
     if (micActive) {
-      recognition.stop();
+      try {
+        recognition.stop();
+      } catch (err) {
+        console.warn("Speech stop warning:", err);
+      }
     } else {
-      recognition.start();
+      try {
+        recognition.start();
+      } catch (err) {
+        console.warn("Speech start warning:", err);
+      }
     }
   };
 
@@ -957,7 +965,6 @@ export default function GeoTracker() {
               setActiveTab(tab);
               setResults(null);
               setInput("");
-              setSelectedFlight(null);
               if (leafletMapRef.current) {
                 // Keep the same map instance, do not remove
               }

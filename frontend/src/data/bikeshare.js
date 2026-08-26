@@ -1,12 +1,19 @@
-import axios from 'axios';
-
 export async function fetchBikeshare() {
   try {
-    const infoRes = await axios.get('https://gbfs.bcycle.com/bcycle_austin/station_information.json');
-    const statusRes = await axios.get('https://gbfs.bcycle.com/bcycle_austin/station_status.json');
+    const infoResponse = await fetch('https://gbfs.bcycle.com/bcycle_austin/station_information.json');
+    if (!infoResponse.ok) {
+      throw new Error(`HTTP error! station_information status: ${infoResponse.status}`);
+    }
+    const infoData = await infoResponse.json();
+
+    const statusResponse = await fetch('https://gbfs.bcycle.com/bcycle_austin/station_status.json');
+    if (!statusResponse.ok) {
+      throw new Error(`HTTP error! station_status status: ${statusResponse.status}`);
+    }
+    const statusData = await statusResponse.json();
     
-    const stationsInfo = infoRes.data?.data?.stations || [];
-    const stationsStatus = statusRes.data?.data?.stations || [];
+    const stationsInfo = infoData?.data?.stations || [];
+    const stationsStatus = statusData?.data?.stations || [];
     
     const statusMap = {};
     stationsStatus.forEach(s => {

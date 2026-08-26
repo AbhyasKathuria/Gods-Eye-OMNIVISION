@@ -1,9 +1,11 @@
-import axios from 'axios';
-
 export async function fetchRadioStations() {
   try {
-    const response = await axios.get('https://de1.api.radio-browser.info/json/stations/topclick/30');
-    return response.data
+    const response = await fetch('https://de1.api.radio-browser.info/json/stations/topclick/30');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data
       .filter(s => s.geo_lat && s.geo_long)
       .map(s => ({
         name: s.name,
