@@ -6,6 +6,9 @@ export async function fetchMilitaryFlights() {
     }
     const data = await response.json();
     const aircraft = data?.ac || [];
+    if (aircraft.length === 0) {
+      throw new Error("No live military flights found in raw response");
+    }
     return aircraft.slice(0, 50).map(ac => ({
       icao: ac.hex || "MIL-HEX",
       callsign: ac.flight ? ac.flight.trim() : "MILITARY",

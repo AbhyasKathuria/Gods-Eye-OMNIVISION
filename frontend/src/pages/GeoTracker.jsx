@@ -485,9 +485,9 @@ export default function GeoTracker() {
     if (leafletMapRef.current) {
       setTimeout(() => {
         leafletMapRef.current.invalidateSize();
-      }, 50);
+      }, 100);
     }
-  }, [activeTab]);
+  }, [activeTab, loading]);
 
   const handleSearch = async (overrideInput = null, overrideLat = null, overrideLon = null, overrideTab = null) => {
     const searchInput = overrideInput !== null ? overrideInput : input;
