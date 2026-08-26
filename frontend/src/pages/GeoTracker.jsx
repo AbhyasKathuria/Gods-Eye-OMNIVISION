@@ -486,17 +486,22 @@ export default function GeoTracker() {
     }
   }, [activeTab]);
 
-  const handleSearch = async () => {
-    if (!input.trim() && !lat && !lon) return;
+  const handleSearch = async (overrideInput = null, overrideLat = null, overrideLon = null, overrideTab = null) => {
+    const searchInput = overrideInput !== null ? overrideInput : input;
+    const searchLat = overrideLat !== null ? overrideLat : lat;
+    const searchLon = overrideLon !== null ? overrideLon : lon;
+    const searchTab = overrideTab !== null ? overrideTab : activeTab;
+
+    if (!searchInput.trim() && !searchLat && !searchLon) return;
     setLoading(true);
     setResults(null);
     setError(null);
 
     try {
       let res;
-      switch (activeTab) {
+      switch (searchTab) {
         case "LOCATION SEARCH":
-          res = await axios.get(`${API}/geo/geocode?query=${encodeURIComponent(input)}`);
+          res = await axios.get(`${API}/geo/geocode?query=${encodeURIComponent(searchInput)}`);
           setResults(res.data.data);
           if (res.data.data.results?.length > 0 && leafletMapRef.current) {
             const first = res.data.data.results[0];
@@ -504,23 +509,23 @@ export default function GeoTracker() {
           }
           break;
         case "SATELLITE VIEW":
-          if (lat && lon) {
-            res = await axios.get(`${API}/geo/reverse?lat=${lat}&lon=${lon}`);
+          if (searchLat && searchLon) {
+            res = await axios.get(`${API}/geo/reverse?lat=${searchLat}&lon=${searchLon}`);
             setResults(res.data);
             if (leafletMapRef.current) {
-              leafletMapRef.current.flyTo([parseFloat(lat), parseFloat(lon)], 14);
+              leafletMapRef.current.flyTo([parseFloat(searchLat), parseFloat(searchLon)], 14);
             }
           }
           break;
         case "WEATHER":
-          if (lat && lon) {
-            res = await axios.get(`${API}/geo/weather?lat=${lat}&lon=${lon}`);
+          if (searchLat && searchLon) {
+            res = await axios.get(`${API}/geo/weather?lat=${searchLat}&lon=${searchLon}`);
             setResults(res.data.data);
             if (leafletMapRef.current) {
-              leafletMapRef.current.flyTo([parseFloat(lat), parseFloat(lon)], 10);
+              leafletMapRef.current.flyTo([parseFloat(searchLat), parseFloat(searchLon)], 10);
             }
           } else {
-            const geo = await axios.get(`${API}/geo/geocode?query=${encodeURIComponent(input)}`);
+            const geo = await axios.get(`${API}/geo/geocode?query=${encodeURIComponent(searchInput)}`);
             if (geo.data.data.results?.length > 0) {
               const loc = geo.data.data.results[0];
               res = await axios.get(`${API}/geo/weather?lat=${loc.latitude}&lon=${loc.longitude}`);
@@ -1066,10 +1071,17 @@ export default function GeoTracker() {
           QUICK PRESETS
         </div>
         {[
-          { label: "London Radio Stations", action: () => { setActiveTab("RADIO BROWSER"); if (leafletMapRef.current) leafletMapRef.current.flyTo([51.5074, -0.1278], 10); }},
-          { label: "Austin CCTV Networks", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.flyTo([30.2680, -97.7420], 13); }},
-          { label: "India Weather Scanner", action: () => { setActiveTab("WEATHER"); setInput("Mumbai"); handleSearch(); }},
-          { label: "Global Earthquakes", action: () => { setActiveTab("EARTHQUAKES"); if (leafletMapRef.current) leafletMapRef.current.setView([20, 0], 2); }},
+          { label: "[FLIGHTS] US Airspace Feed", action: () => { setActiveTab("LIVE FLIGHTS"); setInput(""); if (leafletMapRef.current) leafletMapRef.current.setView([39.8283, -98.5795], 4); }},
+          { label: "[MILITARY] Area 51 Tracks", action: () => { setActiveTab("MILITARY FLIGHTS"); setInput(""); if (leafletMapRef.current) leafletMapRef.current.setView([37.235, -115.811], 10); }},
+          { label: "[SHIPS] English Channel Traffic", action: () => { setActiveTab("SHIP TRACKER"); }},
+          { label: "[SEISMIC] Pacific Ring of Fire", action: () => { setActiveTab("EARTHQUAKES"); if (leafletMapRef.current) leafletMapRef.current.setView([20, 0], 2); }},
+          { label: "[ORBITS] ISS Satellite Path", action: () => { setActiveTab("SATELLITE ORBITS"); if (leafletMapRef.current) leafletMapRef.current.setView([20, 0], 2); }},
+          { label: "[BIKES] Austin B-Cycle Hubs", action: () => { setActiveTab("BIKESHARE"); if (leafletMapRef.current) leafletMapRef.current.setView([30.2680, -97.7420], 13); }},
+          { label: "[RADIO] London Nodes", action: () => { setActiveTab("RADIO BROWSER"); if (leafletMapRef.current) leafletMapRef.current.setView([51.5074, -0.1278], 10); }},
+          { label: "[SURVEILLANCE] Austin CCTV Cones", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.setView([30.2680, -97.7420], 13); }},
+          { label: "[SEARCH] Find Presidency University", action: () => { setActiveTab("LOCATION SEARCH"); setInput("Presidency University Bangalore"); handleSearch("Presidency University Bangalore", null, null, "LOCATION SEARCH"); }},
+          { label: "[SATELLITE] Pyramids of Giza", action: () => { setActiveTab("SATELLITE VIEW"); setLat("29.9792"); setLon("31.1342"); handleSearch("", "29.9792", "31.1342", "SATELLITE VIEW"); }},
+          { label: "[WEATHER] Mumbai Scanner", action: () => { setActiveTab("WEATHER"); setInput("Mumbai"); handleSearch("Mumbai", null, null, "WEATHER"); }},
         ].map((t, i) => (
           <button key={i} onClick={t.action}
             style={{
