@@ -67,7 +67,7 @@ export default function GeoTracker() {
   // Maps & Telemetry
   const [mapCenter, setMapCenter] = useState([20, 0]);
   const [mapZoom, setMapZoom] = useState(2);
-  const [cursorCoords, setCursorCoords] = useState([0, 0]);
+
   const mapRef = useRef(null);
   const leafletMapRef = useRef(null);
   const markersRef = useRef([]);
@@ -250,13 +250,11 @@ export default function GeoTracker() {
     flightData.forEach(f => {
       if (!f.latitude || !f.longitude) return;
       const icon = L.divIcon({
-        html: `<div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;cursor:pointer">
-                 <div style="color:#ff0000;font-size:16px;transform:rotate(${f.heading || 0}deg)">&#9992;</div>
-               </div>`,
+        html: `<div style="color:#ff0000;font-size:18px;transform:rotate(${f.heading || 0}deg);width:30px;height:30px;line-height:30px;text-align:center;cursor:pointer">&#9992;</div>`,
         className: "",
-        iconSize: [40, 40],
-        iconAnchor: [20, 20],
-        popupAnchor: [0, -20]
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -15]
       });
       const marker = L.marker([f.latitude, f.longitude], { icon })
         .bindPopup(`
@@ -291,13 +289,11 @@ export default function GeoTracker() {
     
     cameras.forEach(cam => {
       const icon = L.divIcon({
-        html: `<div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;cursor:pointer">
-                 <div style="color:#ff0033;font-size:16px;font-weight:bold;text-shadow:0 0 4px #f00">📹</div>
-               </div>`,
+        html: `<div style="color:#ff0033;font-size:18px;font-weight:bold;text-shadow:0 0 4px #f00;width:30px;height:30px;line-height:30px;text-align:center;cursor:pointer">📹</div>`,
         className: "",
-        iconSize: [40, 40],
-        iconAnchor: [20, 20],
-        popupAnchor: [0, -20]
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -15]
       });
       
       const marker = L.marker([cam.lat, cam.lon], { icon }).addTo(map);
@@ -364,7 +360,10 @@ export default function GeoTracker() {
     
     // Map event listeners
     map.on("mousemove", (e) => {
-      setCursorCoords([e.latlng.lat, e.latlng.lng]);
+      const el = document.getElementById("hud-cursor-coords");
+      if (el) {
+        el.textContent = `CURSOR: [${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}]`;
+      }
     });
     
     map.on("moveend", () => {
@@ -645,7 +644,7 @@ export default function GeoTracker() {
           {/* Bottom Panel HUD */}
           <div style={{ display: "flex", justifyContent: "space-between", background: "rgba(0,0,0,0.6)", padding: "4px 8px", border: "1px solid rgba(0,255,200,0.2)" }}>
             <div>SECTOR CTR: [{mapCenter[0].toFixed(4)}, {mapCenter[1].toFixed(4)}]</div>
-            <div>CURSOR: [{cursorCoords[0].toFixed(4)}, {cursorCoords[1].toFixed(4)}]</div>
+            <div id="hud-cursor-coords">CURSOR: [0.0000, 0.0000]</div>
             <div>GRID_LOCK: SEC_ALPHA</div>
           </div>
         </div>
