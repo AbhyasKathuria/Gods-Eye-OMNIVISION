@@ -322,18 +322,18 @@ export default function GeoTracker() {
     }
     
     const cameras = [
-      { id: "CAM-01", name: "6th & Congress Ave Intersection (Austin)", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003 },
-      { id: "CAM-02", name: "Texas State Capitol North (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032 },
-      { id: "CAM-03", name: "Zilker Park Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035 },
-      { id: "CAM-04", name: "Presidency University Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003 },
-      { id: "CAM-05", name: "Presidency University Library (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025 },
-      { id: "CAM-06", name: "Trafalgar Square South Cam (London)", lat: 51.5080, lon: -0.1280, angle: 220, radius: 0.0035 },
-      { id: "CAM-07", name: "Tower Bridge East Bypass (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038 },
-      { id: "CAM-08", name: "Shibuya Crossing Main Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003 },
-      { id: "CAM-09", name: "Tokyo Skytree Observatory (Tokyo)", lat: 35.7100, lon: 139.8107, angle: 180, radius: 0.004 },
-      { id: "CAM-10", name: "Eiffel Tower Esplanade (Paris)", lat: 48.8583, lon: 2.2945, angle: 120, radius: 0.0035 },
-      { id: "CAM-11", name: "Champs-Élysées East Flow (Paris)", lat: 48.8700, lon: 2.3050, angle: 270, radius: 0.0036 },
-      { id: "CAM-12", name: "Opera House Forecourt (Sydney)", lat: -33.8568, lon: 151.2153, angle: 45, radius: 0.0032 }
+      { id: "CAM-01", name: "6th & Congress Ave Intersection (Austin)", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003, realImg: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-02", name: "Texas State Capitol North (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032, realImg: "https://images.unsplash.com/photo-1588694889700-1c3905cfc4ba?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-03", name: "Zilker Park Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-04", name: "Presidency University Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003, realImg: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-05", name: "Presidency University Library (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025, realImg: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-06", name: "Trafalgar Square South Cam (London)", lat: 51.5080, lon: -0.1280, angle: 220, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-07", name: "Tower Bridge East Bypass (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038, realImg: "https://images.unsplash.com/photo-1513635269975-59663e0ca1ad?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-08", name: "Shibuya Crossing Main Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003, realImg: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-09", name: "Tokyo Skytree Observatory (Tokyo)", lat: 35.7100, lon: 139.8107, angle: 180, radius: 0.004, realImg: "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-10", name: "Eiffel Tower Esplanade (Paris)", lat: 48.8583, lon: 2.2945, angle: 120, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-11", name: "Champs-Élysées East Flow (Paris)", lat: 48.8700, lon: 2.3050, angle: 270, radius: 0.0036, realImg: "https://images.unsplash.com/photo-1522093007474-d86e9b79443a?auto=format&fit=crop&w=200&q=80" },
+      { id: "CAM-12", name: "Opera House Forecourt (Sydney)", lat: -33.8568, lon: 151.2153, angle: 45, radius: 0.0032, realImg: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=200&q=80" }
     ];
     
     cameras.forEach(cam => {
@@ -351,8 +351,16 @@ export default function GeoTracker() {
           <div style="color:#ff0033;font-weight:bold;margin-bottom:4px">CCTV FEED (SIMULATED)</div>
           <div>CAMERA ID: ${cam.id}</div>
           <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">LOC: ${cam.name}</div>
+          
+          <!-- Tactical / Real View Toggles -->
+          <div style="display:flex;margin:6px 0;border:1px solid #440000;font-size:8px;background:#0d0000;font-family:Courier New">
+            <div id="cctv-btn-tac-${cam.id}" style="flex:1;text-align:center;padding:3px;background:#ff0033;color:#000;cursor:pointer;font-weight:bold;transition:all 0.2s">TACTICAL</div>
+            <div id="cctv-btn-real-${cam.id}" style="flex:1;text-align:center;padding:3px;color:#ff0033;cursor:pointer;transition:all 0.2s">REAL VIEW</div>
+          </div>
+          
           <div style="margin-top:6px;position:relative;height:80px;background:#000;overflow:hidden;border:1px solid #333">
             <canvas id="cctv-canvas-${cam.id}" width="182" height="80" style="display:block"></canvas>
+            <img id="cctv-img-${cam.id}" src="${cam.realImg}" style="display:none;width:100%;height:100%;object-fit:cover;filter:contrast(1.1) brightness(0.9)" />
           </div>
           <div style="font-size:8px;color:#888;margin-top:4px">CONE OF VIEWSHED DISPLAYED ON MAP</div>
         </div>
@@ -380,9 +388,36 @@ export default function GeoTracker() {
         
         cctvPolygonRef.current = polygon;
 
-        // Initialize canvas animation inside the popup
+        // Toggle handling
         setTimeout(() => {
+          const btnTac = document.getElementById(`cctv-btn-tac-${cam.id}`);
+          const btnReal = document.getElementById(`cctv-btn-real-${cam.id}`);
           const canvas = document.getElementById(`cctv-canvas-${cam.id}`);
+          const img = document.getElementById(`cctv-img-${cam.id}`);
+
+          if (btnTac && btnReal && canvas && img) {
+            btnTac.onclick = () => {
+              canvas.style.display = "block";
+              img.style.display = "none";
+              btnTac.style.background = "#ff0033";
+              btnTac.style.color = "#000";
+              btnTac.style.fontWeight = "bold";
+              btnReal.style.background = "transparent";
+              btnReal.style.color = "#ff0033";
+            };
+
+            btnReal.onclick = () => {
+              canvas.style.display = "none";
+              img.style.display = "block";
+              btnReal.style.background = "#ff0033";
+              btnReal.style.color = "#000";
+              btnReal.style.fontWeight = "bold";
+              btnTac.style.background = "transparent";
+              btnTac.style.color = "#ff0033";
+            };
+          }
+
+          // Initialize canvas animation inside the popup
           if (canvas) {
             const ctx = canvas.getContext("2d");
             let animationId;
