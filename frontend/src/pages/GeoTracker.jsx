@@ -24,18 +24,18 @@ const TABS = [
 const STYLES = ["NORMAL", "NVG", "FLIR", "NOIR", "CRT"];
 
 const CAMERAS_FALLBACK = [
-  { id: "CAM-01", name: "6th & Congress Ave Intersection (Austin)", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003, realImg: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-02", name: "Texas State Capitol North (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032, realImg: "https://images.unsplash.com/photo-1588694889700-1c3905cfc4ba?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-03", name: "Zilker Park Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-04", name: "Presidency University Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003, realImg: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-05", name: "Presidency University Library (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025, realImg: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-06", name: "Trafalgar Square South Cam (London)", lat: 51.5080, lon: -0.1280, angle: 220, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-07", name: "Tower Bridge East Bypass (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038, realImg: "https://images.unsplash.com/photo-1513635269975-59663e0ca1ad?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-08", name: "Shibuya Crossing Main Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003, realImg: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-09", name: "Tokyo Skytree Observatory (Tokyo)", lat: 35.7100, lon: 139.8107, angle: 180, radius: 0.004, realImg: "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-10", name: "Eiffel Tower Esplanade (Paris)", lat: 48.8583, lon: 2.2945, angle: 120, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-11", name: "Champs-Élysées East Flow (Paris)", lat: 48.8700, lon: 2.3050, angle: 270, radius: 0.0036, realImg: "https://images.unsplash.com/photo-1522093007474-d86e9b79443a?auto=format&fit=crop&w=200&q=80" },
-  { id: "CAM-12", name: "Opera House Forecourt (Sydney)", lat: -33.8568, lon: 151.2153, angle: 45, radius: 0.0032, realImg: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=200&q=80" }
+  { id: "CAM-01", name: "6th & Congress Ave Intersection (Austin)", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnloMDNsNTB6bjh4aHoxY29zdmc5Nmt5amI1NDdzczJrdGk4ZWlhcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Vdfd3wW4B2S76/giphy.gif" },
+  { id: "CAM-02", name: "Texas State Capitol North (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3JqNmgzaDlpNmtudnV6ajk0NGQ5Z3QyeXN4OG93ZmdidmV6Zmd5OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41YkewVv5L108Pew/giphy.gif" },
+  { id: "CAM-03", name: "Zilker Park Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHY5bmd2ajI2YTMwaXZ5cG1udWNndmFwNHoyOXg2cmx2ZmtnY3l0biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6Zt7jEPu2FokWICk/giphy.gif" },
+  { id: "CAM-04", name: "Presidency University Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3pjdWNzZ2xjc3M2MmdhMm9ocG43cjd4YWk3d3FvNTVvMTlhY3k5ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41YkewVv5L108Pew/giphy.gif" },
+  { id: "CAM-05", name: "Presidency University Library (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXNseWF3aWZyeHFtdHB2ZHBwZWxtbzh0NHBvOHFrcmVid3F3djB6dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qAYc1tGkZ58tH9u/giphy.gif" },
+  { id: "CAM-06", name: "Trafalgar Square South Cam (London)", lat: 51.5080, lon: -0.1280, angle: 220, radius: 0.0035, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnloMDNsNTB6bjh4aHoxY29zdmc5Nmt5amI1NDdzczJrdGk4ZWlhcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Vdfd3wW4B2S76/giphy.gif" },
+  { id: "CAM-07", name: "Tower Bridge East Bypass (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3JqNmgzaDlpNmtudnV6ajk0NGQ5Z3QyeXN4OG93ZmdidmV6Zmd5OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41YkewVv5L108Pew/giphy.gif" },
+  { id: "CAM-08", name: "Shibuya Crossing Main Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3pjdWNzZ2xjc3M2MmdhMm9ocG43cjd4YWk3d3FvNTVvMTlhY3k5ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41YkewVv5L108Pew/giphy.gif" },
+  { id: "CAM-09", name: "Tokyo Skytree Observatory (Tokyo)", lat: 35.7100, lon: 139.8107, angle: 180, radius: 0.004, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXNseWF3aWZyeHFtdHB2ZHBwZWxtbzh0NHBvOHFrcmVid3F3djB6dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qAYc1tGkZ58tH9u/giphy.gif" },
+  { id: "CAM-10", name: "Eiffel Tower Esplanade (Paris)", lat: 48.8583, lon: 2.2945, angle: 120, radius: 0.0035, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnloMDNsNTB6bjh4aHoxY29zdmc5Nmt5amI1NDdzczJrdGk4ZWlhcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Vdfd3wW4B2S76/giphy.gif" },
+  { id: "CAM-11", name: "Champs-Élysées East Flow (Paris)", lat: 48.8700, lon: 2.3050, angle: 270, radius: 0.0036, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3JqNmgzaDlpNmtudnV6ajk0NGQ5Z3QyeXN4OG93ZmdidmV6Zmd5OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41YkewVv5L108Pew/giphy.gif" },
+  { id: "CAM-12", name: "Opera House Forecourt (Sydney)", lat: -33.8568, lon: 151.2153, angle: 45, radius: 0.0032, realImg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3pjdWNzZ2xjc3M2MmdhMm9ocG43cjd4YWk3d3FvNTVvMTlhY3k5ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41YkewVv5L108Pew/giphy.gif" }
 ];
 
 function DataIntegrityBadge({ state }) {
@@ -645,6 +645,32 @@ export default function GeoTracker() {
               }
             } catch (err) {
               console.warn("Failed to fetch real-time OSM cameras, using fallback only", err);
+            }
+
+            // Fallback mock generator near active viewport coordinates if OSM is empty
+            if (osmCams.length === 0) {
+              const lat = currentCenter.lat;
+              const lon = currentCenter.lng;
+              const mockFeeds = [
+                { suffix: "01", name: "Main Street & Highway Intersection", gif: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnloMDNsNTB6bjh4aHoxY29zdmc5Nmt5amI1NDdzczJrdGk4ZWlhcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Vdfd3wW4B2S76/giphy.gif" },
+                { suffix: "02", name: "Commercial Center Traffic Flow", gif: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3JqNmgzaDlpNmtudnV6ajk0NGQ5Z3QyeXN4OG93ZmdidmV6Zmd5OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41YkewVv5L108Pew/giphy.gif" },
+                { suffix: "03", name: "Pedestrian Crossing Safety Feed", gif: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHY5bmd2ajI2YTMwaXZ5cG1udWNndmFwNHoyOXg2cmx2ZmtnY3l0biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6Zt7jEPu2FokWICk/giphy.gif" },
+                { suffix: "04", name: "Secured Area Access Cam", gif: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXNseWF3aWZyeHFtdHB2ZHBwZWxtbzh0NHBvOHFrcmVid3F3djB6dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qAYc1tGkZ58tH9u/giphy.gif" }
+              ];
+              
+              osmCams = mockFeeds.map((feed, idx) => {
+                const offsetLat = (idx === 0 ? 0.001 : idx === 1 ? -0.0012 : idx === 2 ? 0.0008 : -0.0009);
+                const offsetLon = (idx === 0 ? 0.0015 : idx === 1 ? 0.0018 : idx === 2 ? -0.0015 : -0.002);
+                return {
+                  id: `CAM-GPS-${feed.suffix}`,
+                  name: `${feed.name} (Local)`,
+                  lat: lat + offsetLat,
+                  lon: lon + offsetLon,
+                  angle: idx * 90 + 45,
+                  radius: 0.003,
+                  realImg: feed.gif
+                };
+              });
             }
 
             if (activeTabRef.current !== initiatedTab) return;

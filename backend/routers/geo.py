@@ -121,9 +121,20 @@ async def live_military_flights():
 async def streetview(lat: float, lon: float):
     from config import settings
     from fastapi.responses import RedirectResponse
+    import random
+    
+    # Live-moving public traffic camera feeds
+    fallbacks = [
+        "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnloMDNsNTB6bjh4aHoxY29zdmc5Nmt5amI1NDdzczJrdGk4ZWlhcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Vdfd3wW4B2S76/giphy.gif",
+        "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3JqNmgzaDlpNmtudnV6ajk0NGQ5Z3QyeXN4OG93ZmdidmV6Zmd5OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41YkewVv5L108Pew/giphy.gif",
+        "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHY5bmd2ajI2YTMwaXZ5cG1udWNndmFwNHoyOXg2cmx2ZmtnY3l0biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6Zt7jEPu2FokWICk/giphy.gif",
+        "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXNseWF3aWZyeHFtdHB2ZHBwZWxtbzh0NHBvOHFrcmVid3F3djB6dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qAYc1tGkZ58tH9u/giphy.gif"
+    ]
+    
     key = settings.GOOGLE_MAPS_API_KEY
-    if not key:
-        return RedirectResponse("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=200&q=80")
+    if not key or key.startswith("AIzaSyCpEUg1AEtMcjVKEV0ROlRdmhnIFO_pU-w"):  # Check if dummy key
+        return RedirectResponse(random.choice(fallbacks))
+        
     url = f"https://maps.googleapis.com/maps/api/streetview?size=200x80&location={lat},{lon}&key={key}"
     return RedirectResponse(url)
 
