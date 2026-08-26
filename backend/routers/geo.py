@@ -11,6 +11,7 @@ from services.geo_service import (
 )
 from services.claude_service import generate_geo_report
 import pathlib
+import httpx
 from dotenv import load_dotenv
 
 env_path = pathlib.Path(__file__).parent.parent / ".env"
@@ -101,3 +102,16 @@ async def satellite(lat: float, lon: float):
         return {"status": "success", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/military-flights")
+async def live_military_flights():
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            resp = await client.get('https://api.adsb.one/v2/mil/')
+            if resp.status_code == 200:
+                return resp.json()
+            else:
+                return {"ac": []}
+    except Exception:
+        return {"ac": []}

@@ -1,6 +1,6 @@
 export async function fetchMilitaryFlights() {
   try {
-    const response = await fetch('https://api.adsb.one/v2/mil/');
+    const response = await fetch('http://localhost:8000/geo/military-flights');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
