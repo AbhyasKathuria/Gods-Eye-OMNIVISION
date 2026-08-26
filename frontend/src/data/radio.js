@@ -33,9 +33,13 @@ export function plotRadioStations(map, stations, L) {
   stations.forEach(s => {
     if (!s.latitude || !s.longitude) return;
     const icon = L.divIcon({
-      html: `<div style="color:#ff00ff;font-size:12px;background:#0d0000;border:1px solid #ff00ff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center">📻</div>`,
+      html: `<div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;cursor:pointer">
+               <div style="color:#ff00ff;font-size:12px;background:#0d0000;border:1px solid #ff00ff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center">📻</div>
+             </div>`,
       className: "",
-      iconSize: [18, 18],
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, -20]
     });
     
     const marker = L.marker([s.latitude, s.longitude], { icon }).bindPopup(`

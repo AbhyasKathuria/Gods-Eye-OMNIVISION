@@ -49,9 +49,13 @@ export function plotBikeshare(map, stations, L) {
     const docks = s.status?.num_docks_available !== undefined ? s.status.num_docks_available : 10;
     
     const icon = L.divIcon({
-      html: `<div style="color:#00ffff;font-size:10px;background:#060000;border:1px solid #00ffff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-weight:bold">${available}</div>`,
+      html: `<div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;cursor:pointer">
+               <div style="color:#00ffff;font-size:10px;background:#060000;border:1px solid #00ffff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-weight:bold">${available}</div>
+             </div>`,
       className: "",
-      iconSize: [18, 18],
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, -20]
     });
     
     const marker = L.marker([lat, lon], { icon }).bindPopup(`

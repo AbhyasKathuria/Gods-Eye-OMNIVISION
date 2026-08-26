@@ -36,9 +36,13 @@ export function plotMilitaryFlights(map, flights, L) {
     
     const isLive = f.type === "LIVE";
     const icon = L.divIcon({
-      html: `<div style="color:#ffaa00;font-size:14px;font-weight:bold;transform:rotate(${f.heading || 0}deg)">✈</div>`,
+      html: `<div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;cursor:pointer">
+               <div style="color:#ffaa00;font-size:16px;font-weight:bold;transform:rotate(${f.heading || 0}deg)">✈</div>
+             </div>`,
       className: "",
-      iconSize: [20, 20],
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, -20]
     });
     
     const marker = L.marker([f.latitude, f.longitude], { icon }).bindPopup(`

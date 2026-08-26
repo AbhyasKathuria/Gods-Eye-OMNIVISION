@@ -250,9 +250,13 @@ export default function GeoTracker() {
     flightData.forEach(f => {
       if (!f.latitude || !f.longitude) return;
       const icon = L.divIcon({
-        html: `<div style="color:#ff0000;font-size:14px;transform:rotate(${f.heading || 0}deg)">&#9992;</div>`,
+        html: `<div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;cursor:pointer">
+                 <div style="color:#ff0000;font-size:16px;transform:rotate(${f.heading || 0}deg)">&#9992;</div>
+               </div>`,
         className: "",
-        iconSize: [20, 20],
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -20]
       });
       const marker = L.marker([f.latitude, f.longitude], { icon })
         .bindPopup(`
@@ -287,9 +291,13 @@ export default function GeoTracker() {
     
     cameras.forEach(cam => {
       const icon = L.divIcon({
-        html: `<div style="color:#ff0033;font-size:16px;font-weight:bold;text-shadow:0 0 4px #f00">📹</div>`,
+        html: `<div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;cursor:pointer">
+                 <div style="color:#ff0033;font-size:16px;font-weight:bold;text-shadow:0 0 4px #f00">📹</div>
+               </div>`,
         className: "",
-        iconSize: [20, 20],
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -20]
       });
       
       const marker = L.marker([cam.lat, cam.lon], { icon }).addTo(map);
