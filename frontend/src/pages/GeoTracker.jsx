@@ -250,11 +250,9 @@ export default function GeoTracker() {
     flightData.forEach(f => {
       if (!f.latitude || !f.longitude) return;
       const icon = L.divIcon({
-        html: `<div style="color:#ff0000;font-size:18px;transform:rotate(${f.heading || 0}deg);width:30px;height:30px;line-height:30px;text-align:center;cursor:pointer">&#9992;</div>`,
+        html: `<div style="color:#ff0000;font-size:14px;transform:rotate(${f.heading || 0}deg)">&#9992;</div>`,
         className: "",
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-        popupAnchor: [0, -15]
+        iconSize: [20, 20],
       });
       const marker = L.marker([f.latitude, f.longitude], { icon })
         .bindPopup(`
@@ -266,7 +264,7 @@ export default function GeoTracker() {
             <div>HEADING: ${f.heading ? Math.round(f.heading) + "deg" : "N/A"}</div>
             <div>ON GROUND: ${f.on_ground ? "YES" : "NO"}</div>
           </div>
-        `, { autoPan: false })
+        `)
         .addTo(map);
       markersRef.current.push(marker);
     });
@@ -289,11 +287,9 @@ export default function GeoTracker() {
     
     cameras.forEach(cam => {
       const icon = L.divIcon({
-        html: `<div style="color:#ff0033;font-size:18px;font-weight:bold;text-shadow:0 0 4px #f00;width:30px;height:30px;line-height:30px;text-align:center;cursor:pointer">📹</div>`,
+        html: `<div style="color:#ff0033;font-size:16px;font-weight:bold;text-shadow:0 0 4px #f00">📹</div>`,
         className: "",
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-        popupAnchor: [0, -15]
+        iconSize: [20, 20],
       });
       
       const marker = L.marker([cam.lat, cam.lon], { icon }).addTo(map);
@@ -334,7 +330,7 @@ export default function GeoTracker() {
             </div>
             <div style="font-size:8px;color:#888;margin-top:4px">CONE OF VIEWSHED DISPLAYED ON MAP</div>
           </div>
-        `, { autoPan: false }).openPopup();
+        `).openPopup();
       });
     });
   };

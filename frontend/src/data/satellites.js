@@ -98,11 +98,9 @@ export function plotSatellites(map, satellites, L) {
     markers.push(polyline);
     
     const icon = L.divIcon({
-      html: `<div style="color:${isLive ? '#00ff00' : '#ffff00'};font-size:16px;font-weight:bold;transform:rotate(45deg);width:30px;height:30px;line-height:30px;text-align:center;cursor:pointer">✦</div>`,
+      html: `<div style="color:${isLive ? '#00ff00' : '#ffff00'};font-size:14px;font-weight:bold;transform:rotate(45deg)">✦</div>`,
       className: "",
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
-      popupAnchor: [0, -15]
+      iconSize: [16, 16],
     });
     
     const marker = L.marker([lat, lon], { icon }).bindPopup(`
@@ -114,7 +112,7 @@ export function plotSatellites(map, satellites, L) {
         <div>ALTITUDE: ${sat.altitude.toFixed(1)} km</div>
         <div>VELOCITY: ${sat.velocity.toFixed(0)} km/h</div>
       </div>
-    `, { autoPan: false }).addTo(map);
+    `).addTo(map);
     
     markers.push(marker);
   });
