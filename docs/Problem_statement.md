@@ -61,7 +61,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
                   ┌──────────────────────────────┐
                   │         USER BROWSER         │
                   └──────────────┬───────────────┘
-                                 │ HTTP / JSON
+                                 │ HTTP / JSON (Map Telemetry Grounding)
                                  ▼
                   ┌──────────────────────────────┐
                   │    React 18 + Vite (5173)    │
@@ -82,16 +82,16 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
                     │            │             │
                     ▼            ▼             ▼
              ┌────────────────────────────────────────┐
-             │       45+ External APIs (Async)        │
+             │       50+ External APIs (Async)        │
              │  Groq (LLaMA 3.3), VirusTotal, Shodan, │
-             │  OpenSky, LeakCheck, GDELT, etc.       │
+             │  OpenSky, LeakCheck, USGS, CelesTrak   │
              └────────────────────────────────────────┘
 ```
 
 ### 3.1 Tech Stack Breakdown
-* **Frontend:** React 18, Vite, Tailwind CSS, Leaflet.js, OpenStreetMap, HTML5 Canvas/SVG graphs.
-* **Backend:** Python 3.10+, FastAPI (Asynchronous ASGI), Uvicorn, Python PIL (Pillow), PyJWT, bcrypt, httpx.
-* **AI Engine:** LLaMA 3.3 70B via Groq API (main intelligence analyst persona) and Google Gemini (backup).
+* **Frontend:** React 18, Vite, Tailwind CSS, Leaflet.js, OpenStreetMap, HTML5 Canvas/SVG relationship graphs.
+* **Backend:** Python 3.10+, FastAPI (Asynchronous ASGI), Uvicorn, Python PIL (Pillow), PyJWT, bcrypt, httpx, pydantic-settings.
+* **Deployment & CI:** Docker, Docker Compose, GitHub Actions.
 * **Concurrency Model:** Uses `asyncio.gather()` to launch parallel API requests. A face scan that hits Luxand, Face++, SauceNAO, and Yandex simultaneously completes in **~5 seconds** instead of **~20 seconds** sequentially.
 
 ---
@@ -104,7 +104,8 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
   * `admin / admin123` (Full access, log monitoring, settings).
   * `researcher / research123` (Module access, audit logs, playbooks).
   * `student / student123` (Intelligence modules only, zero admin logs).
-* **Usage:** Users must read and check the **Ethics Agreement** before initiating access. JWT tokens expire automatically after 8 hours.
+* **Security Lock:** Accessing default credentials on initial launch triggers a mandatory security reset modal that blocks dashboard navigation until the operator inputs a custom password.
+* **Usage:** Users must read and check the **Ethics Agreement** before initiating access. JWT tokens expire automatically after 8 hours. Credentials are encrypted using salted `bcrypt` hashes and dynamically seeded to the gitignored `database/users.json` file.
 * **Theme Switching (Stealth Mode):** Toggled in the Navbar.
   * *God's Eye Mode:* High-contrast black and crimson theme, modeled after military tactical interfaces.
   * *Analyst Mode:* High-contrast professional blue/grey layout, suitable for corporate or government briefing environments.
@@ -116,7 +117,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 * **Features:**
   * Interactive 3D vector-style globe with rotating scanner sweep and real-time incident markers.
   * Live feed updating every 2.5 seconds with simulated and real threat feeds.
-  * API health summary, system activity trackers, and quick navigation modules.
+  * API health summary, system activity trackers, and 14 module quick-access cards.
 * **Operational Action:** Use the dashboard as the starting point of your shift to scan for globally trending cyber incidents or check overall API quota usage.
 
 ---
@@ -129,6 +130,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 * **Operational Action:** Identify unknown target portraits or perform background checks on physical targets.
   > [!TIP]
   > Ensure files are uploaded as JPEG or PNG. High-resolution images are automatically resized by Pillow to conserve bandwidth before API upload.
+* *Note: Completely clean of real people's portraits in sample fixtures, utilizing generic avatars.*
 
 ---
 
@@ -136,7 +138,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 * **Path:** `/cyber`
 * **Features:**
   * **IP Tracker:** Fetches exact coordinates, ISP info, AbuseIPDB confidence score, and VirusTotal flags.
-  * **Domain Investigator:** Pulls WHOIS registration records, name servers, Google DNS responses, and URLScan.io live page renders.
+  * **Domain Investigator:** Pulls WHOIS registration records, name servers, Google DNS responses, URLScan.io live page renders, and **URLhaus malware threat database** host listings.
   * **Shodan Explorer:** Performs direct search queries on Shodan database (e.g., `webcam port:80` or `mongodb`).
   * **Breach Checker:** Looks up email addresses in LeakCheck.io to check for public database leaks.
 * **Operational Action:** Triage security incidents by analyzing malicious IPs, investigating malicious links, or auditing vulnerable local ports.
@@ -146,9 +148,19 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 ### 4.5 Module 4: Geo Tracker
 * **Path:** `/geo`
 * **Features:**
-  * **Live Flight Tracking:** Displays 10,000+ real-time aircraft positions using the OpenSky Network. Plots positions on an interactive Leaflet map. Click on any plane icon to view its Callsign, ICAO, altitude, velocity, and country of origin.
-  * **Ship Tracker:** Integrates Live MarineTraffic WebSocket feed coordinates for marine surveillance.
-  * **Satellite Hub:** Links to Sentinel Hub and NASA Worldview for coordinates to pull high-resolution satellite passes.
+  * **Tactical Visual Shaders:** NVG (Night Vision), FLIR (Thermal/Inverted), Noir, and CRT scanlines with animated radar sweeps applied as Leaflet WebGL/CSS filter shaders.
+  * **Tactical HUD Overlay:** Overlays cursor-tracked coordinates, sector center, scale, heading, and mock speed/altitude rulers.
+  * **OmniVoice Speech Assistant:** Hands-free vocal control using native browser Web Speech API for map zoom, styles, and flying commands.
+  * **Data Integrity Badges:** Every map layer carries integrity labels (`[LIVE]`, `[SIMULATED]`, `[ESTIMATE]`, `[THIRD-PARTY]`).
+  * **Simulated CCTV Networks:** Plots camera pins mapping exact viewshed scope angles. Click cameras to view simulated static feeds.
+  * **USGS Earthquakes (New):** Maps global seismic events (last 24h).
+  * **adbs.lol Military Flights (New):** Tracks active military aircraft.
+  * **CelesTrak ISS orbits (New):** Calculates live coordinates and orbital trail lines.
+  * **GBFS Austin Bikeshare (New):** Live dock bike counts.
+  * **Radio Browser Broadcasts (New):** Geolocates world radio stations with player widgets.
+  * **Live Civilian Flights:** Displays 10,000+ real-time aircraft positions using the OpenSky Network.
+  * **Ship Tracker:** Integrates Live MarineTraffic vessel tracking.
+  * **Satellite Hub:** Links to Sentinel Hub and NASA Worldview.
 * **Operational Action:** Verify transport vectors or inspect physical coordinates for regional activity.
 
 ---
@@ -177,6 +189,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 * **Path:** `/ai`
 * **Features:**
   * **AI Chat:** Natural language portal where LLaMA 3.3 acts as a principal intelligence analyst.
+  * **Map Grounding Context:** Telemetry variables (lat, lon, zoom, layer) flow automatically from Leaflet to Groq payload context.
   * **Auto Investigator:** Input a target (e.g., username, IP, location, or domain), and the system automatically queries multiple modules, merges the data, and outputs a formatted intelligence briefing.
 * **Operational Action:** Synthesize data collections into operational reports instantly.
 
@@ -205,7 +218,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 ### 4.11 Module 10: Intelligence Graph
 * **Path:** `/graph`
 * **Features:**
-  * **Maltego-Style Graph:** Renders an interactive relationship map of nodes. Input a target, and watch connections sprout between target details, reputation networks, and external references.
+  * **Maltego-Style Graph:** Renders an interactive relationship map of nodes. Input a target, and watch connections sprout between target details, reputation network, and external references.
   * Animated pulsing nodes, panning/zooming, and detailed sidebars upon node click.
 * **Operational Action:** Visualize complex entity relationships to present as evidence during briefing.
 
@@ -251,11 +264,15 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 
 ## 🔒 5. Security Architecture & Hardening
 
-1. **API Key Isolation:**
-   All 45+ API keys are stored in a local `.env` file, which is ignored by `.gitignore`. The keys are stripped of trailing `\r` carriage returns during startup using `os.getenv().strip()` to prevent issues on Windows systems.
-2. **JWT Security Boundaries:**
-   User sessions validate role-based access on every endpoint. Tokens carry an 8-hour expiry time. CORS is locked strictly to `http://localhost:5173` and `http://localhost:5174`.
-3. **Audit Log Generation:**
+1. **bcrypt Salted Cryptography:**
+   Replaces legacy raw/MD5 hashes to secure operator database profiles.
+2. **Dynamic Database Seeding:**
+   Auto-generates the local user store `database/users.json` dynamically if missing, keeping it out of git history via `.gitignore` to prevent credential exposure.
+3. **API Key Isolation:**
+   All 50+ API keys are stored in a local `.env` file, which is ignored by `.gitignore`.
+4. **JWT Security Boundaries:**
+   User sessions validate role-based access on every endpoint. Tokens carry an 8-hour expiry time. CORS is locked strictly to `http://localhost:5173`.
+5. **Audit Log Generation:**
    Every search is recorded in `backend/database/logs.json` with fields: `[timestamp, username, module, action, target]`. This provides administrators with complete visibility into analyst queries.
 
 ---
@@ -263,17 +280,18 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 ## 🛠️ 6. Troubleshooting & Setup Guide
 
 ### 6.1 Launch Instructions
-1. Right-click [`LAUNCH_GODS_EYE.bat`](file:///c:/Users/kathu/Desktop/projects/God%27s_Eye/LAUNCH_GODS_EYE.bat), select **Properties**, check **Unblock**, and click **Apply**.
-2. Double-click the bat file. This will spin up the backend (FastAPI on Port 8000) and the frontend (Vite on Port 5173) and open your browser automatically.
-3. Access credentials:
-   * **Admin:** `admin` / `admin123`
-   * **Researcher:** `researcher` / `research123`
-   * **Student:** `student` / `student123`
+* **Windows Batch:** Double-click [`LAUNCH_GODS_EYE.bat`](file:///c:/Users/kathu/Desktop/projects/God%27s_Eye/LAUNCH_GODS_EYE.bat).
+* **Linux/macOS Bash:** Run `./launch_gods_eye.sh` in your terminal.
+* **Docker Container Compose:** Run `docker-compose up --build` to launch all services inside containerized sandboxes.
+* Access credentials:
+  * **Admin:** `admin` / `admin123` (First-run forces reset)
+  * **Researcher:** `researcher` / `research123` (First-run forces reset)
+  * **Student:** `student` / `student123` (First-run forces reset)
 
 ### 6.2 Common Issues & Resolutions
 * **Blank Page on Load:** Vite takes up to 10 seconds to compile assets on the first load. Refresh the browser if it hangs.
 * **Login Loop / JWT Errors:** Open the browser console (F12) and run `localStorage.clear(); location.reload()`. This clears expired sessions.
-* **0 Aircraft Tracked:** The OpenSky Network session token has expired. Run [`STOP_GODS_EYE.bat`](file:///c:/Users/kathu/Desktop/projects/God%27s_Eye/STOP_GODS_EYE.bat) to terminate all server instances, then run `LAUNCH_GODS_EYE.bat` to refresh the session token.
+* **0 Aircraft Tracked:** The OpenSky Network session token has expired. Run `stop_gods_eye.sh` / `STOP_GODS_EYE.bat` to terminate all server instances, then relaunch to refresh the session token.
 * **Shodan Returns API Errors:** The Shodan free key is limited to 100 queries/month. Limit queries to demo scenarios only.
 
 ---
