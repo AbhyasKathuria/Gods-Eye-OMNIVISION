@@ -323,10 +323,17 @@ export default function GeoTracker() {
     
     const cameras = [
       { id: "CAM-01", name: "6th & Congress Ave Intersection (Austin)", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003 },
-      { id: "CAM-02", name: "Texas State Capitol North Entrance (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032 },
-      { id: "CAM-03", name: "Zilker Park Main Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035 },
-      { id: "CAM-04", name: "Presidency University Main Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003 },
-      { id: "CAM-05", name: "Presidency University Block Auditorium (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025 }
+      { id: "CAM-02", name: "Texas State Capitol North (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032 },
+      { id: "CAM-03", name: "Zilker Park Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035 },
+      { id: "CAM-04", name: "Presidency University Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003 },
+      { id: "CAM-05", name: "Presidency University Library (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025 },
+      { id: "CAM-06", name: "Trafalgar Square South Cam (London)", lat: 51.5080, lon: -0.1280, angle: 220, radius: 0.0035 },
+      { id: "CAM-07", name: "Tower Bridge East Bypass (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038 },
+      { id: "CAM-08", name: "Shibuya Crossing Main Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003 },
+      { id: "CAM-09", name: "Tokyo Skytree Observatory (Tokyo)", lat: 35.7100, lon: 139.8107, angle: 180, radius: 0.004 },
+      { id: "CAM-10", name: "Eiffel Tower Esplanade (Paris)", lat: 48.8583, lon: 2.2945, angle: 120, radius: 0.0035 },
+      { id: "CAM-11", name: "Champs-Élysées East Flow (Paris)", lat: 48.8700, lon: 2.3050, angle: 270, radius: 0.0036 },
+      { id: "CAM-12", name: "Opera House Forecourt (Sydney)", lat: -33.8568, lon: 151.2153, angle: 45, radius: 0.0032 }
     ];
     
     cameras.forEach(cam => {
@@ -343,12 +350,9 @@ export default function GeoTracker() {
         <div style="background:#000;color:#00ff00;font-family:Courier New;font-size:10px;padding:8px;border:1px solid #ff0033;width:200px">
           <div style="color:#ff0033;font-weight:bold;margin-bottom:4px">CCTV FEED (SIMULATED)</div>
           <div>CAMERA ID: ${cam.id}</div>
-          <div>LOCATION: ${cam.name}</div>
-          <div style="margin-top:6px;position:relative;height:80px;background:#111;overflow:hidden;border:1px solid #333">
-            <div style="position:absolute;inset:0;opacity:0.25;background:linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.4) 50%), linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,255,0,0.06));background-size:100% 4px, 6px 100%"></div>
-            <div style="position:absolute;top:5px;left:5px;font-size:8px;animation:blink 1s infinite">REC 🔴</div>
-            <div style="position:absolute;bottom:5px;right:5px;font-size:8px">${new Date().toLocaleTimeString()}</div>
-            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff0033;font-size:8px;letter-spacing:1px">NO SIGNAL / NOISE OVERLAY</div>
+          <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">LOC: ${cam.name}</div>
+          <div style="margin-top:6px;position:relative;height:80px;background:#000;overflow:hidden;border:1px solid #333">
+            <canvas id="cctv-canvas-${cam.id}" width="182" height="80" style="display:block"></canvas>
           </div>
           <div style="font-size:8px;color:#888;margin-top:4px">CONE OF VIEWSHED DISPLAYED ON MAP</div>
         </div>
@@ -375,6 +379,80 @@ export default function GeoTracker() {
         }).addTo(map);
         
         cctvPolygonRef.current = polygon;
+
+        // Initialize canvas animation inside the popup
+        setTimeout(() => {
+          const canvas = document.getElementById(`cctv-canvas-${cam.id}`);
+          if (canvas) {
+            const ctx = canvas.getContext("2d");
+            let animationId;
+            
+            const targets = [
+              { x: Math.random() * 182, y: Math.random() * 80, dx: (Math.random() - 0.5) * 1.5, dy: (Math.random() - 0.5) * 1.5, label: "TGT-ALPHA" },
+              { x: Math.random() * 182, y: Math.random() * 80, dx: (Math.random() - 0.5) * 1.5, dy: (Math.random() - 0.5) * 1.5, label: "TGT-BETA" }
+            ];
+
+            const draw = () => {
+              if (!document.getElementById(`cctv-canvas-${cam.id}`)) {
+                cancelAnimationFrame(animationId);
+                return;
+              }
+              
+              // Base green background
+              ctx.fillStyle = "#020f02";
+              ctx.fillRect(0, 0, 182, 80);
+              
+              // Dynamic grain noise
+              ctx.fillStyle = "rgba(0, 255, 0, 0.07)";
+              for (let i = 0; i < 40; i++) {
+                ctx.fillRect(Math.random() * 182, Math.random() * 80, 1, 1);
+              }
+              
+              // Tactical crosshair scope grid lines
+              ctx.strokeStyle = "rgba(0, 255, 0, 0.12)";
+              ctx.lineWidth = 0.5;
+              
+              for (let x = 20; x < 182; x += 20) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 80); ctx.stroke();
+              }
+              for (let y = 15; y < 80; y += 15) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(182, y); ctx.stroke();
+              }
+              
+              // Targets simulation
+              targets.forEach(t => {
+                t.x += t.dx;
+                t.y += t.dy;
+                if (t.x < 10 || t.x > 172) t.dx *= -1;
+                if (t.y < 10 || t.y > 70) t.dy *= -1;
+                
+                ctx.strokeStyle = "rgba(0, 255, 0, 0.7)";
+                ctx.strokeRect(t.x - 5, t.y - 5, 10, 10);
+                
+                ctx.fillStyle = "rgba(0, 255, 0, 0.7)";
+                ctx.font = "6px monospace";
+                ctx.fillText(t.label, t.x + 8, t.y - 2);
+                ctx.fillText("LOCK: 98%", t.x + 8, t.y + 4);
+              });
+              
+              // Radar sweep bar line
+              const scanY = (Date.now() / 20) % 80;
+              ctx.strokeStyle = "rgba(0, 255, 0, 0.35)";
+              ctx.beginPath(); ctx.moveTo(0, scanY); ctx.lineTo(182, scanY); ctx.stroke();
+              
+              // System labels
+              ctx.fillStyle = "#00ff00";
+              ctx.font = "7px Courier New";
+              ctx.fillText("SYS: SECURE_FEED", 6, 10);
+              ctx.fillText("AZ: " + Math.round((Date.now() / 150) % 360) + "°", 130, 10);
+              ctx.fillText("REC 🔴", 6, 74);
+              ctx.fillText(new Date().toLocaleTimeString(), 120, 74);
+              
+              animationId = requestAnimationFrame(draw);
+            };
+            draw();
+          }
+        }, 50);
       });
 
       marker.on("popupclose", () => {
@@ -516,16 +594,19 @@ export default function GeoTracker() {
           }
           break;
         case "CCTV MONITOR":
-          setResults({ cameras: 5 });
+          setResults({ cameras: 12 });
           if (map && L) {
             plotCctvCameras(map, L);
-            const currentCenter = map.getCenter();
-            const distToBlr = Math.sqrt(Math.pow(currentCenter.lat - 13.1682, 2) + Math.pow(currentCenter.lng - 77.5354, 2));
-            const distToAus = Math.sqrt(Math.pow(currentCenter.lat - 30.2680, 2) + Math.pow(currentCenter.lng - (-97.7420), 2));
-            if (distToBlr < distToAus) {
-              map.setView([13.1682, 77.5354], 15);
-            } else {
-              map.setView([30.2680, -97.7420], 13);
+            const currentZoom = map.getZoom();
+            if (currentZoom > 3) {
+              const currentCenter = map.getCenter();
+              const distToBlr = Math.sqrt(Math.pow(currentCenter.lat - 13.1682, 2) + Math.pow(currentCenter.lng - 77.5354, 2));
+              const distToAus = Math.sqrt(Math.pow(currentCenter.lat - 30.2680, 2) + Math.pow(currentCenter.lng - (-97.7420), 2));
+              if (distToBlr < distToAus) {
+                map.setView([13.1682, 77.5354], 15);
+              } else {
+                map.setView([30.2680, -97.7420], 13);
+              }
             }
           }
           break;
