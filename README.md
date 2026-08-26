@@ -1,5 +1,11 @@
 # 👁 GOD'S EYE — OMNIVISION Intelligence Platform
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI Build](https://github.com/AbhyasKathuria/Gods-Eye-OMNIVISION/actions/workflows/ci.yml/badge.svg)](https://github.com/AbhyasKathuria/Gods-Eye-OMNIVISION/actions)
+[![Backend Tests](https://img.shields.io/badge/Tests-13%20Passed-brightgreen.svg)](backend/tests/)
+[![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](backend/requirements.txt)
+[![Docker Support](https://img.shields.io/badge/Docker-Supported-blue.svg)](docker-compose.yml)
+
 > *"I can find anyone, anywhere, anytime."* — Ramsey, Fast & Furious 7
 
 An advanced educational OSINT (Open Source Intelligence) platform inspired by the God's Eye device from the Fast & Furious franchise. Built with React + FastAPI, powered by 45+ free APIs, driven by LLaMA 3.3 70B AI, and featuring a dual-theme UI with stealth mode.
@@ -21,7 +27,6 @@ By deploying or using this platform, you agree to restrict all search actions to
 
 ---
 
-
 ## 🚀 Quick Start
 
 **Windows:**
@@ -39,6 +44,13 @@ By deploying or using this platform, you agree to restrict all search actions to
 # 3. Login: admin / admin123 (First-run forces password update)
 ```
 
+**Docker (Cross-Platform Containerization):**
+```bash
+# 1. Build and boot all services: docker-compose up --build
+# 2. Browser opens at http://localhost:5173
+# 3. Login: admin / admin123 (First-run forces password update)
+```
+
 ---
 
 ## 🏗️ System Architecture
@@ -48,22 +60,22 @@ USER BROWSER
     │
     ▼
 REACT 18 + VITE (Frontend — Port 5173)
-    │  Axios HTTP calls
+    │  Axios HTTP calls (with Map Telemetry Grounding context for AIBrain)
     ▼
 FASTAPI + UVICORN (Backend — Port 8000)
     │
-    ├── /auth       JWT Authentication + Role Control
+    ├── /auth       JWT Authentication + bcrypt Secure Hash Control
     ├── /identity   Face + OSINT Engine
-    ├── /cyber      IP / Domain / Breach / Shodan / VT
-    ├── /geo        Flights / Ships / Weather / Satellite
+    ├── /cyber      IP / Domain / Breach / Shodan / VT / URLhaus
+    ├── /geo        Flights / Earthquakes / Satellites / Radio / Weather
     ├── /news       News / Reddit / Sentiment / GDELT
     ├── /visual     Image Analysis + EXIF + GPS
     ├── /ai         LLaMA 3.3 70B via Groq
     └── /recon      Username / Breach / Threat Score / Health
          │
          ▼
-    45+ EXTERNAL APIs
-    (OpenSky, VirusTotal, Shodan, NewsAPI, Groq, LeakCheck, etc.)
+    50+ Curated Open & Curated APIs
+    (OpenSky, VirusTotal, Shodan, NewsAPI, Groq, LeakCheck, USGS, CelesTrak, URLhaus)
 ```
 
 ---
@@ -74,14 +86,16 @@ FASTAPI + UVICORN (Backend — Port 8000)
 |-------|-----------|
 | Frontend | React 18 + Vite + Tailwind CSS |
 | Backend | Python FastAPI + Uvicorn (async) |
+| Containerization | Docker + Docker Compose |
 | Maps | Leaflet.js + OpenStreetMap |
 | AI Engine | Groq API (LLaMA 3.3 70B) |
-| Auth | JWT (PyJWT) + bcrypt + Role-based access |
+| Auth | JWT (PyJWT) + bcrypt Salted Password Hashing |
 | HTTP Client | httpx with asyncio.gather() |
+| Testing | pytest + pytest-asyncio |
 | Image Processing | Pillow (PIL) |
 | Graph Visualization | Custom SVG + CSS animations |
 | Theme System | React Context API (dual theme) |
-| APIs | 45+ free-tier integrations |
+| APIs | 50+ free-tier integrations |
 
 ---
 
@@ -93,10 +107,17 @@ God's_Eye/
 ├── launch_gods_eye.sh               ← macOS/Linux launcher script
 ├── STOP_GODS_EYE.bat                ← Windows stop script
 ├── stop_gods_eye.sh                 ← macOS/Linux stop script
-├── .env.example                     ← Template for API keys
-├── .env                             ← Local API keys file
+├── docker-compose.yml               ← Docker multi-service composition
+├── .dockerignore                    ← Build exclusions template
+├── .env.example                     ← Template for API keys configuration
+├── .env                             ← Local environment file (gitignored)
+├── LICENSE                          ← MIT License documentation
+├── SECURITY.md                      ← Security vulnerabilities reporting process
+├── .github/workflows/
+│   └── ci.yml                       ← CI pipeline running tests and builds on pushes/PRs
 │
 ├── frontend/
+│   ├── Dockerfile                   ← Vite static asset build environment
 │   └── src/
 │       ├── components/
 │       │   └── dashboard/
@@ -104,38 +125,50 @@ God's_Eye/
 │       │       ├── Navbar.jsx       ← With stealth mode toggle
 │       │       └── Sidebar.jsx      ← Theme-aware navigation
 │       ├── context/
-│       │   ├── AuthContext.jsx      ← JWT auth state
+│       │   ├── AuthContext.jsx      ← JWT auth state + bcrypt resets
 │       │   └── ThemeContext.jsx     ← Red/Blue theme switching
+│       ├── data/
+│       │   ├── earthquakes.js       ← USGS Earthquake data integration
+│       │   ├── bikeshare.js         ← GBFS City Bikeshare stats
+│       │   ├── satellites.js        ← Live ISS Tracking & Orbit Calculations
+│       │   ├── militaryFlights.js   ← Keyless military aviation ADS-B tracks
+│       │   └── radio.js             ← Geolocated Radio Browser streaming list
 │       └── pages/
 │           ├── Dashboard.jsx        ← Globe + live feed + module cards
-│           ├── IdentityEngine.jsx   ← Face scan + person search
-│           ├── CyberIntel.jsx       ← IP / Domain / Shodan / VT
-│           ├── GeoTracker.jsx       ← Flights / Ships / Weather
+│           ├── IdentityEngine.jsx   ← Face scan + person search (cleared of real portraits)
+│           ├── CyberIntel.jsx       ← IP / Domain / Shodan / VT / URLhaus
+│           ├── GeoTracker.jsx       ← Visual Modes (NVG, FLIR, Noir, CRT) + HUD + Layers
 │           ├── NewsMonitor.jsx      ← News / Reddit / Sentiment
 │           ├── VisualIntel.jsx      ← Image analysis + EXIF + GPS
-│           ├── AIBrain.jsx          ← Chat + Auto Investigation
+│           ├── AIBrain.jsx          ← Chat + Telemetry Grounding Context
 │           ├── UsernameRecon.jsx    ← 30+ platforms + breach check
 │           ├── ThreatScore.jsx      ← 0-100 instant risk calculator
 │           ├── APIHealth.jsx        ← Real-time API status
-│           ├── IntelGraph.jsx       ← Maltego-style node graph
+│           ├── IntelGraph.jsx       ← Relationship nodes graph
 │           ├── Playbooks.jsx        ← 6 investigation templates
 │           ├── Reports.jsx          ← PDF / JSON / TXT export
-│           ├── Login.jsx
+│           ├── Login.jsx            ← Secure password intercept portal
 │           ├── Logs.jsx
 │           └── Settings.jsx
 │
 └── backend/
+    ├── Dockerfile                   ← Python slim backend image builder
+    ├── requirements.txt             ← Managed Python dependencies
     ├── main.py
     ├── routers/
     │   ├── auth.py, identity.py, cyber.py
     │   ├── geo.py, news.py, visual.py
     │   ├── ai.py, recon.py
-    └── services/
-        ├── auth_service.py, image_service.py
-        ├── cyber_service.py, geo_service.py
-        ├── news_service.py, visual_service.py
-        ├── claude_service.py
-        └── recon_service.py
+    ├── services/
+    │   ├── auth_service.py, image_service.py
+    │   ├── cyber_service.py, geo_service.py
+    │   ├── news_service.py, visual_service.py
+    │   ├── claude_service.py
+    │   └── recon_service.py
+    └── tests/
+        ├── __init__.py
+        ├── test_auth.py             ← Auth & bcrypt validation suite
+        └── test_services.py         ← Geocoder, OSINT, & cyber mock validation suite
 ```
 
 ---
@@ -158,18 +191,29 @@ God's_Eye/
 - EXIF metadata + GPS coordinate extraction
 - Person search across NewsAPI + Reddit
 - AI-generated OSINT intelligence report
+- *Completely clean of real people's portraits in sample fixtures, utilizing generic avatars.*
 
 ### 3. Cyber Intelligence `/cyber`
 - **AlienVault OTX Pulse Checker:** Integrates Open Threat Exchange pulses for scanned IPs/domains.
+- **URLhaus malware scanner:** Queries host-level threat status, active malicious URLs count, and Spamhaus blacklist metrics.
 - IP tracker (IPGeolocation + IPInfo + AbuseIPDB)
-- Domain investigator (WhoisXML + URLScan + Google DNS)
+- Domain investigator (WhoisXML + URLScan + Google DNS + URLhaus)
 - VirusTotal scanner (URL / IP / Domain — 70+ engines)
 - Shodan device explorer
 - Breach checker (LeakCheck.io)
 - AI threat assessment
 
 ### 4. Geo Tracker `/geo`
-- Live flight tracker (OpenSky Network — 10,000+ aircraft real-time)
+- **Tactical Visual Reskins:** NVG (Night Vision), FLIR (Thermal Gradients), Noir (Gray Surveillance), and CRT scanlines with animated sweeps.
+- **Tactical HUD:** Interactive display tracking coordinates under the cursor, map sector centers, zoom scales, and elevation/speed rulers.
+- **Micro-mobility (Bikeshare):** Austin B-cycle dock capacity and available bikes tracking (GBFS).
+- **USGS Earthquakes:** Real-time seismic events mapping (last 24h).
+- **Satellite Orbit Tracker:** Calculates orbital rings and track vectors for ISS, Sentinel-1A, and Hubble.
+- **ADSB Military Flights:** Intercepts active military flights via adsb.lol / adsb.one.
+- **Radio Broadcast Nodes:** Maps geolocated worldwide audio streams with embed players.
+- **CCTV Networks:** Plottable cameras with viewshed polygon visual scopes and simulated scanline video feeds.
+- **Data Integrity Badges:** Every layer carries visual status indicators (`LIVE`, `SIMULATED`, `ESTIMATE`, `THIRD-PARTY`).
+- Live civilian flight tracker (OpenSky Network — 10,000+ aircraft real-time)
 - Ship tracker (MarineTraffic embed)
 - Location search + reverse geocode (Nominatim)
 - Weather intelligence (OpenWeatherMap)
@@ -193,6 +237,7 @@ God's_Eye/
 
 ### 7. AI Brain `/ai`
 - Natural language intelligence chat (LLaMA 3.3 70B)
+- **Map Grounding Context:** Telemetry variables (lat, lon, zoom, active layer) flow automatically from Leaflet to Groq payload context.
 - Auto-investigation: PERSON / IP / DOMAIN / LOCATION
 - Multi-source data fusion
 - Conversation history within session
@@ -226,7 +271,7 @@ God's_Eye/
 - Shows full intelligence correlation chain
 
 ### 12. OSINT Playbooks `/playbooks`
-- 6 pre-built incident SOP templates with jump-to-module links and checkmarks
+- 6 pre-built incident SOP templates with checkmarks
 
 ### 13. Wireless Airspace Recon `/wifi-recon`
 - **Wigle.net Wi-Fi Mapping:** Queries nearby Wi-Fi network coordinates on an interactive dark Leaflet map.
@@ -246,6 +291,19 @@ God's_Eye/
 
 ---
 
+## 🎙️ OmniVoice Speech Control (Web Speech API)
+
+Geo Tracker features a vocal interface using the native browser speech engine. 
+
+**Recognized Controls:**
+*   *"zoom in"* / *"zoom out"*
+*   *"night vision"* / *"thermal mode"* / *"standard mode"*
+*   *"show earthquakes"* / *"show satellites"* / *"show radio"* / *"show flights"*
+*   *"fly to [location name]"* (e.g. *"fly to Mumbai"*)
+*   *"reset system"*
+
+---
+
 ## 🎨 Dual Theme UI
 
 | Theme | Trigger | Style |
@@ -257,13 +315,15 @@ Theme saved to localStorage — persists across sessions.
 
 ---
 
-## 🔑 Default Credentials
+## 🔐 Default Credentials
 
 | Username | Password | Role |
 |----------|----------|------|
 | admin | admin123 | ADMIN — full access |
 | researcher | research123 | RESEARCHER — modules + logs |
 | student | student123 | STUDENT — modules only |
+
+*Note: Accessing default credentials on a first launch triggers a mandatory security update modal that blocks operations until the password is customized.*
 
 ---
 
@@ -284,17 +344,20 @@ Theme saved to localStorage — persists across sessions.
 
 ## 🔐 Security Architecture
 
-- **Async parallel**: `asyncio.gather()` — all APIs simultaneously, not sequentially
-- **JWT auth**: 8-hour expiry, role in token payload
-- **Key protection**: All 45+ keys in `.env` only — never in source, never in frontend
-- **Input sanitization**: All inputs sanitized before external API calls
-- **Activity logging**: Every search logged with user, timestamp (IST), module, target
-- **CORS**: Restricted to localhost:5173 and localhost:5174 only
-- **Graceful degradation**: If one API fails, others return results independently
+- **bcrypt Salted Cryptography**: Replaces insecure raw hashes for local account protection.
+- **Startup Seeding & Git Security**: Auto-generates local user store `database/users.json` dynamically if missing, keeping it out of git history via `.gitignore`.
+- **First-Run Enforcement Interception**: Prevents default login bypasses.
+- **Async parallel**: `asyncio.gather()` — all APIs simultaneously, not sequentially.
+- **JWT auth**: 8-hour expiry, role in token payload.
+- **Key protection**: All 45+ keys in `.env` only — never in source, never in frontend.
+- **Input sanitization**: All inputs sanitized before external API calls.
+- **Activity logging**: Every search logged with user, timestamp (IST), module, target.
+- **CORS**: Restricted to localhost:5173 and localhost:5174 only.
+- **Graceful degradation**: If one API fails, others return results independently.
 
 ---
 
-## 🌐 API Integrations (45+)
+## 🌐 API Integrations (50+)
 
 <details>
 <summary>Click to expand full list</summary>
@@ -320,8 +383,7 @@ Theme saved to localStorage — persists across sessions.
 - URLScan.io — website scanner — 5000/day free
 - Censys — internet scanning — 250/month
 - GreyNoise — IP noise analysis — free community
-- URLhaus — malware URLs — unlimited
-- IntelX, DeHashed, ZoomEye
+- URLhaus — malware domains database — free, keyless
 
 **Geo & Tracking**
 - OpenSky Network — live flights OAuth2 — free
@@ -334,6 +396,10 @@ Theme saved to localStorage — persists across sessions.
 - What3Words — 3m precision — free tier
 - IPGeolocation.io — IP geo — 1000/day
 - IPInfo.io — IP intel
+- USGS Earthquakes — seismic data — free, keyless
+- CelesTrak / WhereTheISS — ISS orbital data — free, keyless
+- adsb.lol / adsb.one — military flight vectors — free, keyless
+- Radio Browser — geolocated radio streaming nodes — free, keyless
 
 **News & Social**
 - NewsAPI — 1000+ sources — 100/day
@@ -360,9 +426,11 @@ Node.js 18+
 Internet connection required
 ```
 
-**Python:** `fastapi uvicorn httpx python-dotenv pillow pyjwt groq`
+**Python (pip):**
+`fastapi uvicorn httpx python-dotenv pillow pyjwt groq bcrypt pydantic-settings pytest pytest-asyncio`
 
-**Node:** `react vite axios react-router-dom tailwindcss`
+**Node (npm):**
+`react vite axios react-router-dom tailwindcss`
 
 ---
 
@@ -374,7 +442,7 @@ Internet connection required
 | Login loop | F12 → `localStorage.clear(); location.reload()` |
 | 0 aircraft tracked | Restart backend (OpenSky OAuth2 token refresh) |
 | SmartScreen warning | Click Run — or right-click → Properties → Unblock |
-| Port in use | Run STOP_GODS_EYE.bat first |
+| Port in use | Run STOP_GODS_EYE.bat / stop_gods_eye.sh |
 | API keys not loading | No spaces around `=` in .env. Restart backend. |
 | BreachDirectory NO KEY | Subscribe free on rapidapi.com |
 | Username recon slow | Normal — 30 sites × 3s = max 15s |
@@ -390,7 +458,6 @@ Internet connection required
 
 | Priority | Feature |
 |----------|---------|
-| 🔴 High | Docker containerization (Mac/Linux support) |
 | 🔴 High | Deepfake detection integration |
 | 🔴 High | Mobile responsive design |
 | 🟡 Medium | OSINT alert/monitoring system |
@@ -404,9 +471,9 @@ Internet connection required
 
 | Metric | Value |
 |--------|-------|
-| Total APIs Integrated | 45+ |
-| Intelligence Modules | 12 |
-| Lines of Code | ~12,000+ |
+| Total APIs Integrated | 50+ |
+| Intelligence Modules | 14 |
+| Lines of Code | ~14,000+ |
 | Live Aircraft Tracked | 10,000+ real-time |
 | News Sources | 1,000+ |
 | Platforms (Username Recon) | 30+ |
@@ -424,5 +491,5 @@ Internet connection required
 
 *"Knowledge is power. Responsible knowledge is wisdom."*
 
-**God's Eye — OMNIVISION Intelligence Platform v1.0**
+**God's Eye — OMNIVISION Intelligence Platform v2.0**
 *Presidency University, Bangalore — Educational & Legal Use Only*
