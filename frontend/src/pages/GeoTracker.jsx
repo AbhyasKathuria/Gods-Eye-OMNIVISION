@@ -485,6 +485,14 @@ export default function GeoTracker() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
+  useEffect(() => {
+    if (leafletMapRef.current) {
+      setTimeout(() => {
+        leafletMapRef.current.invalidateSize();
+      }, 50);
+    }
+  }, [activeTab]);
+
   const handleSearch = async () => {
     if (!input.trim() && !lat && !lon) return;
     setLoading(true);
@@ -1115,8 +1123,18 @@ export default function GeoTracker() {
             </div>
           )}
 
-          {activeTab === "SHIP TRACKER" && renderShips()}
-          {!loading && activeTab !== "SHIP TRACKER" && renderResults()}
+          {/* Always mount map container in the DOM, but hide it if not a map tab or loading */}
+          <div style={{ 
+            display: (["LIVE FLIGHTS", "MILITARY FLIGHTS", "EARTHQUAKES", "SATELLITE ORBITS", "BIKESHARE", "RADIO BROWSER", "CCTV MONITOR"].includes(activeTab) && !loading) ? "block" : "none", 
+            height: "100%" 
+          }}>
+            {renderFlights()}
+          </div>
+
+          {!loading && activeTab === "SHIP TRACKER" && renderShips()}
+          {!loading && activeTab === "LOCATION SEARCH" && renderLocationSearch()}
+          {!loading && activeTab === "SATELLITE VIEW" && renderSatellite()}
+          {!loading && activeTab === "WEATHER" && renderWeather()}
         </div>
       </div>
     </div>
