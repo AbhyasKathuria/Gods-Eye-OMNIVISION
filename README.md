@@ -8,13 +8,35 @@ An advanced educational OSINT (Open Source Intelligence) platform inspired by th
 
 ---
 
+## ⚖️ Scope & Responsible Use Statement
+
+This platform is an educational Open Source Intelligence (OSINT) tool designed to demonstrate intelligence gathering, reconnaissance algorithms, and cybersecurity analysis interfaces. It aggregates public data feeds and official API interfaces.
+
+**This software is explicitly NOT designed for, nor should it be used for:**
+*   Unauthorized surveillance of non-consenting individuals.
+*   Stalking, harassment, or doxxing.
+*   Any activities that violate regional or international privacy laws.
+
+By deploying or using this platform, you agree to restrict all search actions to educational environments, consented scenarios, or public/authorized research targets. The authors are not responsible for any misuse.
+
+---
+
+
 ## 🚀 Quick Start
 
+**Windows:**
 ```bash
 # 1. Double-click LAUNCH_GODS_EYE.bat
 # 2. Click "Run" on SmartScreen warning
 # 3. Browser opens at http://localhost:5173
-# 4. Login: admin / admin123
+# 4. Login: admin / admin123 (First-run forces password update)
+```
+
+**macOS / Linux:**
+```bash
+# 1. Run in terminal: ./launch_gods_eye.sh
+# 2. Browser opens at http://localhost:5173
+# 3. Login: admin / admin123 (First-run forces password update)
 ```
 
 ---
@@ -67,9 +89,12 @@ FASTAPI + UVICORN (Backend — Port 8000)
 
 ```
 God's_Eye/
-├── LAUNCH_GODS_EYE.bat              ← One-click launcher
-├── STOP_GODS_EYE.bat                ← Force stop all servers
-├── .env                             ← All 45+ API keys
+├── LAUNCH_GODS_EYE.bat              ← Windows One-click launcher
+├── launch_gods_eye.sh               ← macOS/Linux launcher script
+├── STOP_GODS_EYE.bat                ← Windows stop script
+├── stop_gods_eye.sh                 ← macOS/Linux stop script
+├── .env.example                     ← Template for API keys
+├── .env                             ← Local API keys file
 │
 ├── frontend/
 │   └── src/

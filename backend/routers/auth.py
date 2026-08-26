@@ -74,3 +74,25 @@ async def logout(authorization: Optional[str] = Header(None)):
         if result["valid"]:
             log_activity(result["username"], "AUTH", "Logout")
     return {"status": "success", "message": "Logged out"}
+
+
+@router.post("/change-password")
+async def change_password(payload: dict, authorization: Optional[str] = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+    token = authorization.replace("Bearer ", "")
+    result = verify_token(token)
+    if not result["valid"]:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    old_password = payload.get("old_password", "").strip()
+    new_password = payload.get("new_password", "").strip()
+    if not old_password or not new_password:
+        raise HTTPException(status_code=400, detail="Current password and new password are required")
+        
+    from services.auth_service import update_password
+    res = update_password(result["username"], old_password, new_password)
+    if not res["success"]:
+        raise HTTPException(status_code=400, detail=res["error"])
+        
+    return {"status": "success", "message": "Password updated successfully"}

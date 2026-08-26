@@ -187,6 +187,7 @@ export default function CyberIntel() {
     const dns = data?.data?.dns;
     const vt = data?.data?.virustotal;
     const urlscan = data?.data?.urlscan;
+    const urlhaus = data?.data?.urlhaus;
 
     return (
       <div>
@@ -234,6 +235,41 @@ export default function CyberIntel() {
               <span style={s.label}>DNSSEC: </span>
               <span style={s.value}>{String(dns.authenticated)}</span>
             </div>
+          </div>
+        )}
+
+        {urlhaus && (
+          <div style={s.section}>
+            <div style={s.title}>URLHAUS MALWARE INTELLIGENCE</div>
+            <div style={s.grid2}>
+              {[
+                ["QUERY STATUS", urlhaus.status],
+                ["MALWARE URL COUNT", urlhaus.url_count],
+                ["SPAMHAUS DBL", urlhaus.spamhaus_dbl],
+                ["SURBL STATUS", urlhaus.surbl],
+              ].map(([k, v]) => v && (
+                <div key={k} style={s.row}>
+                  <span style={s.label}>{k}: </span>
+                  <span style={{
+                    color: k === "MALWARE URL COUNT" && parseInt(v) > 0 ? "#ff0000" : "#882222"
+                  }}>{String(v)}</span>
+                </div>
+              ))}
+            </div>
+            {urlhaus.url_count > 0 && (
+              <div style={{ color: "#ff0000", fontSize: "11px", marginTop: "8px",
+                letterSpacing: "2px" }} className="animate-pulse">
+                ACTIVE MALWARE HOST SPOTTED
+              </div>
+            )}
+            {urlhaus.urlhaus_reference && (
+              <div style={{ marginTop: "6px" }}>
+                <a href={urlhaus.urlhaus_reference} target="_blank" rel="noreferrer"
+                  style={{ color: "#ff4400", fontSize: "11px", textDecoration: "none" }}>
+                  VIEW URLHAUS REFERENCE RECORD
+                </a>
+              </div>
+            )}
           </div>
         )}
 

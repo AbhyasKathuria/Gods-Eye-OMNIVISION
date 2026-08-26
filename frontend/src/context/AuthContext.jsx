@@ -55,8 +55,21 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const changePassword = async (oldPassword, newPassword) => {
+    const res = await axios.post(`${API}/auth/change-password`, {
+      old_password: oldPassword,
+      new_password: newPassword
+    });
+    if (res.data.status === "success") {
+      const updatedUser = { ...user, must_change_password: false };
+      localStorage.setItem("ge_user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    }
+    return res.data;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, logActivity, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, logActivity, changePassword, loading }}>
       {children}
     </AuthContext.Provider>
   );

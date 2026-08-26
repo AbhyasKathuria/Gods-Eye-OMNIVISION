@@ -63,6 +63,15 @@ Type a question or use the INVESTIGATE tool for automated multi-source analysis.
     setLoading(true);
 
     try {
+      const lastMapCenter = localStorage.getItem("ge_map_center");
+      const lastMapZoom = localStorage.getItem("ge_map_zoom");
+      const lastMapTab = localStorage.getItem("ge_map_tab");
+      const mapTelemetryContext = lastMapCenter ? {
+        current_map_center: JSON.parse(lastMapCenter),
+        current_map_zoom: parseInt(lastMapZoom || "2", 10),
+        current_map_layer: lastMapTab || "None"
+      } : null;
+
       const res = await axios.post(`${API}/ai/chat`, {
         messages: newMessages.map(m => ({
           role: m.role,
@@ -71,7 +80,8 @@ Type a question or use the INVESTIGATE tool for automated multi-source analysis.
         context: {
           platform: "Gods Eye OSINT Platform",
           available_modules: ["identity", "cyber", "geo", "news"],
-          apis_connected: 45
+          apis_connected: 45,
+          map_telemetry: mapTelemetryContext
         }
       });
 

@@ -39,3 +39,6 @@ uploads/
 # Build
 build/
 *.zip 
+
+# Local Database
+database/users.json

@@ -1,0 +1,14 @@
+.env
+.git
+.github
+node_modules
+frontend/node_modules
+venv
+backend/venv
+backend/__pycache__
+backend/*/__pycache__
+database/users.json
+SAMPLETESTINGINFOS
+uploads
+temp
+*.log

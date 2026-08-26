@@ -161,6 +161,25 @@ async def domain_lookup(domain: str) -> dict:
     except Exception as e:
         results["dns_error"] = str(e)
 
+    # URLhaus host intelligence check (Free & Keyless)
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                "https://urlhaus-api.abuse.ch/v1/host/",
+                data={"host": domain}
+            )
+            if resp.status_code == 200:
+                uh_data = resp.json()
+                results["urlhaus"] = {
+                    "status": uh_data.get("query_status"),
+                    "urlhaus_reference": uh_data.get("urlhaus_reference"),
+                    "url_count": uh_data.get("url_count", 0),
+                    "spamhaus_dbl": uh_data.get("blacklists", {}).get("spamhaus_dbl"),
+                    "surbl": uh_data.get("blacklists", {}).get("surbl"),
+                }
+    except Exception as e:
+        results["urlhaus_error"] = str(e)
+
     return results
 
 
