@@ -20,6 +20,10 @@ export async function fetchBikeshare() {
       statusMap[s.station_id] = s;
     });
     
+    if (stationsInfo.length === 0) {
+      throw new Error("No stations found in raw response");
+    }
+    
     return stationsInfo.map(info => ({
       ...info,
       status: statusMap[info.station_id] || {}

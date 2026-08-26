@@ -5,17 +5,19 @@ export async function fetchRadioStations() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data
-      .filter(s => s.geo_lat && s.geo_long)
-      .map(s => ({
-        name: s.name,
-        country: s.country,
-        url: s.url_resolved || s.url,
-        tags: s.tags,
-        latitude: parseFloat(s.geo_lat),
-        longitude: parseFloat(s.geo_long),
-        type: "LIVE"
-      }));
+    const stations = data.filter(s => s.geo_lat && s.geo_long);
+    if (stations.length === 0) {
+      throw new Error("No geo-located stations in raw response");
+    }
+    return stations.map(s => ({
+      name: s.name,
+      country: s.country,
+      url: s.url_resolved || s.url,
+      tags: s.tags,
+      latitude: parseFloat(s.geo_lat),
+      longitude: parseFloat(s.geo_long),
+      type: "LIVE"
+    }));
   } catch (error) {
     console.error("Radio API error (falling back to static global stations):", error);
     return [
