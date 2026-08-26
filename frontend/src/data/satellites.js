@@ -112,7 +112,7 @@ export function plotSatellites(map, satellites, L) {
         <div>ALTITUDE: ${sat.altitude.toFixed(1)} km</div>
         <div>VELOCITY: ${sat.velocity.toFixed(0)} km/h</div>
       </div>
-    `).addTo(map);
+    `, { autoPan: false }).addTo(map);
     
     markers.push(marker);
   });

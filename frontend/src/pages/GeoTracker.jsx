@@ -264,7 +264,7 @@ export default function GeoTracker() {
             <div>HEADING: ${f.heading ? Math.round(f.heading) + "deg" : "N/A"}</div>
             <div>ON GROUND: ${f.on_ground ? "YES" : "NO"}</div>
           </div>
-        `)
+        `, { autoPan: false })
         .addTo(map);
       markersRef.current.push(marker);
     });
@@ -330,7 +330,7 @@ export default function GeoTracker() {
             </div>
             <div style="font-size:8px;color:#888;margin-top:4px">CONE OF VIEWSHED DISPLAYED ON MAP</div>
           </div>
-        `).openPopup();
+        `, { autoPan: false }).openPopup();
       });
     });
   };

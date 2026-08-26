@@ -47,7 +47,7 @@ export function plotRadioStations(map, stations, L) {
           <audio src="${s.url}" controls style="width:160px;height:30px;background:#000" />
         </div>
       </div>
-    `).addTo(map);
+    `, { autoPan: false }).addTo(map);
     
     markers.push(marker);
   });

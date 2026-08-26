@@ -61,7 +61,7 @@ export function plotBikeshare(map, stations, L) {
         <div>AVAILABLE BIKES: ${available}</div>
         <div>OPEN DOCKS: ${docks}</div>
       </div>
-    `).addTo(map);
+    `, { autoPan: false }).addTo(map);
     
     markers.push(marker);
   });

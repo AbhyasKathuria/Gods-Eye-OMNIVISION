@@ -34,7 +34,7 @@ export function plotEarthquakes(map, earthquakes, L) {
         <div>PLACE: ${place}</div>
         <div>TIME: ${time}</div>
       </div>
-    `).addTo(map);
+    `, { autoPan: false }).addTo(map);
     
     markers.push(marker);
   });

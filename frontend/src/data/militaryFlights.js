@@ -51,7 +51,7 @@ export function plotMilitaryFlights(map, flights, L) {
         <div>SPEED: ${f.velocity} knots</div>
         <div>HEADING: ${f.heading}°</div>
       </div>
-    `).addTo(map);
+    `, { autoPan: false }).addTo(map);
     
     markers.push(marker);
   });
