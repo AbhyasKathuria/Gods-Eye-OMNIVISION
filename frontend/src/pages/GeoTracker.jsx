@@ -338,7 +338,22 @@ export default function GeoTracker() {
       const marker = L.marker([cam.lat, cam.lon], { icon }).addTo(map);
       markersRef.current.push(marker);
       
-      marker.on("click", () => {
+      marker.bindPopup(`
+        <div style="background:#000;color:#00ff00;font-family:Courier New;font-size:10px;padding:8px;border:1px solid #ff0033;width:200px">
+          <div style="color:#ff0033;font-weight:bold;margin-bottom:4px">CCTV FEED (SIMULATED)</div>
+          <div>CAMERA ID: ${cam.id}</div>
+          <div>LOCATION: ${cam.name}</div>
+          <div style="margin-top:6px;position:relative;height:80px;background:#111;overflow:hidden;border:1px solid #333">
+            <div style="position:absolute;inset:0;opacity:0.25;background:linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.4) 50%), linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,255,0,0.06));background-size:100% 4px, 6px 100%"></div>
+            <div style="position:absolute;top:5px;left:5px;font-size:8px;animation:blink 1s infinite">REC 🔴</div>
+            <div style="position:absolute;bottom:5px;right:5px;font-size:8px">${new Date().toLocaleTimeString()}</div>
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff0033;font-size:8px;letter-spacing:1px">NO SIGNAL / NOISE OVERLAY</div>
+          </div>
+          <div style="font-size:8px;color:#888;margin-top:4px">CONE OF VIEWSHED DISPLAYED ON MAP</div>
+        </div>
+      `);
+
+      marker.on("popupopen", () => {
         if (cctvPolygonRef.current) {
           cctvPolygonRef.current.remove();
         }
@@ -359,21 +374,13 @@ export default function GeoTracker() {
         }).addTo(map);
         
         cctvPolygonRef.current = polygon;
-        
-        marker.bindPopup(`
-          <div style="background:#000;color:#00ff00;font-family:Courier New;font-size:10px;padding:8px;border:1px solid #ff0033;width:200px">
-            <div style="color:#ff0033;font-weight:bold;margin-bottom:4px">CCTV FEED (SIMULATED)</div>
-            <div>CAMERA ID: ${cam.id}</div>
-            <div>LOCATION: ${cam.name}</div>
-            <div style="margin-top:6px;position:relative;height:80px;background:#111;overflow:hidden;border:1px solid #333">
-              <div style="position:absolute;inset:0;opacity:0.25;background:linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.4) 50%), linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,255,0,0.06));background-size:100% 4px, 6px 100%"></div>
-              <div style="position:absolute;top:5px;left:5px;font-size:8px;animation:blink 1s infinite">REC 🔴</div>
-              <div style="position:absolute;bottom:5px;right:5px;font-size:8px">${new Date().toLocaleTimeString()}</div>
-              <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff0033;font-size:8px;letter-spacing:1px">NO SIGNAL / NOISE OVERLAY</div>
-            </div>
-            <div style="font-size:8px;color:#888;margin-top:4px">CONE OF VIEWSHED DISPLAYED ON MAP</div>
-          </div>
-        `).openPopup();
+      });
+
+      marker.on("popupclose", () => {
+        if (cctvPolygonRef.current) {
+          cctvPolygonRef.current.remove();
+          cctvPolygonRef.current = null;
+        }
       });
     });
   };
