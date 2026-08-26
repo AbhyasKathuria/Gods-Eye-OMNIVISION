@@ -132,7 +132,7 @@ async def streetview(lat: float, lon: float):
     ]
     
     key = settings.GOOGLE_MAPS_API_KEY
-    if not key or key.startswith("AIzaSyCpEUg1AEtMcjVKEV0ROlRdmhnIFO_pU-w"):  # Check if dummy key
+    if not key or len(key) < 20 or key.startswith("YOUR_"):  # Check if key is empty/dummy
         return RedirectResponse(random.choice(fallbacks))
         
     url = f"https://maps.googleapis.com/maps/api/streetview?size=200x80&location={lat},{lon}&key={key}"
