@@ -632,6 +632,10 @@ export default function GeoTracker() {
           break;
         case "CCTV MONITOR":
           if (map && L) {
+            const currentZoomBefore = map.getZoom();
+            if (userCoords && currentZoomBefore <= 3) {
+              map.setView(userCoords, 14);
+            }
             const currentCenter = map.getCenter();
             let osmCams = [];
             try {
@@ -1310,6 +1314,27 @@ export default function GeoTracker() {
                activeTab === "LIVE FLIGHTS" && !input ? "LOAD DATA LAYER" :
                activeTab === "MILITARY FLIGHTS" || activeTab === "EARTHQUAKES" || activeTab === "SATELLITE ORBITS" || activeTab === "BIKESHARE" || activeTab === "RADIO BROWSER" || activeTab === "CCTV MONITOR" ? "RELOAD DATA LAYER" :
                "SEARCH"}
+            </button>
+          )}
+
+          {activeTab === "CCTV MONITOR" && userCoords && (
+            <button onClick={async () => {
+              if (leafletMapRef.current) {
+                leafletMapRef.current.flyTo(userCoords, 14);
+                setTimeout(() => {
+                  loadData();
+                }, 450);
+              }
+            }}
+              disabled={loading}
+              style={{
+                width: "100%", padding: "8px", marginTop: "6px",
+                fontSize: "11px", letterSpacing: "1px", cursor: "pointer",
+                fontFamily: "Courier New",
+                background: "#001a1a", border: "1px solid #00ffff", color: "#00ffff",
+                boxShadow: "0 0 4px #00ffff"
+              }}>
+              SCAN CAMERAS NEAR ME 🛰️
             </button>
           )}
         </div>
