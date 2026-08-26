@@ -73,6 +73,7 @@ export default function GeoTracker() {
   const leafletMapRef = useRef(null);
   const markersRef = useRef([]);
   const cctvPolygonRef = useRef(null);
+  const activeTabRef = useRef(activeTab);
   
   // Voice Command State
   const [micActive, setMicActive] = useState(false);
@@ -435,6 +436,7 @@ export default function GeoTracker() {
   };
 
   const loadData = async () => {
+    const initiatedTab = activeTab;
     setLoading(true);
     setError(null);
     setResults(null);
@@ -455,6 +457,7 @@ export default function GeoTracker() {
       switch (activeTab) {
         case "LIVE FLIGHTS":
           const res = await axios.get(`${API}/geo/flights`);
+          if (activeTabRef.current !== initiatedTab) return;
           data = res.data.data.flights || [];
           setResults(res.data.data);
           if (map && L) {
@@ -463,6 +466,7 @@ export default function GeoTracker() {
           break;
         case "MILITARY FLIGHTS":
           data = await fetchMilitaryFlights();
+          if (activeTabRef.current !== initiatedTab) return;
           setResults({ flights: data, count: data.length });
           if (map && L) {
             const markers = plotMilitaryFlights(map, data, L);
@@ -471,6 +475,7 @@ export default function GeoTracker() {
           break;
         case "EARTHQUAKES":
           data = await fetchEarthquakes();
+          if (activeTabRef.current !== initiatedTab) return;
           setResults({ events: data, count: data.length });
           if (map && L) {
             const markers = plotEarthquakes(map, data, L);
@@ -479,6 +484,7 @@ export default function GeoTracker() {
           break;
         case "SATELLITE ORBITS":
           data = await fetchSatellites();
+          if (activeTabRef.current !== initiatedTab) return;
           setResults({ satellites: data, count: data.length });
           if (map && L) {
             const markers = plotSatellites(map, data, L);
@@ -487,6 +493,7 @@ export default function GeoTracker() {
           break;
         case "BIKESHARE":
           data = await fetchBikeshare();
+          if (activeTabRef.current !== initiatedTab) return;
           setResults({ stations: data, count: data.length });
           if (map && L) {
             const markers = plotBikeshare(map, data, L);
@@ -498,6 +505,7 @@ export default function GeoTracker() {
           const uLat = userCoords ? userCoords[0] : null;
           const uLon = userCoords ? userCoords[1] : null;
           data = await fetchRadioStations(uLat, uLon);
+          if (activeTabRef.current !== initiatedTab) return;
           setResults({ stations: data, count: data.length });
           if (map && L) {
             const markers = plotRadioStations(map, data, L);
@@ -528,9 +536,13 @@ export default function GeoTracker() {
           break;
       }
     } catch (e) {
-      setError(e.message);
+      if (activeTabRef.current === initiatedTab) {
+        setError(e.message);
+      }
     }
-    setLoading(false);
+    if (activeTabRef.current === initiatedTab) {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -548,6 +560,7 @@ export default function GeoTracker() {
   }, []);
 
   useEffect(() => {
+    activeTabRef.current = activeTab;
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
