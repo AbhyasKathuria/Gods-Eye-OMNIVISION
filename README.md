@@ -178,7 +178,7 @@ God's_Eye/
 ### 1. Dashboard `/`
 - Animated globe with radar sweep + threat hotspots
 - Live threat feed auto-updating every 2.5 seconds
-- 11 module quick-access cards
+- 14 module quick-access cards
 - 3-tab right panel: FEED / STATUS / ACTIONS
 - API status mini-dashboard
 - Live IST clock
@@ -204,21 +204,24 @@ God's_Eye/
 - AI threat assessment
 
 ### 4. Geo Tracker `/geo`
+**Tactical Overlay & Controls:**
 - **Tactical Visual Reskins:** NVG (Night Vision), FLIR (Thermal Gradients), Noir (Gray Surveillance), and CRT scanlines with animated sweeps.
-- **Tactical HUD:** Interactive display tracking coordinates under the cursor, map sector centers, zoom scales, and elevation/speed rulers.
-- **Micro-mobility (Bikeshare):** Austin B-cycle dock capacity and available bikes tracking (GBFS).
-- **USGS Earthquakes:** Real-time seismic events mapping (last 24h).
-- **Satellite Orbit Tracker:** Calculates orbital rings and track vectors for ISS, Sentinel-1A, and Hubble.
-- **ADSB Military Flights:** Intercepts active military flights via adsb.lol / adsb.one.
-- **Radio Broadcast Nodes:** Maps geolocated worldwide audio streams with embed players.
-- **CCTV Networks:** Plottable cameras with viewshed polygon visual scopes and simulated scanline video feeds.
-- **Data Integrity Badges:** Every layer carries visual status indicators (`LIVE`, `SIMULATED`, `ESTIMATE`, `THIRD-PARTY`).
-- Live civilian flight tracker (OpenSky Network — 10,000+ aircraft real-time)
-- Ship tracker (MarineTraffic embed)
-- Location search + reverse geocode (Nominatim)
-- Weather intelligence (OpenWeatherMap)
-- Satellite imagery links (Google, Sentinel Hub, NASA Worldview)
-- AI geo intelligence report
+- **Surveillance HUD:** Interactive display tracking coordinates under the cursor, map sector centers, zoom scales, and elevation/speed rulers.
+- **OmniVoice Speech Control:** Hands-free speech recognition (Web Speech API) for map zoom, styles, layer switching, and travel controls.
+- **Data Integrity Badges:** Dynamic reliability states (`LIVE`, `SIMULATED`, `ESTIMATE`, `THIRD-PARTY`) assigned across all active layers.
+- **Viewshed CCTV Networks:** Plottable cameras displaying angle ranges (viewsheds) on-click and simulated video monitor scopes.
+
+**Data Feeds & Layers:**
+- **USGS Earthquakes (New):** Live global seismic events mapping (last 24h).
+- **ADSB Military Flights (New):** Keyless military aviation tracking via adsb.lol.
+- **Satellite Orbit Tracker (New):** ISS coordinate tracks & orbit path circles for Sentinel-1A and Hubble.
+- **Micro-mobility (New):** Live Austin B-cycle dock capacity and availability metrics (GBFS).
+- **Radio Broadcast Nodes (New):** World radio stations mapping with embed audio players.
+- **Live Civilian Flights:** OpenSky Network tracking showing 10,000+ aircraft vectors.
+- **Weather Scanner:** Local meteorological metrics via OpenWeatherMap.
+- **Marine Traffic:** Live commercial vessel tracking (MarineTraffic iframe embed).
+- **Location Geocoder:** Nominatim forward/reverse geocoding searches.
+- **AI Geo Intelligence:** Viewport telemetry context is automatically sent to the AI Brain.
 
 ### 5. News Monitor `/news`
 - Live top headlines by category (NewsAPI — 1000+ sources)
@@ -349,7 +352,7 @@ Theme saved to localStorage — persists across sessions.
 - **First-Run Enforcement Interception**: Prevents default login bypasses.
 - **Async parallel**: `asyncio.gather()` — all APIs simultaneously, not sequentially.
 - **JWT auth**: 8-hour expiry, role in token payload.
-- **Key protection**: All 45+ keys in `.env` only — never in source, never in frontend.
+- **Key protection**: All 50+ keys in `.env` only — never in source, never in frontend.
 - **Input sanitization**: All inputs sanitized before external API calls.
 - **Activity logging**: Every search logged with user, timestamp (IST), module, target.
 - **CORS**: Restricted to localhost:5173 and localhost:5174 only.
