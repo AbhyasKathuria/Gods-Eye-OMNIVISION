@@ -23,6 +23,21 @@ const TABS = [
 
 const STYLES = ["NORMAL", "NVG", "FLIR", "NOIR", "CRT"];
 
+const CAMERAS_FALLBACK = [
+  { id: "CAM-01", name: "6th & Congress Ave Intersection (Austin)", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003, realImg: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-02", name: "Texas State Capitol North (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032, realImg: "https://images.unsplash.com/photo-1588694889700-1c3905cfc4ba?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-03", name: "Zilker Park Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-04", name: "Presidency University Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003, realImg: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-05", name: "Presidency University Library (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025, realImg: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-06", name: "Trafalgar Square South Cam (London)", lat: 51.5080, lon: -0.1280, angle: 220, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-07", name: "Tower Bridge East Bypass (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038, realImg: "https://images.unsplash.com/photo-1513635269975-59663e0ca1ad?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-08", name: "Shibuya Crossing Main Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003, realImg: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-09", name: "Tokyo Skytree Observatory (Tokyo)", lat: 35.7100, lon: 139.8107, angle: 180, radius: 0.004, realImg: "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-10", name: "Eiffel Tower Esplanade (Paris)", lat: 48.8583, lon: 2.2945, angle: 120, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-11", name: "Champs-Élysées East Flow (Paris)", lat: 48.8700, lon: 2.3050, angle: 270, radius: 0.0036, realImg: "https://images.unsplash.com/photo-1522093007474-d86e9b79443a?auto=format&fit=crop&w=200&q=80" },
+  { id: "CAM-12", name: "Opera House Forecourt (Sydney)", lat: -33.8568, lon: 151.2153, angle: 45, radius: 0.0032, realImg: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=200&q=80" }
+];
+
 function DataIntegrityBadge({ state }) {
   const badgeStyles = {
     "LIVE": { color: "#00ff00", borderColor: "#00aa00", bg: "rgba(0,50,0,0.4)" },
@@ -312,7 +327,7 @@ export default function GeoTracker() {
     });
   };
 
-  const plotCctvCameras = (map, L) => {
+  const plotCctvCameras = (map, camerasList, L) => {
     if (!map || !L) return;
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
@@ -321,20 +336,7 @@ export default function GeoTracker() {
       cctvPolygonRef.current = null;
     }
     
-    const cameras = [
-      { id: "CAM-01", name: "6th & Congress Ave Intersection (Austin)", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003, realImg: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-02", name: "Texas State Capitol North (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032, realImg: "https://images.unsplash.com/photo-1588694889700-1c3905cfc4ba?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-03", name: "Zilker Park Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-04", name: "Presidency University Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003, realImg: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-05", name: "Presidency University Library (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025, realImg: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-06", name: "Trafalgar Square South Cam (London)", lat: 51.5080, lon: -0.1280, angle: 220, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-07", name: "Tower Bridge East Bypass (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038, realImg: "https://images.unsplash.com/photo-1513635269975-59663e0ca1ad?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-08", name: "Shibuya Crossing Main Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003, realImg: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-09", name: "Tokyo Skytree Observatory (Tokyo)", lat: 35.7100, lon: 139.8107, angle: 180, radius: 0.004, realImg: "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-10", name: "Eiffel Tower Esplanade (Paris)", lat: 48.8583, lon: 2.2945, angle: 120, radius: 0.0035, realImg: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-11", name: "Champs-Élysées East Flow (Paris)", lat: 48.8700, lon: 2.3050, angle: 270, radius: 0.0036, realImg: "https://images.unsplash.com/photo-1522093007474-d86e9b79443a?auto=format&fit=crop&w=200&q=80" },
-      { id: "CAM-12", name: "Opera House Forecourt (Sydney)", lat: -33.8568, lon: 151.2153, angle: 45, radius: 0.0032, realImg: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=200&q=80" }
-    ];
+    const cameras = camerasList || [];
     
     cameras.forEach(cam => {
       const icon = L.divIcon({
@@ -629,18 +631,55 @@ export default function GeoTracker() {
           }
           break;
         case "CCTV MONITOR":
-          setResults({ cameras: 12 });
           if (map && L) {
-            plotCctvCameras(map, L);
+            const currentCenter = map.getCenter();
+            let osmCams = [];
+            try {
+              const res = await axios.get(`${API}/geo/cameras?lat=${currentCenter.lat}&lon=${currentCenter.lng}`);
+              if (res.data && res.data.status === "success") {
+                osmCams = res.data.data || [];
+              }
+            } catch (err) {
+              console.warn("Failed to fetch real-time OSM cameras, using fallback only", err);
+            }
+
+            if (activeTabRef.current !== initiatedTab) return;
+
+            // Merge fallback cameras with OSM cameras, filtering duplicates
+            const allCams = [...osmCams];
+            CAMERAS_FALLBACK.forEach(f => {
+              const duplicate = allCams.some(c => 
+                c.id === f.id || 
+                (Math.abs(c.lat - f.lat) < 0.0001 && Math.abs(c.lon - f.lon) < 0.0001)
+              );
+              if (!duplicate) {
+                allCams.push(f);
+              }
+            });
+
+            plotCctvCameras(map, allCams, L);
+            setResults({ cameras: allCams.length });
+
             const currentZoom = map.getZoom();
             if (currentZoom > 3) {
-              const currentCenter = map.getCenter();
               const distToBlr = Math.sqrt(Math.pow(currentCenter.lat - 13.1682, 2) + Math.pow(currentCenter.lng - 77.5354, 2));
               const distToAus = Math.sqrt(Math.pow(currentCenter.lat - 30.2680, 2) + Math.pow(currentCenter.lng - (-97.7420), 2));
-              if (distToBlr < distToAus) {
+              
+              if (distToBlr < distToAus && distToBlr < 1.0) {
                 map.setView([13.1682, 77.5354], 15);
-              } else {
+              } else if (distToAus < 1.0) {
                 map.setView([30.2680, -97.7420], 13);
+              } else if (osmCams.length > 0) {
+                let closest = osmCams[0];
+                let minDist = Infinity;
+                osmCams.forEach(c => {
+                  const dist = Math.sqrt(Math.pow(currentCenter.lat - c.lat, 2) + Math.pow(currentCenter.lng - c.lon, 2));
+                  if (dist < minDist) {
+                    minDist = dist;
+                    closest = c;
+                  }
+                });
+                map.setView([closest.lat, closest.lon], 15);
               }
             }
           }
