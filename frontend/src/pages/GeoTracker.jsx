@@ -348,6 +348,11 @@ export default function GeoTracker() {
     }).addTo(map);
     
     leafletMapRef.current = map;
+
+    // Redraw map tiles after rendering layout
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
     
     // Map event listeners
     map.on("mousemove", (e) => {
@@ -373,19 +378,7 @@ export default function GeoTracker() {
   };
 
   const initMap = () => {
-    if (leafletMapRef.current) return;
-    if (!window.L) {
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-      script.onload = () => createMap();
-      document.head.appendChild(script);
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-      document.head.appendChild(link);
-    } else {
-      createMap();
-    }
+    createMap();
   };
 
   const loadData = async () => {
