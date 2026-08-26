@@ -321,9 +321,11 @@ export default function GeoTracker() {
     }
     
     const cameras = [
-      { id: "CAM-01", name: "6th & Congress Ave Intersection", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003 },
-      { id: "CAM-02", name: "Texas State Capitol North Entrance", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032 },
-      { id: "CAM-03", name: "Zilker Park Main Pedestrian Gate", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035 }
+      { id: "CAM-01", name: "6th & Congress Ave Intersection (Austin)", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003 },
+      { id: "CAM-02", name: "Texas State Capitol North Entrance (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032 },
+      { id: "CAM-03", name: "Zilker Park Main Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035 },
+      { id: "CAM-04", name: "Presidency University Main Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003 },
+      { id: "CAM-05", name: "Presidency University Block Auditorium (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025 }
     ];
     
     cameras.forEach(cam => {
@@ -499,10 +501,17 @@ export default function GeoTracker() {
           }
           break;
         case "CCTV MONITOR":
-          setResults({ cameras: 3 });
+          setResults({ cameras: 5 });
           if (map && L) {
             plotCctvCameras(map, L);
-            map.setView([13.1682, 77.5354], 15);
+            const currentCenter = map.getCenter();
+            const distToBlr = Math.sqrt(Math.pow(currentCenter.lat - 13.1682, 2) + Math.pow(currentCenter.lng - 77.5354, 2));
+            const distToAus = Math.sqrt(Math.pow(currentCenter.lat - 30.2680, 2) + Math.pow(currentCenter.lng - (-97.7420), 2));
+            if (distToBlr < distToAus) {
+              map.setView([13.1682, 77.5354], 15);
+            } else {
+              map.setView([30.2680, -97.7420], 13);
+            }
           }
           break;
         case "SHIP TRACKER":
