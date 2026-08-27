@@ -770,10 +770,10 @@ export default function GeoTracker() {
   }, [activeTab, loading]);
 
   const handleSearch = async (overrideInput = null, overrideLat = null, overrideLon = null, overrideTab = null) => {
-    const searchInput = overrideInput !== null ? overrideInput : input;
-    const searchLat = overrideLat !== null ? overrideLat : lat;
-    const searchLon = overrideLon !== null ? overrideLon : lon;
-    const searchTab = overrideTab !== null ? overrideTab : activeTab;
+    const searchInput = (typeof overrideInput === "string") ? overrideInput : input;
+    const searchLat = (typeof overrideLat === "string" || typeof overrideLat === "number") ? overrideLat : lat;
+    const searchLon = (typeof overrideLon === "string" || typeof overrideLon === "number") ? overrideLon : lon;
+    const searchTab = (typeof overrideTab === "string") ? overrideTab : activeTab;
 
     if (!searchInput.trim() && !searchLat && !searchLon) return;
     setLoading(true);
