@@ -10,14 +10,17 @@ export default function CryptoTracker() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleTrack = async () => {
-    if (!address.trim()) return;
+  const handleTrack = async (overrideAddress = null, overrideCoin = null) => {
+    const targetAddress = (typeof overrideAddress === "string") ? overrideAddress : address;
+    const targetCoin = (typeof overrideCoin === "string") ? overrideCoin : coin;
+
+    if (!targetAddress.trim()) return;
     setLoading(true);
     setResults(null);
     setError(null);
 
     try {
-      const res = await axios.get(`${API}/crypto/balance/${coin.toLowerCase()}/${address.trim()}`);
+      const res = await axios.get(`${API}/crypto/balance/${targetCoin.toLowerCase()}/${targetAddress.trim()}`);
       if (res.data.status === "success") {
         setResults(res.data);
       } else {
@@ -108,8 +111,8 @@ export default function CryptoTracker() {
           QUICK TARGETS
         </div>
         {[
-          { label: "Genesis Block BTC", action: () => { setCoin("BTC"); setAddress("1A1zP1eP5Qgefi2DMPTfTL5SLmv7DivfNa"); }},
-          { label: "Safe Contract ETH", action: () => { setCoin("ETH"); setAddress("0x38651c6c641d8e1e1e1e1e1e1e1e1e1e1e1e1e1e"); }},
+          { label: "Genesis Block BTC", action: () => { setCoin("BTC"); setAddress("1A1zP1eP5Qgefi2DMPTfTL5SLmv7DivfNa"); handleTrack("1A1zP1eP5Qgefi2DMPTfTL5SLmv7DivfNa", "BTC"); }},
+          { label: "Safe Contract ETH", action: () => { setCoin("ETH"); setAddress("0x38651c6c641d8e1e1e1e1e1e1e1e1e1e1e1e1e1e"); handleTrack("0x38651c6c641d8e1e1e1e1e1e1e1e1e1e1e1e1e1e", "ETH"); }},
         ].map((t, i) => (
           <button key={i} onClick={t.action}
             style={{
