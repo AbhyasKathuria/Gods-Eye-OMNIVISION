@@ -1469,39 +1469,53 @@ export default function GeoTracker() {
           )}
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
-          {loading && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center",
-              justifyContent: "center", height: "100%", gap: "12px" }}>
-              <div style={{ color: "#ff0000", fontSize: "11px", letterSpacing: "3px" }}
-                className="animate-pulse">
-                ACQUIRING SATELLITE TELEMETRY...
-              </div>
-              <div style={{ color: "#440000", fontSize: "11px" }}>
-                Resolving data integrity handshake
-              </div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "row", overflow: "hidden", background: "#000" }}>
+          {/* Metadata Overlay Panel (Left Side of split view) */}
+          {["LOCATION SEARCH", "SATELLITE VIEW", "WEATHER"].includes(activeTab) && !loading && (
+            <div style={{ 
+              width: "350px", 
+              overflowY: "auto", 
+              padding: "16px", 
+              borderRight: "1px solid #220000",
+              background: "#030000" 
+            }}>
+              {activeTab === "LOCATION SEARCH" && renderLocationSearch()}
+              {activeTab === "SATELLITE VIEW" && renderSatellite()}
+              {activeTab === "WEATHER" && renderWeather()}
             </div>
           )}
 
-          {error && (
-            <div style={{ padding: "12px", border: "1px solid #ff0000", background: "#0d0000" }}>
-              <div style={{ color: "#ff0000", fontSize: "11px", marginBottom: "4px" }}>GEO OVERLAY ERROR</div>
-              <div style={{ color: "#882222", fontSize: "11px" }}>{error}</div>
-            </div>
-          )}
+          <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", height: "100%" }}>
+            {loading && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center",
+                justifyContent: "center", height: "100%", gap: "12px" }}>
+                <div style={{ color: "#ff0000", fontSize: "11px", letterSpacing: "3px" }}
+                  className="animate-pulse">
+                  ACQUIRING SATELLITE TELEMETRY...
+                </div>
+                <div style={{ color: "#440000", fontSize: "11px" }}>
+                  Resolving data integrity handshake
+                </div>
+              </div>
+            )}
 
-          {/* Always mount map container in the DOM, but hide it if not a map tab or loading */}
-          <div style={{ 
-            display: (["LIVE FLIGHTS", "MILITARY FLIGHTS", "EARTHQUAKES", "SATELLITE ORBITS", "BIKESHARE", "RADIO BROWSER", "CCTV MONITOR", "LOCATION SEARCH", "SATELLITE VIEW", "WEATHER"].includes(activeTab) && !loading) ? "block" : "none", 
-            height: "100%" 
-          }}>
-            {renderFlights()}
+            {error && (
+              <div style={{ padding: "12px", border: "1px solid #ff0000", background: "#0d0000" }}>
+                <div style={{ color: "#ff0000", fontSize: "11px", marginBottom: "4px" }}>GEO OVERLAY ERROR</div>
+                <div style={{ color: "#882222", fontSize: "11px" }}>{error}</div>
+              </div>
+            )}
+
+            {/* Always mount map container in the DOM, but hide it if not a map tab or loading */}
+            <div style={{ 
+              display: (["LIVE FLIGHTS", "MILITARY FLIGHTS", "EARTHQUAKES", "SATELLITE ORBITS", "BIKESHARE", "RADIO BROWSER", "CCTV MONITOR", "LOCATION SEARCH", "SATELLITE VIEW", "WEATHER"].includes(activeTab) && !loading) ? "block" : "none", 
+              height: "100%" 
+            }}>
+              {renderFlights()}
+            </div>
+
+            {!loading && activeTab === "SHIP TRACKER" && renderShips()}
           </div>
-
-          {!loading && activeTab === "SHIP TRACKER" && renderShips()}
-          {!loading && activeTab === "LOCATION SEARCH" && renderLocationSearch()}
-          {!loading && activeTab === "SATELLITE VIEW" && renderSatellite()}
-          {!loading && activeTab === "WEATHER" && renderWeather()}
         </div>
       </div>
     </div>
