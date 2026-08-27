@@ -176,7 +176,10 @@ God's_Eye/
 ## 🧠 Intelligence Modules (14)
 
 ### 1. Dashboard `/`
-- Animated globe with radar sweep + threat hotspots
+- **3D Holographic Rotating Globe:** High-performance Canvas-based orthographic projection sphere showing detailed world continent points (with mapped borders for India, Italy, Japan, UK, Greenland, and Madagascar).
+- **Depth-Aware Transparency:** Rotates both front (glowing red) and back (faint translucent red) hemisphere coordinates for realistic holographic depth sorting.
+- **Threat Trajectories (Slerp):** Draws 3D curved connecting lines using Spherical Linear Interpolation to link active threat nodes across cities.
+- **Dynamic Theme Repainting:** Glove colors seamlessly morph between red and green when the navbar mode toggler is flipped.
 - Live threat feed auto-updating every 2.5 seconds
 - 14 module quick-access cards
 - 3-tab right panel: FEED / STATUS / ACTIONS
@@ -194,6 +197,7 @@ God's_Eye/
 - *Completely clean of real people's portraits in sample fixtures, utilizing generic avatars.*
 
 ### 3. Cyber Intelligence `/cyber`
+- **One-Click QUICK TESTS Presets:** Automated preset buttons for IP Tracker, Domain Intel, Breach Check, Shodan, VirusTotal, and AlienVault OTX that run scans instantly on-click.
 - **AlienVault OTX Pulse Checker:** Integrates Open Threat Exchange pulses for scanned IPs/domains.
 - **URLhaus malware scanner:** Queries host-level threat status, active malicious URLs count, and Spamhaus blacklist metrics.
 - IP tracker (IPGeolocation + IPInfo + AbuseIPDB)
@@ -205,6 +209,7 @@ God's_Eye/
 
 ### 4. Geo Tracker `/geo`
 **Tactical Overlay & Controls:**
+- **Split-Layout Control Panel:** Search coordinates, satellite links, and weather telemetry render in a 350px left column next to the full-height Leaflet map on the right, ensuring clean scrollability and display integrity.
 - **Tactical Visual Reskins:** NVG (Night Vision), FLIR (Thermal Gradients), Noir (Gray Surveillance), and CRT scanlines with animated sweeps.
 - **Surveillance HUD:** Interactive display tracking coordinates under the cursor, map sector centers, zoom scales, and elevation/speed rulers.
 - **OmniVoice Speech Control:** Hands-free speech recognition (Web Speech API) for map zoom, styles, layer switching, and travel controls.
@@ -255,7 +260,7 @@ God's_Eye/
 
 ### 9. Threat Score Calculator `/threat-score`
 - Unified 0-100 risk score from 6 threat indicators
-- **Instant — pure frontend calculation, zero API calls, zero loading**
+- **Automated QUICK PRESETS:** Click any target preset to fill variables and run calculation metrics instantly.
 - Visual gauge: LOW / MEDIUM / HIGH / CRITICAL
 - Score breakdown per factor
 - Pre-built presets for common scenarios
@@ -278,14 +283,17 @@ God's_Eye/
 
 ### 13. Wireless Airspace Recon `/wifi-recon`
 - **Wigle.net Wi-Fi Mapping:** Queries nearby Wi-Fi network coordinates on an interactive dark Leaflet map.
-- Extracts SSID, BSSID (MAC Address), signal strength (QoS), encryption, and channels.
+- **API-Keyless OpenStreetMap Dark Layers:** Replaced CartoDB dark matter maps with open-source OSM tiles combined with visual night-vision CSS filters to resolve watermark restrictions.
+- **Automated Preset Scans:** Presets geolocate coordinates and execute the Wigle SIGINT scanning query automatically.
 
 ### 14. Crypto Wallet Tracker `/crypto-tracker`
 - **Ledger Wallet Auditing:** Connects to Etherscan (ETH) and Blockcypher (BTC) to check balances and transaction tables.
+- **Automated Quick Targets:** Instantly runs blockchain transaction trace audits upon selecting target wallets.
 - **Transfer Route Visualizer:** Graphs visual hop relays for financial forensics.
 
 ### + Reports `/reports`
 - 5 report types (Person, Cyber, Geo, News, General)
+- **Automated QUICK SAMPLES:** Sidebar presets fill target forms and run LLaMA-based automated report builders in one click.
 - AI-powered generation via LLaMA 3.3 70B
 - **Export as PDF** — God's Eye branding + educational watermark
 - **Export as JSON** — structured machine-readable
@@ -311,10 +319,10 @@ Geo Tracker features a vocal interface using the native browser speech engine.
 
 | Theme | Trigger | Style |
 |-------|---------|-------|
-| GOD'S EYE MODE | Default | Dark red/black — high contrast OSINT |
-| ANALYST MODE | Click toggle in Navbar | Professional blue/grey |
+| GOD'S EYE MODE | Default | Crimson & Black — high contrast tactical red OSINT theme |
+| ANALYST MODE | Click toggle in Navbar | Neon Hacker Green & Black — Matrix terminal style theme |
 
-Theme saved to localStorage — persists across sessions.
+*Note: The 3D rotating canvas globe dynamically changes colors in real-time between Crimson Red and Matrix Green depending on the active theme toggle.*
 
 ---
 

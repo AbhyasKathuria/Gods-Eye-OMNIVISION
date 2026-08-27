@@ -108,14 +108,15 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 * **Usage:** Users must read and check the **Ethics Agreement** before initiating access. JWT tokens expire automatically after 8 hours. Credentials are encrypted using salted `bcrypt` hashes and dynamically seeded to the gitignored `database/users.json` file.
 * **Theme Switching (Stealth Mode):** Toggled in the Navbar.
   * *God's Eye Mode:* High-contrast black and crimson theme, modeled after military tactical interfaces.
-  * *Analyst Mode:* High-contrast professional blue/grey layout, suitable for corporate or government briefing environments.
+  * *Analyst Mode:* High-contrast professional matrix hacker green layout, styled like a terminal console. The 3D rotating globe dynamically changes colors between Crimson Red and Matrix Green depending on the active theme.
 
 ---
 
 ### 4.2 Module 1: System Dashboard
 * **Path:** `/`
 * **Features:**
-  * Interactive 3D vector-style globe with rotating scanner sweep and real-time incident markers.
+  * Interactive 3D Canvas-based orthographic projection rotating globe featuring detailed world continent coordinates (with mapped borders for India, Italy, Japan, UK, Greenland, and Madagascar).
+  * Real-time transparent holographic depth rendering (spinning front and back hemispheres with varying opacities), Slerp curved connections for threat trajectories, glowing radar scope circles, and blinking tactical beacon indicators.
   * Live feed updating every 2.5 seconds with simulated and real threat feeds.
   * API health summary, system activity trackers, and 14 module quick-access cards.
 * **Operational Action:** Use the dashboard as the starting point of your shift to scan for globally trending cyber incidents or check overall API quota usage.
@@ -137,6 +138,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 ### 4.4 Module 3: Cyber Intelligence
 * **Path:** `/cyber`
 * **Features:**
+  * **One-Click QUICK TESTS Presets:** Integrated quick scanning preset buttons for IP, Domain, Breach, Shodan, VirusTotal, and AlienVault OTX that run scans automatically on-click.
   * **IP Tracker:** Fetches exact coordinates, ISP info, AbuseIPDB confidence score, and VirusTotal flags.
   * **Domain Investigator:** Pulls WHOIS registration records, name servers, Google DNS responses, URLScan.io live page renders, and **URLhaus malware threat database** host listings.
   * **Shodan Explorer:** Performs direct search queries on Shodan database (e.g., `webcam port:80` or `mongodb`).
@@ -148,6 +150,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 ### 4.5 Module 4: Geo Tracker
 * **Path:** `/geo`
 * **Features:**
+  * **Split-Layout Control Panel:** Search list results, satellite links, and weather telemetry cards render in a 350px left-hand sidebar next to the main Leaflet map on the right, enabling easy scrollability and preventing overlays.
   * **Tactical Visual Shaders:** NVG (Night Vision), FLIR (Thermal/Inverted), Noir, and CRT scanlines with animated radar sweeps applied as Leaflet WebGL/CSS filter shaders.
   * **Tactical HUD Overlay:** Overlays cursor-tracked coordinates, sector center, scale, heading, and mock speed/altitude rulers.
   * **OmniVoice Speech Assistant:** Hands-free vocal control using native browser Web Speech API for map zoom, styles, and flying commands.
@@ -209,7 +212,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 * **Features:**
   * **Weighted Risk Calculation:** Combines 6 primary indicators:
     $$\text{Threat Score} = \text{VT Engines (30)} + \text{AbuseIPDB (25)} + \text{Domain Age (15)} + \text{Breaches (15)} + \text{GPS Metadata (10)} + \text{Sentiment (5)}$$
-  * **Preset Configurations:** Features presets (e.g., Malicious IP, Clean Infrastructure, Phishing Domain) to demonstrate scoring categories.
+  * **Automated QUICK PRESETS:** Click any target preset to automatically select, fill values, and run the risk calculation algorithms instantly.
   * Runs entirely on the frontend with **zero latency** and zero external API hits.
 * **Operational Action:** Assign an objective, quantitative risk ranking to threat indicators before submitting them to command.
 
@@ -237,6 +240,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 * **Path:** `/reports`
 * **Features:**
   * Compiles findings from the Identity, Cyber, Geo, and News modules into structured reports.
+  * **Automated QUICK SAMPLES:** Sidebar presets fill target forms and run LLaMA-based automated report builders in one click.
   * **PDF Export:** Saves reports with a professional God's Eye header and educational watermark.
   * **JSON Export:** Downloads structured machine-readable JSON data for ingestion into other SIEM tools.
   * **TXT Export:** Exports plain-text files for copy-paste sharing.
@@ -248,6 +252,8 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 * **Path:** `/wifi-recon`
 * **Features:**
   * **Wigle.net Integration:** Maps nearby wireless hotspots and coordinates dynamically on an interactive dark Leaflet map.
+  * **API-Keyless OpenStreetMap Dark Layers:** Replaced CartoDB dark matter maps with open-source OSM tiles combined with visual night-vision CSS filters to resolve watermark restrictions.
+  * **Automated Preset Scans:** Presets geolocate coordinates and execute the Wigle SIGINT scanning query automatically.
   * Extracts SSID, BSSID (MAC Address), signal strength (QoS), encryption standards, and channels.
 * **Operational Action:** Map nearby wireless signals and analyze open/secured networks during security audits.
 
@@ -257,6 +263,7 @@ God's Eye leverages a high-performance, async-parallel stack designed for local 
 * **Path:** `/crypto-tracker`
 * **Features:**
   * **Etherscan & Blockcypher Integration:** Audits Ethereum and Bitcoin wallet balances and live transactions.
+  * **Automated Quick Targets:** Instantly runs blockchain transaction trace audits upon selecting target wallets.
   * **Transfer Route Visualizer:** Graphs visual hop relays for financial forensics.
 * **Operational Action:** Query blockchain ledgers and trace fund routes during financial investigations.
 
