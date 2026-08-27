@@ -15,10 +15,11 @@ export default function ThreatScore() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const calculate = async () => {
+  const calculate = async (overrideInputs = null) => {
+    const targetInputs = overrideInputs || inputs;
     setLoading(true);
     try {
-      const res = await axios.post(`${API}/recon/threat-score`, inputs);
+      const res = await axios.post(`${API}/recon/threat-score`, targetInputs);
       setResult(res.data.data);
     } catch (e) {
       console.error(e);
@@ -74,7 +75,7 @@ export default function ThreatScore() {
         <div>
           <div style={{ color: "#882222", fontSize: "10px", marginBottom: "6px" }}>QUICK PRESETS</div>
           {presets.map((p, i) => (
-            <button key={i} onClick={() => setInputs(p.vals)}
+            <button key={i} onClick={() => { setInputs(p.vals); calculate(p.vals); }}
               style={{ width: "100%", padding: "6px 8px", marginBottom: "4px", fontSize: "10px",
                 cursor: "pointer", fontFamily: "Courier New", textAlign: "left",
                 background: "#060000", border: "1px solid #330000", color: "#552222" }}>
