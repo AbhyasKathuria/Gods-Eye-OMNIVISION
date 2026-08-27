@@ -786,9 +786,37 @@ export default function GeoTracker() {
         case "LOCATION SEARCH":
           res = await axios.get(`${API}/geo/geocode?query=${encodeURIComponent(searchInput)}`);
           setResults(res.data.data);
-          if (res.data.data.results?.length > 0 && leafletMapRef.current) {
+          if (res.data.data.results?.length > 0 && leafletMapRef.current && window.L) {
             const first = res.data.data.results[0];
-            leafletMapRef.current.flyTo([first.latitude, first.longitude], 10);
+            const map = leafletMapRef.current;
+            const L = window.L;
+            
+            markersRef.current.forEach(m => m.remove());
+            markersRef.current = [];
+            
+            const icon = L.divIcon({
+              html: `<div style="color:#ff3300;font-size:24px;font-weight:bold;text-shadow:0 0 6px #f00">📍</div>`,
+              className: "",
+              iconSize: [24, 24],
+              iconAnchor: [12, 24]
+            });
+            
+            const marker = L.marker([first.latitude, first.longitude], { icon }).addTo(map);
+            marker.bindPopup(`
+              <div style="background:#000;color:#00ff00;font-family:Courier New;font-size:10px;padding:8px;border:1px solid #ff4400;width:180px">
+                <div style="color:#ff4400;font-weight:bold;margin-bottom:4px">📍 LOCATION IDENTIFIED</div>
+                <div style="font-weight:bold;color:#fff">${first.name}</div>
+                <div>LAT: ${first.latitude.toFixed(4)}</div>
+                <div>LON: ${first.longitude.toFixed(4)}</div>
+                <div style="font-size:8px;color:#888;margin-top:4px">OMNIVISION GEOPOS TARGET</div>
+              </div>
+            `);
+            markersRef.current.push(marker);
+            
+            map.flyTo([first.latitude, first.longitude], 14);
+            setTimeout(() => {
+              marker.openPopup();
+            }, 1000);
           }
           break;
         case "SATELLITE VIEW":
@@ -967,6 +995,36 @@ export default function GeoTracker() {
           onClick={async () => {
             const res = await axios.get(`${API}/geo/reverse?lat=${loc.latitude}&lon=${loc.longitude}`);
             setResults(res.data);
+            if (leafletMapRef.current && window.L) {
+              const map = leafletMapRef.current;
+              const L = window.L;
+              
+              markersRef.current.forEach(m => m.remove());
+              markersRef.current = [];
+              
+              const icon = L.divIcon({
+                html: `<div style="color:#ff3300;font-size:24px;font-weight:bold;text-shadow:0 0 6px #f00">📍</div>`,
+                className: "",
+                iconSize: [24, 24],
+                iconAnchor: [12, 24]
+              });
+              
+              const marker = L.marker([loc.latitude, loc.longitude], { icon }).addTo(map);
+              marker.bindPopup(`
+                <div style="background:#000;color:#00ff00;font-family:Courier New;font-size:10px;padding:8px;border:1px solid #ff4400;width:180px">
+                  <div style="color:#ff4400;font-weight:bold;margin-bottom:4px">📍 LOCATION SELECTED</div>
+                  <div style="font-weight:bold;color:#fff">${loc.name}</div>
+                  <div>LAT: ${loc.latitude.toFixed(4)}</div>
+                  <div>LON: ${loc.longitude.toFixed(4)}</div>
+                </div>
+              `);
+              markersRef.current.push(marker);
+              
+              map.flyTo([loc.latitude, loc.longitude], 14);
+              setTimeout(() => {
+                marker.openPopup();
+              }, 1000);
+            }
           }}>
           <div style={{ color: "#ff4400", fontSize: "11px", marginBottom: "6px" }}>
             RESULT {i + 1}
@@ -1434,7 +1492,7 @@ export default function GeoTracker() {
 
           {/* Always mount map container in the DOM, but hide it if not a map tab or loading */}
           <div style={{ 
-            display: (["LIVE FLIGHTS", "MILITARY FLIGHTS", "EARTHQUAKES", "SATELLITE ORBITS", "BIKESHARE", "RADIO BROWSER", "CCTV MONITOR"].includes(activeTab) && !loading) ? "block" : "none", 
+            display: (["LIVE FLIGHTS", "MILITARY FLIGHTS", "EARTHQUAKES", "SATELLITE ORBITS", "BIKESHARE", "RADIO BROWSER", "CCTV MONITOR", "LOCATION SEARCH", "SATELLITE VIEW", "WEATHER"].includes(activeTab) && !loading) ? "block" : "none", 
             height: "100%" 
           }}>
             {renderFlights()}
