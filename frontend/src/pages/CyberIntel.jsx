@@ -13,34 +13,38 @@ export default function CyberIntel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSearch = async () => {
-    if (!input.trim()) return;
+  const handleSearch = async (overrideInput = null, overrideTab = null) => {
+    const targetInput = (typeof overrideInput === "string") ? overrideInput : input;
+    const targetTab = (typeof overrideTab === "string") ? overrideTab : activeTab;
+
+    if (!targetInput.trim()) return;
     setLoading(true);
     setResults(null);
     setError(null);
 
     try {
       let res;
-      switch (activeTab) {
+      const cleanInput = targetInput.trim();
+      switch (targetTab) {
         case "IP TRACKER":
-          res = await axios.get(`${API}/cyber/ip/${input.trim()}`);
+          res = await axios.get(`${API}/cyber/ip/${cleanInput}`);
           break;
         case "DOMAIN INTEL":
-          res = await axios.get(`${API}/cyber/domain/${input.trim()}`);
+          res = await axios.get(`${API}/cyber/domain/${cleanInput}`);
           break;
         case "BREACH CHECK":
-          res = await axios.get(`${API}/cyber/breach/${input.trim()}`);
+          res = await axios.get(`${API}/cyber/breach/${cleanInput}`);
           break;
         case "SHODAN":
-          res = await axios.get(`${API}/cyber/shodan?query=${encodeURIComponent(input.trim())}`);
+          res = await axios.get(`${API}/cyber/shodan?query=${encodeURIComponent(cleanInput)}`);
           break;
         case "VIRUSTOTAL":
-          res = await axios.get(`${API}/cyber/virustotal?target=${encodeURIComponent(input.trim())}&scan_type=${scanType}`);
+          res = await axios.get(`${API}/cyber/virustotal?target=${encodeURIComponent(cleanInput)}&scan_type=${scanType}`);
           break;
         case "ALIENVAULT OTX": {
-          const isIP = input.trim().includes(".") && !isNaN(input.trim().split(".")[0]);
+          const isIP = cleanInput.includes(".") && !isNaN(cleanInput.split(".")[0]);
           const indType = isIP ? "ip" : "domain";
-          res = await axios.get(`${API}/cyber/otx/${indType}/${input.trim()}`);
+          res = await axios.get(`${API}/cyber/otx/${indType}/${cleanInput}`);
           break;
         }
         default:
@@ -637,9 +641,12 @@ export default function CyberIntel() {
           QUICK TESTS
         </div>
         {[
-          { label: "Google DNS 8.8.8.8", action: () => { setActiveTab("IP TRACKER"); setInput("8.8.8.8"); }},
-          { label: "Google.com Domain", action: () => { setActiveTab("DOMAIN INTEL"); setInput("google.com"); }},
-          { label: "Shodan Webcams", action: () => { setActiveTab("SHODAN"); setInput("webcam port:80"); }},
+          { label: "[IP] Google DNS 8.8.8.8", action: () => { setActiveTab("IP TRACKER"); setInput("8.8.8.8"); handleSearch("8.8.8.8", "IP TRACKER"); }},
+          { label: "[DOMAIN] Google.com Info", action: () => { setActiveTab("DOMAIN INTEL"); setInput("google.com"); handleSearch("google.com", "DOMAIN INTEL"); }},
+          { label: "[BREACH] admin@gmail.com Check", action: () => { setActiveTab("BREACH CHECK"); setInput("admin@gmail.com"); handleSearch("admin@gmail.com", "BREACH CHECK"); }},
+          { label: "[SHODAN] webcam port:80", action: () => { setActiveTab("SHODAN"); setInput("webcam port:80"); handleSearch("webcam port:80", "SHODAN"); }},
+          { label: "[VIRUSTOTAL] google.com Scan", action: () => { setActiveTab("VIRUSTOTAL"); setScanType("domain"); setInput("google.com"); handleSearch("google.com", "VIRUSTOTAL"); }},
+          { label: "[ALIENVAULT] Cloudflare 1.1.1.1", action: () => { setActiveTab("ALIENVAULT OTX"); setInput("1.1.1.1"); handleSearch("1.1.1.1", "ALIENVAULT OTX"); }},
         ].map((t, i) => (
           <button key={i} onClick={t.action}
             style={{
