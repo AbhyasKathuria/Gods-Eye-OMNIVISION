@@ -1,132 +1,431 @@
+import { useEffect, useRef } from "react";
 
-const hotspots = [
-  { cx: 88, cy: 110, label: "TARGET", delay: "0s" },
-  { cx: 157, cy: 88, label: "BREACH", delay: "0.4s" },
-  { cx: 215, cy: 100, label: "THREAT", delay: "0.3s" },
-  { cx: 162, cy: 137, label: "ACTIVE", delay: "0.6s" },
-  { cx: 100, cy: 180, label: "ALERT", delay: "0.2s" },
-  { cx: 225, cy: 168, label: "TARGET", delay: "0.9s" },
+// Simplified world continent polygons in [longitude, latitude] degrees
+const CONTINENTS = [
+  // North America
+  [[-168, 65], [-120, 70], [-80, 75], [-60, 60], [-50, 50], [-80, 25], [-100, 20], [-110, 30], [-125, 45], [-160, 55]],
+  // South America
+  [[-80, 12], [-50, -5], [-35, -5], [-40, -20], [-70, -55], [-75, -45], [-70, -20]],
+  // Africa
+  [[-17, 32], [30, 30], [50, 12], [40, -20], [20, -35], [10, -25], [10, 5]],
+  // Eurasia
+  [[-10, 60], [30, 70], [60, 75], [120, 75], [170, 65], [140, 35], [120, 10], [100, 5], [80, 10], [50, 15], [30, 30]],
+  // Australia
+  [[113, -25], [143, -15], [151, -33], [140, -38], [115, -35]],
+  // Antarctica
+  [[-180, -75], [180, -75], [180, -90], [-180, -90]]
 ];
 
-const threatLines = [
-  { x1: 88, y1: 110, x2: 157, y2: 88, delay: "0s" },
-  { x1: 215, y1: 100, x2: 225, y2: 168, delay: "0.5s" },
-  { x1: 100, y1: 180, x2: 162, y2: 137, delay: "0.3s" },
+const BEACON_DATA = [
+  { label: "TARGET", lat: 18.97, lon: 72.82, color: "#ff0000" }, // Mumbai
+  { label: "BREACH", lat: 51.5074, lon: -0.1278, color: "#ff4400" }, // London
+  { label: "THREAT", lat: 40.7128, lon: -74.006, color: "#ff0000" }, // New York
+  { label: "ACTIVE", lat: 35.6762, lon: 139.6503, color: "#ff4400" }, // Tokyo
+  { label: "ALERT", lat: -33.8688, lon: 151.2093, color: "#ff5500" }, // Sydney
+  { label: "TARGET", lat: -22.9068, lon: -43.1729, color: "#ff0000" }, // Rio de Janeiro
 ];
+
+// Great circle connections between cities to draw threat trajectories
+const CONNECTIONS = [
+  [1, 2], // London <-> New York
+  [2, 3], // New York <-> Tokyo
+  [3, 0], // Tokyo <-> Mumbai
+  [0, 4], // Mumbai <-> Sydney
+  [1, 5], // London <-> Rio
+];
+
+// Helper to check if a point is inside a polygon (ray-casting algorithm)
+function pointInPolygon(point, vs) {
+  const x = point[0], y = point[1];
+  let inside = false;
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    const xi = vs[i][0], yi = vs[i][1];
+    const xj = vs[j][0], yj = vs[j][1];
+    const intersect = ((yi > y) !== (yj > y)) &&
+      (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+// 3D coordinate rotation helpers
+function rotatePoint(pt, angleY, angleX) {
+  // Rotate around X axis (pitch/tilt)
+  const cosX = Math.cos(angleX);
+  const sinX = Math.sin(angleX);
+  const y1 = pt.y * cosX - pt.z * sinX;
+  const z1 = pt.y * sinX + pt.z * cosX;
+  
+  // Rotate around Y axis (yaw/spin)
+  const cosY = Math.cos(angleY);
+  const sinY = Math.sin(angleY);
+  const x2 = pt.x * cosY - z1 * sinY;
+  const z2 = pt.x * sinY + z1 * cosY;
+  
+  return { x: x2, y: y1, z: z2 };
+}
+
+// Spherical Linear Interpolation (Slerp) to build great circle arcs
+function slerpArc(p1, p2, radius, segments = 20) {
+  const arcPoints = [];
+  const x1 = p1.x / radius, y1 = p1.y / radius, z1 = p1.z / radius;
+  const x2 = p2.x / radius, y2 = p2.y / radius, z2 = p2.z / radius;
+  
+  const dot = x1 * x2 + y1 * y2 + z1 * z2;
+  const omega = Math.acos(Math.max(-1, Math.min(1, dot)));
+  
+  if (omega < 0.05) return [p1, p2];
+  
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const s1 = Math.sin((1 - t) * omega) / Math.sin(omega);
+    const s2 = Math.sin(t * omega) / Math.sin(omega);
+    
+    arcPoints.push({
+      x: (s1 * x1 + s2 * x2) * radius,
+      y: (s1 * y1 + s2 * y2) * radius,
+      z: (s1 * z1 + s2 * z2) * radius
+    });
+  }
+  return arcPoints;
+}
 
 export default function Globe3D() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let width = 340;
+    let height = 340;
+    const radius = 105;
+    const cx = width / 2;
+    const cy = height / 2;
+
+    // Generate static land dots
+    const landPoints = [];
+    // lat from -90 to 90 degrees, lon from -180 to 180 degrees
+    for (let lat = -80; lat <= 80; lat += 5) {
+      const latRad = (lat * Math.PI) / 180;
+      const cosLat = Math.cos(latRad);
+      // Adjust longitude density near the poles
+      const stepLon = cosLat > 0.1 ? 5 / cosLat : 45;
+      
+      for (let lon = -180; lon <= 180; lon += stepLon) {
+        let isLand = false;
+        for (const poly of CONTINENTS) {
+          if (pointInPolygon([lon, lat], poly)) {
+            isLand = true;
+            break;
+          }
+        }
+        
+        if (isLand) {
+          const lonRad = (lon * Math.PI) / 180;
+          landPoints.push({
+            x: radius * Math.cos(latRad) * Math.sin(lonRad),
+            y: -radius * Math.sin(latRad),
+            z: radius * Math.cos(latRad) * Math.cos(lonRad)
+          });
+        }
+      }
+    }
+
+    // Convert threat beacons to 3D points
+    const beacons = BEACON_DATA.map(b => {
+      const latRad = (b.lat * Math.PI) / 180;
+      const lonRad = (b.lon * Math.PI) / 180;
+      return {
+        ...b,
+        local: {
+          x: radius * Math.cos(latRad) * Math.sin(lonRad),
+          y: -radius * Math.sin(latRad),
+          z: radius * Math.cos(latRad) * Math.cos(lonRad)
+        }
+      };
+    });
+
+    // Generate interpolated connecting arcs
+    const arcs = CONNECTIONS.map(([srcIdx, dstIdx]) => {
+      const src = beacons[srcIdx].local;
+      const dst = beacons[dstIdx].local;
+      return slerpArc(src, dst, radius, 18);
+    });
+
+    let spinY = 0;
+    let tiltX = 0.3; // Tilt coordinates slightly towards user
+    let frameId;
+    let time = 0;
+
+    const render = () => {
+      time++;
+      // Spin the globe and add a very slow tilting nod motion
+      spinY += 0.005;
+      tiltX = 0.28 + 0.08 * Math.sin(time * 0.004);
+
+      // Clear with radial gradient background for tactical radar glow
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, width, height);
+
+      // Radial dark background glow
+      const glowGrad = ctx.createRadialGradient(cx, cy, radius - 40, cx, cy, radius + 30);
+      glowGrad.addColorStop(0, "#020000");
+      glowGrad.addColorStop(0.7, "#0b0000");
+      glowGrad.addColorStop(1, "#000000");
+      ctx.fillStyle = glowGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Rotate all points
+      const rotPoints = landPoints.map(pt => rotatePoint(pt, spinY, tiltX));
+      const rotBeacons = beacons.map(b => ({
+        ...b,
+        proj: rotatePoint(b.local, spinY, tiltX)
+      }));
+      const rotArcs = arcs.map(arc => arc.map(pt => rotatePoint(pt, spinY, tiltX)));
+
+      // -------------------------------------------------------------
+      // PASS 1: DRAW BACKSIDE HEMISPHERE (z <= 0)
+      // -------------------------------------------------------------
+      ctx.fillStyle = "rgba(255, 0, 0, 0.08)";
+      rotPoints.forEach(pt => {
+        if (pt.z <= 0) {
+          ctx.beginPath();
+          ctx.arc(cx + pt.x, cy + pt.y, 1, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      });
+
+      ctx.strokeStyle = "rgba(255, 68, 0, 0.08)";
+      ctx.setLineDash([2, 4]);
+      ctx.lineWidth = 0.8;
+      rotArcs.forEach(arc => {
+        ctx.beginPath();
+        let first = true;
+        arc.forEach(pt => {
+          if (pt.z <= 0) {
+            if (first) {
+              ctx.moveTo(cx + pt.x, cy + pt.y);
+              first = false;
+            } else {
+              ctx.lineTo(cx + pt.x, cy + pt.y);
+            }
+          }
+        });
+        ctx.stroke();
+      });
+      ctx.setLineDash([]); // Reset dash
+
+      // -------------------------------------------------------------
+      // PASS 2: DRAW FRONTSIDE HEMISPHERE (z > 0)
+      // -------------------------------------------------------------
+      
+      // Draw grid lines (tactical latitude/longitude lines on front side)
+      ctx.strokeStyle = "rgba(255, 0, 0, 0.15)";
+      ctx.lineWidth = 0.6;
+      // Latitude bands on front
+      [-45, -20, 0, 20, 45].forEach(latDeg => {
+        const latRad = (latDeg * Math.PI) / 180;
+        const latR = radius * Math.cos(latRad);
+        const latY = -radius * Math.sin(latRad);
+        
+        ctx.beginPath();
+        for (let deg = -180; deg <= 180; deg += 10) {
+          const lonRad = (deg * Math.PI) / 180;
+          const pt = {
+            x: latR * Math.sin(lonRad),
+            y: latY,
+            z: latR * Math.cos(lonRad)
+          };
+          const rPt = rotatePoint(pt, spinY, tiltX);
+          if (rPt.z > 0) {
+            ctx.lineTo(cx + rPt.x, cy + rPt.y);
+          } else {
+            ctx.moveTo(cx + rPt.x, cy + rPt.y);
+          }
+        }
+        ctx.stroke();
+      });
+
+      // Front continent dots
+      ctx.fillStyle = "#ff0000";
+      rotPoints.forEach(pt => {
+        if (pt.z > 0) {
+          ctx.beginPath();
+          ctx.arc(cx + pt.x, cy + pt.y, 1.2, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      });
+
+      // Front connection arcs (threat streams)
+      ctx.strokeStyle = "rgba(255, 34, 0, 0.7)";
+      ctx.lineWidth = 1.0;
+      rotArcs.forEach(arc => {
+        ctx.beginPath();
+        let first = true;
+        arc.forEach(pt => {
+          if (pt.z > 0) {
+            if (first) {
+              ctx.moveTo(cx + pt.x, cy + pt.y);
+              first = false;
+            } else {
+              ctx.lineTo(cx + pt.x, cy + pt.y);
+            }
+          } else {
+            first = true; // Break line path for back-face clipping
+          }
+        });
+        ctx.stroke();
+      });
+
+      // Front threat beacons
+      rotBeacons.forEach(b => {
+        if (b.proj.z > 0) {
+          const bx = cx + b.proj.x;
+          const by = cy + b.proj.y;
+          const pulse = (Math.sin(time * 0.07 + b.lat) + 1) / 2; // Unique pulsing offsets
+
+          // Draw pulsing outer rings
+          ctx.strokeStyle = `rgba(255, 0, 0, ${0.6 - pulse * 0.5})`;
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.arc(bx, by, 3 + pulse * 14, 0, 2 * Math.PI);
+          ctx.stroke();
+
+          ctx.strokeStyle = `rgba(255, 68, 0, ${0.4 - pulse * 0.3})`;
+          ctx.beginPath();
+          ctx.arc(bx, by, 6 + pulse * 6, 0, 2 * Math.PI);
+          ctx.stroke();
+
+          // Beacon center core
+          ctx.fillStyle = b.color;
+          ctx.beginPath();
+          ctx.arc(bx, by, 3, 0, 2 * Math.PI);
+          ctx.fill();
+
+          // Reticle bounding box corners
+          ctx.strokeStyle = "rgba(255, 0, 0, 0.5)";
+          ctx.lineWidth = 0.8;
+          const boxSize = 8;
+          ctx.beginPath();
+          // Top-left corner
+          ctx.moveTo(bx - boxSize, by - boxSize + 3);
+          ctx.lineTo(bx - boxSize, by - boxSize);
+          ctx.lineTo(bx - boxSize + 3, by - boxSize);
+          // Top-right corner
+          ctx.moveTo(bx + boxSize, by - boxSize + 3);
+          ctx.lineTo(bx + boxSize, by - boxSize);
+          ctx.lineTo(bx + boxSize - 3, by - boxSize);
+          // Bottom-left corner
+          ctx.moveTo(bx - boxSize, by + boxSize - 3);
+          ctx.lineTo(bx - boxSize, by + boxSize);
+          ctx.lineTo(bx - boxSize + 3, by + boxSize);
+          // Bottom-right corner
+          ctx.moveTo(bx + boxSize, by + boxSize - 3);
+          ctx.lineTo(bx + boxSize, by + boxSize);
+          ctx.lineTo(bx + boxSize - 3, by + boxSize);
+          ctx.stroke();
+
+          // HUD text label
+          ctx.fillStyle = "#ff4400";
+          ctx.font = "bold 8px 'Courier New', monospace";
+          ctx.fillText(b.label, bx + 12, by - 4);
+
+          // Coordinate string
+          ctx.fillStyle = "#661111";
+          ctx.font = "7px 'Courier New', monospace";
+          ctx.fillText(`${b.lat.toFixed(1)}°N, ${b.lon.toFixed(1)}°E`, bx + 12, by + 5);
+        }
+      });
+
+      // -------------------------------------------------------------
+      // PASS 3: DRAW STATIC OVERLAYS (Radar Scope & Sweeps)
+      // -------------------------------------------------------------
+      
+      // Radar sweeps
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((time * 0.015) % (2 * Math.PI));
+      const sweepGrad = ctx.createLinearGradient(0, 0, radius, 0);
+      sweepGrad.addColorStop(0, "rgba(255, 0, 0, 0)");
+      sweepGrad.addColorStop(0.7, "rgba(255, 0, 0, 0.05)");
+      sweepGrad.addColorStop(1, "rgba(255, 0, 0, 0.2)");
+      ctx.fillStyle = sweepGrad;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, radius, 0, 0.4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // Outer glowing compass ring
+      ctx.strokeStyle = "#440000";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius + 15, 0, 2 * Math.PI);
+      ctx.stroke();
+
+      ctx.strokeStyle = "#ff0000";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius + 13, 0, 2 * Math.PI);
+      ctx.stroke();
+
+      // Dashed ticks around scope
+      ctx.strokeStyle = "rgba(255, 0, 0, 0.3)";
+      ctx.setLineDash([2, 8]);
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius + 18, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.setLineDash([]); // Reset dash
+
+      // HUD crosshairs
+      ctx.strokeStyle = "rgba(255, 0, 0, 0.15)";
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      // Horizontal crosshair
+      ctx.moveTo(cx - radius - 25, cy); ctx.lineTo(cx - radius - 15, cy);
+      ctx.moveTo(cx + radius + 15, cy); ctx.lineTo(cx + radius + 25, cy);
+      // Vertical crosshair
+      ctx.moveTo(cx, cy - radius - 25); ctx.lineTo(cx, cy - radius - 15);
+      ctx.moveTo(cx, cy + radius + 15); ctx.lineTo(cx, cy + radius + 25);
+      ctx.stroke();
+
+      // Digital status overlays
+      ctx.fillStyle = "#ff0000";
+      ctx.font = "9px 'Courier New', monospace";
+      ctx.fillText("SYS: ACTV", cx - radius - 20, cy - radius);
+      ctx.fillText("HDG: 345°", cx + radius - 25, cy - radius);
+      ctx.fillText("TGT: SCAN", cx - radius - 20, cy + radius + 10);
+      ctx.fillText("OMNIVISION", cx + radius - 30, cy + radius + 10);
+
+      frameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
+  }, []);
+
   return (
-    <div className="flex-1 flex items-center justify-center relative w-full">
-      <svg
-        width="310"
-        height="310"
-        viewBox="0 0 300 300"
-        style={{ overflow: "visible" }}
-      >
-        <defs>
-          <style>{`
-            @keyframes expandRing {
-              0% { r: 8; opacity: 1; stroke-width: 2; }
-              100% { r: 155; opacity: 0; stroke-width: 0.2; }
-            }
-            @keyframes hotpulse {
-              0%,100% { opacity: 1; }
-              50% { opacity: 0.2; }
-            }
-            @keyframes corePulse {
-              0%,100% { r: 6; opacity: 1; }
-              50% { r: 10; opacity: 0.6; }
-            }
-            @keyframes sweep {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-            @keyframes outerPulse {
-              0%,100% { stroke-width: 1.5; stroke: #ff0000; }
-              50% { stroke-width: 3; stroke: #ff4400; }
-            }
-            @keyframes threatblink {
-              0%,100% { opacity: 0.8; }
-              50% { opacity: 0.1; }
-            }
-            .ring { fill: none; animation: expandRing 2.5s ease-out infinite; }
-            .ring1 { stroke: #ff0000; animation-delay: 0s; }
-            .ring2 { stroke: #ff4400; animation-delay: 0.8s; }
-            .ring3 { stroke: #ff0000; animation-delay: 1.6s; }
-            .ring4 { stroke: #cc0000; animation-delay: 0.4s; }
-            .hot { animation: hotpulse 0.8s infinite; }
-            .core { animation: corePulse 0.5s infinite; }
-            .radar-sweep { transform-origin: 150px 150px; animation: sweep 3s linear infinite; }
-            .globe-outer { animation: outerPulse 2s ease-in-out infinite; }
-            .threat-line { animation: threatblink 1s infinite; }
-          `}</style>
-        </defs>
-
-        {/* Expanding rings */}
-        <circle className="ring ring1" cx="150" cy="150" r="8" />
-        <circle className="ring ring2" cx="150" cy="150" r="8" />
-        <circle className="ring ring3" cx="150" cy="150" r="8" />
-        <circle className="ring ring4" cx="150" cy="150" r="8" />
-
-        {/* Globe body */}
-        <circle cx="150" cy="150" r="135" fill="none" stroke="#220000" strokeWidth="8" />
-        <circle cx="150" cy="150" r="132" fill="none" stroke="#440000" strokeWidth="3" />
-        <circle className="globe-outer" cx="150" cy="150" r="128" fill="#020000" />
-
-        {/* Latitude lines */}
-        {[25, 55, 85, 108].map((ry, i) => (
-          <ellipse key={i} cx="150" cy="150" rx="128" ry={ry} fill="none" stroke="#330000" strokeWidth="0.7" />
-        ))}
-        <line x1="22" y1="150" x2="278" y2="150" stroke="#330000" strokeWidth="0.7" />
-
-        {/* Longitude lines */}
-        {[25, 55, 85, 108].map((rx, i) => (
-          <ellipse key={i} cx="150" cy="150" rx={rx} ry="128" fill="none" stroke="#2a0000" strokeWidth="0.5" />
-        ))}
-        <line x1="150" y1="22" x2="150" y2="278" stroke="#330000" strokeWidth="0.7" />
-
-        {/* Continents */}
-        <path d="M55,85 L92,72 L115,82 L125,105 L115,138 L88,148 L65,135 L50,112 Z" fill="#1a0000" stroke="#ff2200" strokeWidth="1.2" />
-        <path d="M138,72 L168,67 L180,80 L174,98 L155,104 L138,97 Z" fill="#1a0000" stroke="#ff2200" strokeWidth="1.2" />
-        <path d="M143,108 L172,102 L185,124 L180,162 L162,173 L143,162 L135,138 Z" fill="#1a0000" stroke="#ff2200" strokeWidth="1.2" />
-        <path d="M178,72 L238,67 L252,92 L246,125 L218,136 L190,130 L175,112 Z" fill="#1a0000" stroke="#ff2200" strokeWidth="1.2" />
-        <path d="M85,155 L118,148 L124,175 L113,208 L96,213 L80,192 L77,168 Z" fill="#1a0000" stroke="#ff2200" strokeWidth="1.2" />
-        <path d="M208,158 L242,152 L251,174 L237,187 L209,183 Z" fill="#1a0000" stroke="#ff2200" strokeWidth="1.2" />
-
-        {/* Radar sweep */}
-        <g className="radar-sweep">
-          <path d="M150,150 L150,22" stroke="#ff000055" strokeWidth="1.5" />
-          <path d="M150,150 L278,150" stroke="#ff000011" strokeWidth="1" />
-          <path d="M150,150 L260,90" stroke="#ff000033" strokeWidth="0.8" />
-        </g>
-
-        {/* Threat lines */}
-        {threatLines.map((l, i) => (
-          <line key={i} className="threat-line" x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
-            stroke="#ff4400" strokeWidth="0.8" style={{ animationDelay: l.delay }} />
-        ))}
-
-        {/* Hotspots */}
-        {hotspots.map((h, i) => (
-          <g key={i}>
-            <circle className="hot" cx={h.cx} cy={h.cy} r="4" fill="#ff0000"
-              style={{ animationDelay: h.delay }} />
-            <circle cx={h.cx} cy={h.cy} r="9" fill="none" stroke="#ff000055" strokeWidth="1" />
-            <text x={h.cx + 6} y={h.cy - 6} fill="#ff4400" fontSize="7"
-              fontFamily="Courier New">{h.label}</text>
-          </g>
-        ))}
-
-        {/* Core */}
-        <circle cx="150" cy="150" r="18" fill="none" stroke="#ff000033" strokeWidth="1" />
-        <circle cx="150" cy="150" r="12" fill="none" stroke="#ff000055" strokeWidth="1" />
-        <circle className="core" cx="150" cy="150" r="6" fill="#ff0000" />
-
-        <text x="150" y="240" textAnchor="middle" fill="#330000"
-          fontSize="8" fontFamily="Courier New" letterSpacing="4">
-          OMNIVISION ACTIVE
-        </text>
-      </svg>
+    <div className="flex-1 flex items-center justify-center relative w-full h-full min-h-[350px]">
+      <canvas
+        ref={canvasRef}
+        width={340}
+        height={340}
+        style={{
+          width: "340px",
+          height: "340px",
+          background: "transparent",
+        }}
+      />
     </div>
   );
 }
