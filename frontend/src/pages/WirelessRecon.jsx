@@ -33,9 +33,8 @@ export default function WirelessRecon() {
       zoomControl: true,
     });
 
-    // Dark-themed tactical tiles from CartoDB Dark Matter
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: "OpenStreetMap & CartoDB"
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "OpenStreetMap"
     }).addTo(map);
 
     leafletMapRef.current = map;
@@ -62,7 +61,7 @@ export default function WirelessRecon() {
     }
   };
 
-  const plotWifiBeacons = (wifiData) => {
+  const plotWifiBeacons = (wifiData, targetLat = lat, targetLon = lon) => {
     if (!leafletMapRef.current || !window.L) return;
     const L = window.L;
 
@@ -107,27 +106,30 @@ export default function WirelessRecon() {
     });
 
     // Zoom and pan to coordinates
-    leafletMapRef.current.setView([parseFloat(lat), parseFloat(lon)], 16);
+    leafletMapRef.current.setView([parseFloat(targetLat), parseFloat(targetLon)], 16);
   };
 
-  const handleScan = async () => {
-    if (!lat || !lon) return;
+  const handleScan = async (overrideLat = null, overrideLon = null) => {
+    const targetLat = (typeof overrideLat === "string" || typeof overrideLat === "number") ? overrideLat : lat;
+    const targetLon = (typeof overrideLon === "string" || typeof overrideLon === "number") ? overrideLon : lon;
+    
+    if (!targetLat || !targetLon) return;
     setLoading(true);
     setResults(null);
     setError(null);
 
     // Initialize map immediately
-    initMap([parseFloat(lat), parseFloat(lon)], 15);
+    initMap([parseFloat(targetLat), parseFloat(targetLon)], 15);
 
     try {
       const res = await axios.get(`${API}/sigint/wifi`, {
-        params: { lat: parseFloat(lat), lon: parseFloat(lon) }
+        params: { lat: parseFloat(targetLat), lon: parseFloat(targetLon) }
       });
       if (res.data.status === "success") {
         setResults(res.data);
         // Delay plotting slightly to ensure map ref has registered
         setTimeout(() => {
-          plotWifiBeacons(res.data.networks);
+          plotWifiBeacons(res.data.networks, targetLat, targetLon);
         }, 100);
       } else {
         setError(res.data.message || "Failed to query SIGINT parameters");
@@ -221,7 +223,11 @@ export default function WirelessRecon() {
           { label: "Bengaluru Airport", lat: "13.1986", lon: "77.7066" },
           { label: "London Parliament", lat: "51.4998", lon: "-0.1246" },
         ].map((p, i) => (
-          <button key={i} onClick={() => { setLat(p.lat); setLon(p.lon); }}
+          <button key={i} onClick={() => { 
+            setLat(p.lat); 
+            setLon(p.lon); 
+            handleScan(p.lat, p.lon);
+          }}
             style={{
               width: "100%", padding: "6px 8px", marginBottom: "4px",
               fontSize: "11px", cursor: "pointer", fontFamily: "Courier New",
@@ -236,7 +242,11 @@ export default function WirelessRecon() {
       {/* Right Map View */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {/* Map Container */}
-        <div ref={mapRef} style={{ flex: 1, background: "#0c0c0c" }} />
+        <div ref={mapRef} style={{ 
+          flex: 1, 
+          background: "#0c0c0c",
+          filter: "invert(0.9) hue-rotate(180deg) brightness(0.9) contrast(1.2)"
+        }} />
 
         {/* Results Metadata Summary Footer */}
         {results && (
