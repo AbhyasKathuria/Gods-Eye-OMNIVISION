@@ -29,9 +29,9 @@ const CAMERAS_FALLBACK = [
   { id: "CAM-03", name: "Zilker Park Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035, realImg: "/feeds/feed3.gif" },
   { id: "CAM-04", name: "Presidency University Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003, realImg: "/feeds/feed4.gif" },
   { id: "CAM-05", name: "Presidency University Library (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025, realImg: "/feeds/feed5.gif" },
-  { id: "CAM-06", name: "Trafalgar Square South Cam (London)", lat: 51.5080, lon: -0.1280, angle: 220, radius: 0.0035, realImg: "/feeds/feed1.gif" },
+  { id: "CAM-06", name: "Abbey Road Crossing Live Feed (London)", lat: 51.5320, lon: -0.1773, angle: 220, radius: 0.0035, realImg: "https://www.youtube.com/embed/P-M9H2E372M?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&loop=1&playlist=P-M9H2E372M" },
   { id: "CAM-07", name: "Tower Bridge East Bypass (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038, realImg: "/feeds/feed2.gif" },
-  { id: "CAM-08", name: "Shibuya Crossing Main Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003, realImg: "/feeds/feed4.gif" },
+  { id: "CAM-08", name: "Shibuya Crossing Live Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003, realImg: "https://www.youtube.com/embed/HPdCoObc4zo?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&loop=1&playlist=HPdCoObc4zo" },
   { id: "CAM-09", name: "Tokyo Skytree Observatory (Tokyo)", lat: 35.7100, lon: 139.8107, angle: 180, radius: 0.004, realImg: "/feeds/feed5.gif" },
   { id: "CAM-10", name: "Eiffel Tower Esplanade (Paris)", lat: 48.8583, lon: 2.2945, angle: 120, radius: 0.0035, realImg: "/feeds/feed1.gif" },
   { id: "CAM-11", name: "Champs-Élysées East Flow (Paris)", lat: 48.8700, lon: 2.3050, angle: 270, radius: 0.0036, realImg: "/feeds/feed2.gif" },
@@ -362,7 +362,11 @@ export default function GeoTracker() {
           
           <div style="margin-top:6px;position:relative;height:80px;background:#000;overflow:hidden;border:1px solid #333">
             <canvas id="cctv-canvas-${cam.id}" width="182" height="80" style="display:block"></canvas>
-            <img id="cctv-img-${cam.id}" src="${cam.realImg}" style="display:none;width:100%;height:100%;object-fit:cover;filter:contrast(1.1) brightness(0.9)" />
+            ${cam.realImg && (cam.realImg.includes("youtube.com") || cam.realImg.includes("youtube-nocookie.com")) ? `
+              <iframe id="cctv-img-${cam.id}" src="${cam.realImg}" style="display:none;width:100%;height:100%;border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            ` : `
+              <img id="cctv-img-${cam.id}" src="${cam.realImg}" style="display:none;width:100%;height:100%;object-fit:cover;filter:contrast(1.1) brightness(0.9)" />
+            `}
           </div>
           <div style="font-size:8px;color:#888;margin-top:4px">CONE OF VIEWSHED DISPLAYED ON MAP</div>
         </div>
