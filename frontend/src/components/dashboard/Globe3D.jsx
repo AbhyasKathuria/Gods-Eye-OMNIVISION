@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
+import { ThemeContext } from "../../context/ThemeContext";
 
 // Simplified world continent polygons in [longitude, latitude] degrees
 const CONTINENTS = [
@@ -91,6 +92,7 @@ function slerpArc(p1, p2, radius, segments = 20) {
 }
 
 export default function Globe3D() {
+  const { colors } = useContext(ThemeContext);
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -104,6 +106,25 @@ export default function Globe3D() {
     const radius = 105;
     const cx = width / 2;
     const cy = height / 2;
+
+    const isRed = colors.accent === "#ff0000" || colors.accent === "red";
+    const primaryColor = isRed ? "#ff0000" : "#00ff41";
+    const dimAccent = isRed ? "#0b0000" : "#000b00";
+    const outlineColor = isRed ? "#440000" : "#003300";
+    const labelColor = isRed ? "#ff4400" : "#00ff41";
+    const coordColor = isRed ? "#661111" : "#116611";
+
+    const dotStyle = isRed ? "#ff0000" : "#00ff41";
+    const backDotStyle = isRed ? "rgba(255, 0, 0, 0.08)" : "rgba(0, 255, 65, 0.08)";
+    const arcStyle = isRed ? "rgba(255, 34, 0, 0.7)" : "rgba(0, 255, 65, 0.7)";
+    const backArcStyle = isRed ? "rgba(255, 68, 0, 0.08)" : "rgba(0, 255, 65, 0.08)";
+    
+    const ringColor1 = isRed ? "255, 0, 0" : "0, 255, 65";
+    const ringColor2 = isRed ? "255, 68, 0" : "0, 255, 65";
+    
+    const radarColor = isRed ? "255, 0, 0" : "0, 255, 65";
+    const crosshairColor = isRed ? "rgba(255, 0, 0, 0.15)" : "rgba(0, 255, 65, 0.15)";
+    const boxColor = isRed ? "rgba(255, 0, 0, 0.5)" : "rgba(0, 255, 65, 0.5)";
 
     // Generate static land dots
     const landPoints = [];
@@ -140,6 +161,7 @@ export default function Globe3D() {
       const lonRad = (b.lon * Math.PI) / 180;
       return {
         ...b,
+        color: isRed ? b.color : "#00ff41",
         local: {
           x: radius * Math.cos(latRad) * Math.sin(lonRad),
           y: -radius * Math.sin(latRad),
@@ -172,8 +194,8 @@ export default function Globe3D() {
 
       // Radial dark background glow
       const glowGrad = ctx.createRadialGradient(cx, cy, radius - 40, cx, cy, radius + 30);
-      glowGrad.addColorStop(0, "#020000");
-      glowGrad.addColorStop(0.7, "#0b0000");
+      glowGrad.addColorStop(0, "#000000");
+      glowGrad.addColorStop(0.7, dimAccent);
       glowGrad.addColorStop(1, "#000000");
       ctx.fillStyle = glowGrad;
       ctx.beginPath();
@@ -191,7 +213,7 @@ export default function Globe3D() {
       // -------------------------------------------------------------
       // PASS 1: DRAW BACKSIDE HEMISPHERE (z <= 0)
       // -------------------------------------------------------------
-      ctx.fillStyle = "rgba(255, 0, 0, 0.08)";
+      ctx.fillStyle = backDotStyle;
       rotPoints.forEach(pt => {
         if (pt.z <= 0) {
           ctx.beginPath();
@@ -200,7 +222,7 @@ export default function Globe3D() {
         }
       });
 
-      ctx.strokeStyle = "rgba(255, 68, 0, 0.08)";
+      ctx.strokeStyle = backArcStyle;
       ctx.setLineDash([2, 4]);
       ctx.lineWidth = 0.8;
       rotArcs.forEach(arc => {
@@ -225,7 +247,7 @@ export default function Globe3D() {
       // -------------------------------------------------------------
       
       // Draw grid lines (tactical latitude/longitude lines on front side)
-      ctx.strokeStyle = "rgba(255, 0, 0, 0.15)";
+      ctx.strokeStyle = isRed ? "rgba(255, 0, 0, 0.15)" : "rgba(0, 255, 65, 0.15)";
       ctx.lineWidth = 0.6;
       // Latitude bands on front
       [-45, -20, 0, 20, 45].forEach(latDeg => {
@@ -252,7 +274,7 @@ export default function Globe3D() {
       });
 
       // Front continent dots
-      ctx.fillStyle = "#ff0000";
+      ctx.fillStyle = dotStyle;
       rotPoints.forEach(pt => {
         if (pt.z > 0) {
           ctx.beginPath();
@@ -262,7 +284,7 @@ export default function Globe3D() {
       });
 
       // Front connection arcs (threat streams)
-      ctx.strokeStyle = "rgba(255, 34, 0, 0.7)";
+      ctx.strokeStyle = arcStyle;
       ctx.lineWidth = 1.0;
       rotArcs.forEach(arc => {
         ctx.beginPath();
@@ -290,13 +312,13 @@ export default function Globe3D() {
           const pulse = (Math.sin(time * 0.07 + b.lat) + 1) / 2; // Unique pulsing offsets
 
           // Draw pulsing outer rings
-          ctx.strokeStyle = `rgba(255, 0, 0, ${0.6 - pulse * 0.5})`;
+          ctx.strokeStyle = `rgba(${ringColor1}, ${0.6 - pulse * 0.5})`;
           ctx.lineWidth = 1.2;
           ctx.beginPath();
           ctx.arc(bx, by, 3 + pulse * 14, 0, 2 * Math.PI);
           ctx.stroke();
 
-          ctx.strokeStyle = `rgba(255, 68, 0, ${0.4 - pulse * 0.3})`;
+          ctx.strokeStyle = `rgba(${ringColor2}, ${0.4 - pulse * 0.3})`;
           ctx.beginPath();
           ctx.arc(bx, by, 6 + pulse * 6, 0, 2 * Math.PI);
           ctx.stroke();
@@ -308,7 +330,7 @@ export default function Globe3D() {
           ctx.fill();
 
           // Reticle bounding box corners
-          ctx.strokeStyle = "rgba(255, 0, 0, 0.5)";
+          ctx.strokeStyle = boxColor;
           ctx.lineWidth = 0.8;
           const boxSize = 8;
           ctx.beginPath();
@@ -331,12 +353,12 @@ export default function Globe3D() {
           ctx.stroke();
 
           // HUD text label
-          ctx.fillStyle = "#ff4400";
+          ctx.fillStyle = labelColor;
           ctx.font = "bold 8px 'Courier New', monospace";
           ctx.fillText(b.label, bx + 12, by - 4);
 
           // Coordinate string
-          ctx.fillStyle = "#661111";
+          ctx.fillStyle = coordColor;
           ctx.font = "7px 'Courier New', monospace";
           ctx.fillText(`${b.lat.toFixed(1)}°N, ${b.lon.toFixed(1)}°E`, bx + 12, by + 5);
         }
@@ -351,9 +373,9 @@ export default function Globe3D() {
       ctx.translate(cx, cy);
       ctx.rotate((time * 0.015) % (2 * Math.PI));
       const sweepGrad = ctx.createLinearGradient(0, 0, radius, 0);
-      sweepGrad.addColorStop(0, "rgba(255, 0, 0, 0)");
-      sweepGrad.addColorStop(0.7, "rgba(255, 0, 0, 0.05)");
-      sweepGrad.addColorStop(1, "rgba(255, 0, 0, 0.2)");
+      sweepGrad.addColorStop(0, `rgba(${radarColor}, 0)`);
+      sweepGrad.addColorStop(0.7, `rgba(${radarColor}, 0.05)`);
+      sweepGrad.addColorStop(1, `rgba(${radarColor}, 0.2)`);
       ctx.fillStyle = sweepGrad;
       ctx.beginPath();
       ctx.moveTo(0, 0);
@@ -363,20 +385,20 @@ export default function Globe3D() {
       ctx.restore();
 
       // Outer glowing compass ring
-      ctx.strokeStyle = "#440000";
+      ctx.strokeStyle = outlineColor;
       ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.arc(cx, cy, radius + 15, 0, 2 * Math.PI);
       ctx.stroke();
 
-      ctx.strokeStyle = "#ff0000";
+      ctx.strokeStyle = primaryColor;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(cx, cy, radius + 13, 0, 2 * Math.PI);
       ctx.stroke();
 
       // Dashed ticks around scope
-      ctx.strokeStyle = "rgba(255, 0, 0, 0.3)";
+      ctx.strokeStyle = isRed ? "rgba(255, 0, 0, 0.3)" : "rgba(0, 255, 65, 0.3)";
       ctx.setLineDash([2, 8]);
       ctx.lineWidth = 3;
       ctx.beginPath();
@@ -385,7 +407,7 @@ export default function Globe3D() {
       ctx.setLineDash([]); // Reset dash
 
       // HUD crosshairs
-      ctx.strokeStyle = "rgba(255, 0, 0, 0.15)";
+      ctx.strokeStyle = crosshairColor;
       ctx.lineWidth = 0.8;
       ctx.beginPath();
       // Horizontal crosshair
@@ -397,7 +419,7 @@ export default function Globe3D() {
       ctx.stroke();
 
       // Digital status overlays
-      ctx.fillStyle = "#ff0000";
+      ctx.fillStyle = primaryColor;
       ctx.font = "9px 'Courier New', monospace";
       ctx.fillText("SYS: ACTV", cx - radius - 20, cy - radius);
       ctx.fillText("HDG: 345°", cx + radius - 25, cy - radius);
@@ -412,7 +434,7 @@ export default function Globe3D() {
     return () => {
       cancelAnimationFrame(frameId);
     };
-  }, []);
+  }, [colors]);
 
   return (
     <div className="flex-1 flex items-center justify-center relative w-full h-full min-h-[350px]">

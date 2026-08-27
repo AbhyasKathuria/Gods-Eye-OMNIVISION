@@ -28,21 +28,21 @@ export const THEMES = {
   },
   stealth: {
     name: "ANALYST MODE",
-    bg: "#0a0f1a",
-    panel: "#0d1424",
-    card: "#111827",
-    border: "#1e3a5f",
-    borderBright: "#2563eb",
-    text: "#93c5fd",
-    textDim: "#3b82f6",
-    textFaint: "#1e3a5f",
-    accent: "#2563eb",
-    accentDim: "#1d4ed8",
-    scanline: "rgba(37,99,235,0.08)",
-    ticker: "#60a5fa",
-    navBg: "#0d1424",
-    sidebarBg: "#0a0f1a",
-    loginBg: "#060d1a",
+    bg: "#020902",
+    panel: "#051005",
+    card: "#081a08",
+    border: "#0f3314",
+    borderBright: "#00ff41",
+    text: "#a3ffa3",
+    textDim: "#00dd30",
+    textFaint: "#0f3d16",
+    accent: "#00ff41",
+    accentDim: "#008f11",
+    scanline: "rgba(0, 255, 65, 0.08)",
+    ticker: "#44ff66",
+    navBg: "#051005",
+    sidebarBg: "#020902",
+    loginBg: "#010601",
   },
 };
 
@@ -72,7 +72,7 @@ export function ThemeToggle() {
         background: colors.card }}>
       {/* Toggle track */}
       <div style={{ width: "32px", height: "16px", borderRadius: "8px",
-        background: isRed ? "#330000" : "#1e3a5f",
+        background: isRed ? "#330000" : "#09220c",
         border: `1px solid ${colors.accent}`,
         position: "relative", transition: "all 0.3s" }}>
         <div style={{
