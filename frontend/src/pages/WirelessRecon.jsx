@@ -13,12 +13,24 @@ export default function WirelessRecon() {
   const mapRef = useRef(null);
   const leafletMapRef = useRef(null);
   const markersRef = useRef([]);
+  const scanTimeoutRef = useRef(null);
 
   useEffect(() => {
-    // Clean up map when component unmounts
+    // Clean up map and timeouts when component unmounts
     return () => {
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current);
+      }
       if (leafletMapRef.current) {
-        leafletMapRef.current.remove();
+        try {
+          leafletMapRef.current.eachLayer(layer => {
+            if (layer.closePopup) layer.closePopup();
+            layer.remove();
+          });
+          leafletMapRef.current.remove();
+        } catch (e) {
+          console.warn("Leaflet map cleanup ignored:", e);
+        }
         leafletMapRef.current = null;
       }
     };
@@ -127,8 +139,7 @@ export default function WirelessRecon() {
       });
       if (res.data.status === "success") {
         setResults(res.data);
-        // Delay plotting slightly to ensure map ref has registered
-        setTimeout(() => {
+        scanTimeoutRef.current = setTimeout(() => {
           plotWifiBeacons(res.data.networks, targetLat, targetLon);
         }, 100);
       } else {
