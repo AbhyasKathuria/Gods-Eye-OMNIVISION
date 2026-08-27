@@ -26,59 +26,69 @@ def setup_test_db(monkeypatch):
             pass
 
 
-def test_load_users_seeds_defaults():
+def test_initialization_flow():
+    # Verify starting state is empty
     users = auth_service.load_users()
-    assert "admin" in users
-    assert "researcher" in users
-    assert "student" in users
-    assert users["admin"]["first_run"] is True
-    assert TEST_DB_PATH.exists()
+    assert len(users) == 0
+
+    # Register initial admin
+    reg_res = auth_service.register_initial_admin("sec_admin", "adminpass123")
+    assert reg_res["success"] is True
+
+    # Check that database now has the admin
+    users_after = auth_service.load_users()
+    assert "sec_admin" in users_after
+    assert users_after["sec_admin"]["role"] == "ADMIN"
+
+    # Verify subsequent registration is blocked
+    reg_fail = auth_service.register_initial_admin("another_admin", "newpass123")
+    assert reg_fail["success"] is False
+    assert reg_fail["error"] == "System is already initialized with an administrator"
 
 
-def test_authenticate_success_and_first_run():
-    auth_service.load_users()
-    
-    # Authenticate default admin
-    res = auth_service.authenticate("admin", "admin123")
+def test_authenticate_success_and_wrong_password():
+    # Setup initial admin
+    auth_service.register_initial_admin("sec_admin", "adminpass123")
+
+    # Authenticate successfully
+    res = auth_service.authenticate("sec_admin", "adminpass123")
     assert res["success"] is True
-    assert res["must_change_password"] is True
     assert "token" in res
     assert res["role"] == "ADMIN"
+    assert res["username"] == "sec_admin"
+
+    # Authenticate wrong password
+    res_fail = auth_service.authenticate("sec_admin", "wrong_password")
+    assert res_fail["success"] is False
+    assert res_fail["error"] == "Invalid password"
 
 
-def test_authenticate_wrong_password():
-    auth_service.load_users()
-    res = auth_service.authenticate("admin", "wrongpassword")
-    assert res["success"] is False
-    assert res["error"] == "Invalid password"
+def test_update_password_success_and_invalid():
+    # Setup initial admin
+    auth_service.register_initial_admin("sec_admin", "adminpass123")
 
+    # Update password successfully
+    up_res = auth_service.update_password("sec_admin", "adminpass123", "newsecurepass99")
+    assert up_res["success"] is True
 
-def test_update_password_success():
-    auth_service.load_users()
-    
-    # Update password
-    res = auth_service.update_password("admin", "admin123", "newsecurepass")
-    assert res["success"] is True
-    
-    # Authenticate with new password
-    res2 = auth_service.authenticate("admin", "newsecurepass")
-    assert res2["success"] is True
-    assert res2["must_change_password"] is False
+    # Verify login with new password works
+    auth_res = auth_service.authenticate("sec_admin", "newsecurepass99")
+    assert auth_res["success"] is True
 
-
-def test_update_password_invalid_current():
-    auth_service.load_users()
-    res = auth_service.update_password("admin", "wrongcurrent", "newsecurepass")
-    assert res["success"] is False
-    assert res["error"] == "Invalid current password"
+    # Verify update fails with invalid current password
+    up_fail = auth_service.update_password("sec_admin", "wrongpass", "anotherpass")
+    assert up_fail["success"] is False
+    assert up_fail["error"] == "Invalid current password"
 
 
 def test_token_verification():
-    auth_service.load_users()
-    res = auth_service.authenticate("student", "student123")
-    token = res["token"]
-    
+    # Setup initial admin
+    auth_service.register_initial_admin("sec_admin", "adminpass123")
+    auth_res = auth_service.authenticate("sec_admin", "adminpass123")
+    token = auth_res["token"]
+
+    # Verify token
     verify_res = auth_service.verify_token(token)
     assert verify_res["valid"] is True
-    assert verify_res["username"] == "student"
-    assert verify_res["role"] == "STUDENT"
+    assert verify_res["username"] == "sec_admin"
+    assert verify_res["role"] == "ADMIN"

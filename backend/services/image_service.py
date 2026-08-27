@@ -375,3 +375,47 @@ Write your final conclusion at the very end of your response inside double squar
                 return {"error": f"Gemini error: {resp.status_code} {resp.text}"}
     except Exception as e:
         return {"error": str(e)}
+
+
+def perform_error_level_analysis(image_bytes: bytes, quality: int = 95) -> str:
+    from PIL import ImageChops
+    # 1. Load original image
+    original = Image.open(io.BytesIO(image_bytes))
+    if original.mode in ("RGBA", "P"):
+        original = original.convert("RGB")
+        
+    # Resize slightly if too large to conserve processing and transit time
+    original.thumbnail((1200, 1200))
+    
+    # 2. Resave in memory at 95% JPEG quality
+    temp_buffer = io.BytesIO()
+    original.save(temp_buffer, format="JPEG", quality=quality)
+    temp_buffer.seek(0)
+    
+    # 3. Reload the compressed image
+    compressed = Image.open(temp_buffer)
+    
+    # 4. Calculate absolute pixel-by-pixel difference
+    diff = ImageChops.difference(original, compressed)
+    
+    # 5. Auto-scale diff channels to maximize heatmap visibility
+    extrema = diff.getextrema()
+    # Handle both multi-band (RGB) and single-band (L) extrema structures
+    max_vals = []
+    for pixel in extrema:
+        if isinstance(pixel, tuple):
+            max_vals.extend(pixel)
+        else:
+            max_vals.append(pixel)
+    max_diff = max(max_vals) if max_vals else 0
+    if max_diff == 0:
+        max_diff = 1
+        
+    scale = 255.0 / max_diff
+    # Multiply channels to amplify error signals
+    diff = ImageChops.multiply(diff, Image.new("RGB", diff.size, (int(scale), int(scale), int(scale))))
+    
+    # 6. Save as base64 JPEG
+    ela_buffer = io.BytesIO()
+    diff.save(ela_buffer, format="JPEG")
+    return base64.b64encode(ela_buffer.getvalue()).decode("utf-8")

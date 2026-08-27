@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import axios from "axios";
 
 const API = "http://localhost:8000";
-const TABS = ["IMAGE ANALYSIS", "REVERSE SEARCH", "URL SEARCH"];
+const TABS = ["IMAGE ANALYSIS", "ERROR LEVEL ANALYSIS", "REVERSE SEARCH", "URL SEARCH"];
 
 export default function VisualIntel() {
   const [activeTab, setActiveTab] = useState("IMAGE ANALYSIS");
@@ -15,11 +15,18 @@ export default function VisualIntel() {
   const [error, setError] = useState(null);
   const fileRef = useRef(null);
 
+  // ELA states
+  const [elaQuality, setElaQuality] = useState(95);
+  const [elaResult, setElaResult] = useState(null);
+  const [elaLoading, setElaLoading] = useState(false);
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setImage(file);
     setResults(null);
+    setElaResult(null);
+    setError(null);
 
     const reader = new FileReader();
     reader.onload = (ev) => {
@@ -46,6 +53,11 @@ export default function VisualIntel() {
       return;
     }
 
+    if (activeTab === "ERROR LEVEL ANALYSIS") {
+      await handleElaScan();
+      return;
+    }
+
     if (!imageData) return;
     setLoading(true);
     setResults(null);
@@ -69,6 +81,23 @@ export default function VisualIntel() {
       setError(e.response?.data?.detail || e.message);
     }
     setLoading(false);
+  };
+
+  const handleElaScan = async () => {
+    if (!imageData) return;
+    setElaLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post(`${API}/visual/ela`, {
+        image_data: imageData,
+        quality: elaQuality
+      });
+      setElaResult(res.data.ela_image);
+    } catch (e) {
+      setError(e.response?.data?.detail || e.message);
+    } finally {
+      setElaLoading(false);
+    }
   };
 
   const s = {
@@ -201,6 +230,76 @@ export default function VisualIntel() {
     </div>
   );
 
+  const renderEla = () => (
+    <div style={s.section}>
+      <div style={s.title}>LOCAL ERROR LEVEL ANALYSIS (ELA)</div>
+      <div style={{ color: "#882222", fontSize: "11px", lineHeight: "1.6", marginBottom: "12px" }}>
+        Error Level Analysis (ELA) works by intentionally compressing the image and calculating the pixel difference. 
+        Uniform JPEG saves contain relatively homogeneous error levels. Spliced areas (modified parts or text overrides) 
+        stand out as high-contrast glowing edges or brighter anomalies under the ELA scan.
+      </div>
+      
+      {/* Slider Controls */}
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px", marginBottom: "16px", background: "#0d0000", padding: "12px", border: "1px solid #330000" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <span style={{ fontSize: "10px", color: "#ff4400", letterSpacing: "1px" }}>
+            JPEG COMPRESSION THRESHOLD: {elaQuality}%
+          </span>
+          <input 
+            type="range" 
+            min="70" 
+            max="99" 
+            value={elaQuality} 
+            onChange={e => setElaQuality(parseInt(e.target.value))}
+            style={{ width: "220px", accentColor: "#ff0000", background: "#220000" }}
+          />
+        </div>
+        <button 
+          onClick={handleElaScan}
+          disabled={elaLoading || !imageData}
+          style={{
+            padding: "8px 16px",
+            fontSize: "11px",
+            fontFamily: "Courier New",
+            background: "#1a0000",
+            border: "1px solid #ff0000",
+            color: "#ff0000",
+            cursor: "pointer",
+            letterSpacing: "1px"
+          }}
+        >
+          {elaLoading ? "COMPUTING DIFFS..." : "RUN FORENSIC SCAN"}
+        </button>
+      </div>
+
+      {/* Comparison Grid */}
+      {elaResult ? (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "12px" }}>
+          <div>
+            <div style={{ fontSize: "10px", color: "#ff4400", letterSpacing: "1px", marginBottom: "6px", textAlign: "center" }}>
+              ORIGINAL SOURCE
+            </div>
+            <div style={{ border: "1px solid #330000", padding: "4px", background: "#030000" }}>
+              <img src={imagePreview} alt="Original" style={{ width: "100%", maxHeight: "360px", objectFit: "contain" }} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: "10px", color: "#ff0000", letterSpacing: "1px", marginBottom: "6px", textAlign: "center" }}>
+              FORENSIC ELA HEATMAP
+            </div>
+            <div style={{ border: "1px solid #ff0000", padding: "4px", background: "#030000" }}>
+              <img src={elaResult} alt="ELA Heatmap" style={{ width: "100%", maxHeight: "360px", objectFit: "contain" }} />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div style={{ padding: "60px 20px", border: "1px dashed #440000", borderRadius: "2px", textAlign: "center", color: "#552222", fontSize: "11px", letterSpacing: "1px" }}>
+          {elaLoading ? "RUNNING PIXEL ERROR DIFFERENCE INTEGRALS..." : "UPLOAD AN IMAGE AND CLICK 'RUN FORENSIC SCAN' TO DETECT SPLICING"}
+        </div>
+      )}
+    </div>
+  );
+
   const renderReverseSearch = () => (
     <div>
       {results?.saucenao?.matches?.length > 0 ? (
@@ -311,7 +410,7 @@ export default function VisualIntel() {
             )}
 
             <button onClick={handleAnalyze}
-              disabled={!imageData || loading}
+              disabled={!imageData || loading || elaLoading}
               style={{
                 width: "100%", padding: "8px",
                 fontSize: "11px", cursor: "pointer", fontFamily: "Courier New",
@@ -319,8 +418,9 @@ export default function VisualIntel() {
                 border: `1px solid ${imageData ? "#ff0000" : "#440000"}`,
                 color: imageData ? "#ff0000" : "#662222",
               }}>
-              {loading ? "ANALYZING..." :
-               activeTab === "IMAGE ANALYSIS" ? "ANALYZE IMAGE" : "REVERSE SEARCH"}
+              {loading || elaLoading ? "PROCESSING..." :
+               activeTab === "IMAGE ANALYSIS" ? "ANALYZE IMAGE" : 
+               activeTab === "ERROR LEVEL ANALYSIS" ? "RUN FORENSIC SCAN" : "REVERSE SEARCH"}
             </button>
           </div>
         ) : (
@@ -354,7 +454,7 @@ export default function VisualIntel() {
 
         <div style={{ padding: "8px", background: "#0d0000",
           border: "1px solid #330000", fontSize: "10px", color: "#440000", lineHeight: "1.5" }}>
-          Extracts EXIF, GPS coords, device info. Reverse searches via SauceNAO. All public data only.
+          Extracts EXIF, GPS coords, device info. Detects image manipulation locally via ELA. Reverse searches via SauceNAO.
         </div>
       </div>
 
@@ -363,27 +463,27 @@ export default function VisualIntel() {
         <div style={{ padding: "12px 16px", borderBottom: "1px solid #330000",
           background: "#060000", display: "flex", alignItems: "center", gap: "16px" }}>
           <div style={{ color: "#ff0000", fontSize: "11px", letterSpacing: "3px" }}>{activeTab}</div>
-          {results && <div style={{ color: "#440000", fontSize: "11px" }}>ANALYSIS COMPLETE</div>}
+          {(results || elaResult) && <div style={{ color: "#440000", fontSize: "11px" }}>ANALYSIS COMPLETE</div>}
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
-          {!results && !loading && !error && (
+          {!results && !elaResult && !loading && !elaLoading && !error && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center",
               justifyContent: "center", height: "100%", color: "#220000" }}>
               <div style={{ fontSize: "48px", color: "#1a0000", marginBottom: "16px" }}>[ V ]</div>
               <div style={{ fontSize: "13px", letterSpacing: "3px" }}>UPLOAD IMAGE TO ANALYZE</div>
               <div style={{ fontSize: "11px", marginTop: "8px", color: "#150000" }}>
-                EXIF / GPS / Reverse Search / Metadata
+                EXIF / GPS / Manipulation Check / Reverse Search
               </div>
             </div>
           )}
 
-          {loading && (
+          {(loading || elaLoading) && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center",
               justifyContent: "center", height: "100%", gap: "12px" }}>
               <div style={{ color: "#ff0000", fontSize: "11px", letterSpacing: "3px" }}
                 className="animate-pulse">
-                ANALYZING IMAGE INTELLIGENCE...
+                {elaLoading ? "COMPUTING COMPRESSION RESIDUALS..." : "ANALYZING IMAGE INTELLIGENCE..."}
               </div>
             </div>
           )}
@@ -395,10 +495,11 @@ export default function VisualIntel() {
             </div>
           )}
 
-          {!loading && results && (
-            activeTab === "IMAGE ANALYSIS" ? renderAnalysis() :
-            activeTab === "REVERSE SEARCH" ? renderReverseSearch() :
-            renderUrlSearch()
+          {!loading && !elaLoading && (
+            activeTab === "IMAGE ANALYSIS" && results ? renderAnalysis() :
+            activeTab === "ERROR LEVEL ANALYSIS" ? renderEla() :
+            activeTab === "REVERSE SEARCH" && results ? renderReverseSearch() :
+            activeTab === "URL SEARCH" && results ? renderUrlSearch() : null
           )}
         </div>
       </div>

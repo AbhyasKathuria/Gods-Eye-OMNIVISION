@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const API = "http://localhost:8000";
 
@@ -15,11 +16,16 @@ const renderVal = (val) => {
 };
 
 export default function IdentityEngine() {
+  const { logActivity } = useAuth();
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
   const [history, setHistory] = useState([]);
+  
+  // DPDP 2023 compliance states
+  const [dpdpCompliance, setDpdpCompliance] = useState("");
+  const [dpdpConsent, setDpdpConsent] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("ge_identity_history");
@@ -75,6 +81,7 @@ export default function IdentityEngine() {
         setYandexUrl(res.data.results.yandex_url);
       }
       setActiveTab("face");
+      logActivity("IDENTITY", `Face scan initiated (DPDP Legal Basis: ${dpdpCompliance})`, file.name);
     } catch (e) {
       console.error(e);
     }
@@ -90,6 +97,7 @@ export default function IdentityEngine() {
       const res = await axios.post(`${API}/identity/facecheck`, formData);
       setFaceResults(prev => ({ ...prev, facecheck: res.data.results }));
       setActiveTab("face");
+      logActivity("IDENTITY", `FaceCheck social scan (DPDP Legal Basis: ${dpdpCompliance})`, file.name);
     } catch (e) {
       console.error(e);
     }
@@ -108,6 +116,7 @@ export default function IdentityEngine() {
       } else {
         window.open("https://yandex.com/images/search?rpt=imageview", "_blank");
       }
+      logActivity("IDENTITY", `Yandex face reverse search (DPDP Legal Basis: ${dpdpCompliance})`, file.name);
     } catch (e) {
       console.error(e);
       window.open("https://yandex.com/images/search?rpt=imageview", "_blank");
@@ -238,18 +247,74 @@ export default function IdentityEngine() {
             <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleFile} />
           </label>
 
-          <button onClick={handleFaceSearch} disabled={!file || loadingFace}
-            style={file ? s.active : s.base}>
+          {/* DPDP Compliance Card */}
+          <div style={{
+            marginTop: "10px", padding: "8px", background: "#0d0000",
+            border: `1px solid ${dpdpCompliance && dpdpConsent ? "#00ff41" : "#440000"}`
+          }}>
+            <div style={{ fontSize: "9px", color: dpdpCompliance && dpdpConsent ? "#00ff41" : "#ff3333", letterSpacing: "1px", fontWeight: "bold", marginBottom: "4px" }}>
+              ⚖️ DPDP COMPLIANCE GATEWAY (IND)
+            </div>
+            <select
+              value={dpdpCompliance}
+              onChange={e => setDpdpCompliance(e.target.value)}
+              style={{
+                width: "100%", background: "#000", border: "1px solid #440000",
+                color: dpdpCompliance ? "#00ff41" : "#882222", fontSize: "10px", fontFamily: "Courier New",
+                padding: "4px", marginBottom: "6px"
+              }}
+            >
+              <option value="">-- SELECT LEGAL BASIS --</option>
+              <option value="explicit_consent">Explicit Subject Consent Obtained</option>
+              <option value="legitimate_public">Public Interest & Security (Sec 7)</option>
+              <option value="judicial_warrant">Judicial Search Warrant Authorized</option>
+              <option value="academic_sandbox">Consented Research Sandbox Protocol</option>
+            </select>
+            
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "6px" }}>
+              <input 
+                type="checkbox" 
+                checked={dpdpConsent} 
+                onChange={e => setDpdpConsent(e.target.checked)} 
+                style={{ marginTop: "2px", accentColor: "#ff0000" }} 
+              />
+              <span style={{ fontSize: "9px", color: dpdpConsent ? "#00ff41" : "#882222", lineHeight: "1.3" }}>
+                I confirm compliance under DPDP Act 2023 principles.
+              </span>
+            </div>
+          </div>
+
+          <button 
+            onClick={handleFaceSearch} 
+            disabled={!file || loadingFace || !dpdpCompliance || !dpdpConsent}
+            style={file && dpdpCompliance && dpdpConsent ? s.active : s.base}
+          >
             {loadingFace ? "SCANNING ALL DATABASES..." : "INITIATE FACE SCAN"}
           </button>
 
-          <button onClick={handleYandexSearch} disabled={!file || loadingFace}
-            style={{ ...s.base, marginTop: "4px", borderColor: "#550000", color: "#662222" }}>
+          <button 
+            onClick={handleYandexSearch} 
+            disabled={!file || loadingFace || !dpdpCompliance || !dpdpConsent}
+            style={{ 
+              ...s.base, 
+              marginTop: "4px", 
+              borderColor: file && dpdpCompliance && dpdpConsent ? "#ff0000" : "#550000", 
+              color: file && dpdpCompliance && dpdpConsent ? "#ff0000" : "#662222" 
+            }}
+          >
             YANDEX FACE SEARCH
           </button>
 
-          <button onClick={handleFaceCheck} disabled={!file || loadingFace}
-            style={{ ...s.base, marginTop: "4px", borderColor: "#440000", color: "#552222" }}>
+          <button 
+            onClick={handleFaceCheck} 
+            disabled={!file || loadingFace || !dpdpCompliance || !dpdpConsent}
+            style={{ 
+              ...s.base, 
+              marginTop: "4px", 
+              borderColor: file && dpdpCompliance && dpdpConsent ? "#ff0000" : "#440000", 
+              color: file && dpdpCompliance && dpdpConsent ? "#ff0000" : "#552222" 
+            }}
+          >
             FACECHECK.ID SEARCH
           </button>
         </div>

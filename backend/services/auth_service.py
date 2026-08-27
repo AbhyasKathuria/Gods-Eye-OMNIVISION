@@ -38,38 +38,35 @@ def load_users() -> dict:
         DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     
     if not DB_PATH.exists():
-        # Default seeded users
-        default_users = {
-            "admin": {
-                "password": hash_password("admin123"),
-                "role": "ADMIN",
-                "name": "Administrator",
-                "clearance": "TOP SECRET",
-                "first_run": True
-            },
-            "researcher": {
-                "password": hash_password("research123"),
-                "role": "RESEARCHER",
-                "name": "Lead Researcher",
-                "clearance": "SECRET",
-                "first_run": True
-            },
-            "student": {
-                "password": hash_password("student123"),
-                "role": "STUDENT",
-                "name": "Abhyas Kathuria",
-                "clearance": "CONFIDENTIAL",
-                "first_run": True
-            }
-        }
-        save_users(default_users)
-        return default_users
+        save_users({})
+        return {}
         
     try:
         with open(DB_PATH, "r") as f:
             return json.load(f)
     except Exception:
         return {}
+
+
+def register_initial_admin(username: str, password: str) -> dict:
+    users = load_users()
+    if len(users) > 0:
+        return {"success": False, "error": "System is already initialized with an administrator"}
+    
+    clean_username = username.strip().lower()
+    if not clean_username or not password.strip():
+        return {"success": False, "error": "Username and password are required"}
+        
+    users[clean_username] = {
+        "password": hash_password(password),
+        "role": "ADMIN",
+        "name": "System Administrator",
+        "clearance": "TOP SECRET",
+        "first_run": False
+    }
+    save_users(users)
+    log_activity(username, "AUTH", "Initial administrator registered")
+    return {"success": True}
 
 
 def save_users(users: dict):

@@ -58,3 +58,23 @@ async def search_image_url(url: str):
         return {"status": "success", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/ela")
+async def run_ela(payload: dict):
+    try:
+        import base64
+        image_data = payload.get("image_data")
+        quality = payload.get("quality", 95)
+        if not image_data:
+            raise HTTPException(status_code=400, detail="Image data required")
+            
+        if "," in image_data:
+            image_data = image_data.split(",")[1]
+            
+        image_bytes = base64.b64decode(image_data)
+        from services.image_service import perform_error_level_analysis
+        ela_b64 = perform_error_level_analysis(image_bytes, quality=quality)
+        return {"status": "success", "ela_image": f"data:image/jpeg;base64,{ela_b64}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

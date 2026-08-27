@@ -96,3 +96,26 @@ async def change_password(payload: dict, authorization: Optional[str] = Header(N
         raise HTTPException(status_code=400, detail=res["error"])
         
     return {"status": "success", "message": "Password updated successfully"}
+
+
+@router.get("/init-status")
+async def init_status():
+    from services.auth_service import load_users
+    users = load_users()
+    return {"initialized": len(users) > 0}
+
+
+@router.post("/register-admin")
+async def register_admin(payload: dict):
+    username = payload.get("username", "").strip()
+    password = payload.get("password", "").strip()
+    
+    if not username or not password:
+        raise HTTPException(status_code=400, detail="Username and password are required")
+        
+    from services.auth_service import register_initial_admin
+    res = register_initial_admin(username, password)
+    if not res["success"]:
+        raise HTTPException(status_code=400, detail=res["error"])
+        
+    return {"status": "success", "message": "Initial administrator registered successfully"}
