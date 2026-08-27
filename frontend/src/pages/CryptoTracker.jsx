@@ -111,7 +111,7 @@ export default function CryptoTracker() {
           QUICK TARGETS
         </div>
         {[
-          { label: "Genesis Block BTC", action: () => { setCoin("BTC"); setAddress("1A1zP1eP5Qgefi2DMPTfTL5SLmv7DivfNa"); handleTrack("1A1zP1eP5Qgefi2DMPTfTL5SLmv7DivfNa", "BTC"); }},
+          { label: "Genesis Block BTC", action: () => { setCoin("BTC"); setAddress("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"); handleTrack("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", "BTC"); }},
           { label: "Safe Contract ETH", action: () => { setCoin("ETH"); setAddress("0x38651c6c641d8e1e1e1e1e1e1e1e1e1e1e1e1e1e"); handleTrack("0x38651c6c641d8e1e1e1e1e1e1e1e1e1e1e1e1e1e", "ETH"); }},
         ].map((t, i) => (
           <button key={i} onClick={t.action}
