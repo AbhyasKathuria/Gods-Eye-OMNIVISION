@@ -129,19 +129,22 @@ export default function Reports() {
   const [loading, setLoading] = useState(false);
   const [savedReports, setSavedReports] = useState([]);
 
-  const generateReport = async () => {
-    if (!target.trim()) return;
+  const generateReport = async (overrideTarget = null, overrideType = null) => {
+    const targetVal = (typeof overrideTarget === "string") ? overrideTarget : target;
+    const typeVal = (typeof overrideType === "string") ? overrideType : reportType;
+
+    if (!targetVal.trim()) return;
     setLoading(true);
     setReport(null);
     try {
       const res = await axios.post(`${API}/ai/report`, {
-        type: reportType,
-        data: { target, type: reportType }
+        type: typeVal,
+        data: { target: targetVal, type: typeVal }
       });
       const newReport = {
         id: Date.now(),
-        type: reportType,
-        target,
+        type: typeVal,
+        target: targetVal,
         content: res.data.report,
         timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
       };
@@ -211,6 +214,32 @@ export default function Reports() {
             {loading ? "GENERATING..." : "GENERATE REPORT"}
           </button>
         </div>
+
+        <div style={{ borderTop: "1px solid #220000" }} />
+        <div style={{ color: "#882222", fontSize: "11px", letterSpacing: "1px" }}>
+          QUICK SAMPLES
+        </div>
+        {[
+          { label: "[PERSON] Abhyas Kathuria", type: "person", target: "Abhyas Kathuria" },
+          { label: "[CYBER] Malware IP 8.8.8.8", type: "threat", target: "8.8.8.8" },
+          { label: "[GEO] Mumbai, India", type: "geo", target: "Mumbai, India" },
+          { label: "[NEWS] Quantum Computing", type: "news", target: "Quantum Computing" },
+          { label: "[GENERAL] Presidency Univ", type: "general", target: "Presidency University" },
+        ].map((smp, i) => (
+          <button key={i} onClick={() => {
+            setReportType(smp.type);
+            setTarget(smp.target);
+            generateReport(smp.target, smp.type);
+          }}
+            style={{
+              width: "100%", padding: "6px 8px", marginBottom: "4px",
+              fontSize: "11px", cursor: "pointer", fontFamily: "Courier New",
+              textAlign: "left", background: "#060000",
+              border: "1px solid #330000", color: "#552222",
+            }}>
+            {smp.label}
+          </button>
+        ))}
 
         {/* Saved Reports */}
         {savedReports.length > 0 && (
