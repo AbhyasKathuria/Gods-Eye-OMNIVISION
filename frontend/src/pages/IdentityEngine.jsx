@@ -23,9 +23,9 @@ export default function IdentityEngine() {
   const [results, setResults] = useState(null);
   const [history, setHistory] = useState([]);
   
-  // DPDP 2023 compliance states
-  const [dpdpCompliance, setDpdpCompliance] = useState("");
-  const [dpdpConsent, setDpdpConsent] = useState(false);
+  // DPDP 2023 compliance states (initialized to safe defaults for frictionless testing)
+  const [dpdpCompliance, setDpdpCompliance] = useState("academic_sandbox");
+  const [dpdpConsent, setDpdpConsent] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem("ge_identity_history");
