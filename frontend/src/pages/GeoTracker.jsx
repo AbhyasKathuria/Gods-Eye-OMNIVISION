@@ -99,6 +99,72 @@ export default function GeoTracker() {
   const cctvRefreshTimerRef = useRef(null);
   const cctvAbortRef = useRef(null);
   const lastCctvFetchRef = useRef({ lat: null, lon: null, zoom: null });
+
+  // Dual-mode basemap layers (Vector Tactical vs. High-Res Orbital Satellite)
+  const vectorTileLayerRef = useRef(null);
+  const satelliteTileLayerRef = useRef(null);
+  const satelliteLabelsLayerRef = useRef(null);
+  const [isSatelliteBasemap, setIsSatelliteBasemap] = useState(false);
+
+  // Smart Coordinate Normalizer & Auto-Correction (handles 206139 -> 20.6139, 772090 -> 77.2090, comma pairs)
+  const parseCoord = (val, isLat = true) => {
+    if (val === null || val === undefined) return null;
+    let sVal = String(val).trim();
+    if (!sVal) return null;
+    if (sVal.includes(",") || sVal.includes(" ")) {
+      const parts = sVal.split(/[,\s]+/).filter(Boolean);
+      if (parts.length >= 2) {
+        return isLat ? parseFloat(parts[0]) : parseFloat(parts[1]);
+      }
+    }
+    let num = parseFloat(sVal);
+    if (isNaN(num)) return null;
+    // Auto-insert decimal point if user omitted it (e.g. 206139 -> 20.6139)
+    if (isLat && Math.abs(num) > 90) {
+      const str = Math.abs(num).toString().replace(".", "");
+      if (str.length >= 4) {
+        const fixed = parseFloat(str.slice(0, 2) + "." + str.slice(2));
+        if (fixed <= 90) return (num < 0 ? -1 : 1) * fixed;
+      }
+    }
+    if (!isLat && Math.abs(num) > 180) {
+      const str = Math.abs(num).toString().replace(".", "");
+      if (str.length >= 4) {
+        const fixed = parseFloat(str.slice(0, 2) + "." + str.slice(2));
+        if (fixed <= 180) return (num < 0 ? -1 : 1) * fixed;
+      }
+    }
+    return num;
+  };
+
+  // Instant Tile Layer Switcher
+  const setBasemapMode = (toSatellite) => {
+    const map = leafletMapRef.current;
+    if (!map) return;
+    if (toSatellite) {
+      if (vectorTileLayerRef.current && map.hasLayer(vectorTileLayerRef.current)) {
+        map.removeLayer(vectorTileLayerRef.current);
+      }
+      if (satelliteTileLayerRef.current && !map.hasLayer(satelliteTileLayerRef.current)) {
+        satelliteTileLayerRef.current.addTo(map);
+      }
+      if (satelliteLabelsLayerRef.current && !map.hasLayer(satelliteLabelsLayerRef.current)) {
+        satelliteLabelsLayerRef.current.addTo(map);
+      }
+      setIsSatelliteBasemap(true);
+    } else {
+      if (satelliteTileLayerRef.current && map.hasLayer(satelliteTileLayerRef.current)) {
+        map.removeLayer(satelliteTileLayerRef.current);
+      }
+      if (satelliteLabelsLayerRef.current && map.hasLayer(satelliteLabelsLayerRef.current)) {
+        map.removeLayer(satelliteLabelsLayerRef.current);
+      }
+      if (vectorTileLayerRef.current && !map.hasLayer(vectorTileLayerRef.current)) {
+        vectorTileLayerRef.current.addTo(map);
+      }
+      setIsSatelliteBasemap(false);
+    }
+  };
   
   // Voice Command State
   const [micActive, setMicActive] = useState(false);
@@ -121,6 +187,8 @@ export default function GeoTracker() {
         return `GLOBAL RADIO NODES — ${results?.count || 0} STATIONS LOADED`;
       case "CCTV MONITOR":
         return `TACTICAL CCTV CAMERA FEEDS — ${results?.cameras || 0} SENSORS DETECTED`;
+      case "SATELLITE VIEW":
+        return `HIGH-RESOLUTION ORBITAL SATELLITE IMAGERY — ESRI WORLD OPTICS`;
       default:
         return "TACTICAL GEO INTELLIGENCE MONITOR";
     }
@@ -142,6 +210,8 @@ export default function GeoTracker() {
         return results?.stations?.[0]?.type === "LIVE" ? "LIVE" : "SIMULATED";
       case "CCTV MONITOR":
         return results?.cameras > 0 ? "LIVE" : "SIMULATED";
+      case "SATELLITE VIEW":
+        return "LIVE";
       default:
         return "LIVE";
     }
@@ -822,9 +892,38 @@ export default function GeoTracker() {
       zoom: mapZoom,
       zoomControl: true,
     });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "OpenStreetMap"
-    }).addTo(map);
+
+    // Standard dark tactical vector layer
+    const vectorLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "OpenStreetMap",
+      className: "vector-tile",
+      maxZoom: 19
+    });
+    vectorTileLayerRef.current = vectorLayer;
+
+    // High-resolution natural-color orbital satellite layer (Esri World Imagery)
+    const satLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+      attribution: "Esri World Imagery, Maxar, Earthstar Geographics",
+      className: "satellite-tile",
+      maxZoom: 19
+    });
+    satelliteTileLayerRef.current = satLayer;
+
+    // Tactical boundary lines & road labels overlay
+    const satLabels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {
+      className: "satellite-label-tile",
+      maxZoom: 19
+    });
+    satelliteLabelsLayerRef.current = satLabels;
+
+    if (activeTabRef.current === "SATELLITE VIEW") {
+      satLayer.addTo(map);
+      satLabels.addTo(map);
+      setIsSatelliteBasemap(true);
+    } else {
+      vectorLayer.addTo(map);
+      setIsSatelliteBasemap(false);
+    }
     
     leafletMapRef.current = map;
 
@@ -1061,6 +1160,69 @@ export default function GeoTracker() {
             }
           }
           break;
+        case "SATELLITE VIEW":
+          setBasemapMode(true);
+          const rawLat = parseCoord(lat, true);
+          const rawLon = parseCoord(lon, false);
+          const currentCenter = map ? map.getCenter() : { lat: 28.6139, lng: 77.2090 };
+          const targetLat = rawLat !== null ? rawLat : (userCoords ? userCoords[0] : currentCenter.lat);
+          const targetLon = rawLon !== null ? rawLon : (userCoords ? userCoords[1] : currentCenter.lng);
+
+          setLat(targetLat.toFixed(4));
+          setLon(targetLon.toFixed(4));
+
+          try {
+            const revRes = await axios.get(`${API}/geo/reverse?lat=${targetLat.toFixed(4)}&lon=${targetLon.toFixed(4)}`, { timeout: 6000 });
+            if (activeTabRef.current !== currentTab) return;
+            setResults(revRes.data);
+          } catch (e) {
+            setResults({
+              location: { display_name: `Target Coordinates [${targetLat.toFixed(4)}, ${targetLon.toFixed(4)}]` },
+              satellite: {
+                google_maps: `https://www.google.com/maps/@${targetLat},${targetLon},15z/data=!3m1!1e3`,
+                openstreetmap: `https://www.openstreetmap.org/#map=15/${targetLat}/${targetLon}`,
+                sentinel_hub: `https://apps.sentinel-hub.com/eo-browser/?zoom=12&lat=${targetLat}&lng=${targetLon}`,
+                nasa_worldview: `https://worldview.earthdata.nasa.gov/?v=${targetLon-1},${targetLat-1},${targetLon+1},${targetLat+1}`
+              }
+            });
+          }
+
+          if (map && L) {
+            markersRef.current.forEach(m => m.remove());
+            markersRef.current = [];
+
+            const satIcon = L.divIcon({
+              html: `
+                <div style="position:relative;width:40px;height:40px;display:flex;align-items:center;justify-content:center">
+                  <div style="position:absolute;inset:0;border:2px solid #00ffff;border-radius:50%;animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;opacity:0.6"></div>
+                  <div style="position:absolute;inset:4px;border:1px dashed #00ffff;border-radius:50%"></div>
+                  <div style="width:8px;height:8px;background:#00ffff;border-radius:50%;box-shadow:0 0 8px #00ffff"></div>
+                </div>
+              `,
+              className: "",
+              iconSize: [40, 40],
+              iconAnchor: [20, 20]
+            });
+
+            const satMarker = L.marker([targetLat, targetLon], { icon: satIcon }).addTo(map);
+            satMarker.bindPopup(`
+              <div style="background:#050505;color:#00ffff;font-family:Courier New;font-size:10px;padding:8px;border:1px solid #00aaaa;width:220px;box-shadow:0 0 12px rgba(0,255,255,0.4)">
+                <div style="font-weight:bold;color:#00ffff;margin-bottom:4px;letter-spacing:1px">🛰️ SATELLITE TARGET LOCK</div>
+                <div style="font-size:8px;color:#aaa;margin-bottom:4px">LAT: ${targetLat.toFixed(4)} | LON: ${targetLon.toFixed(4)}</div>
+                <div style="font-size:8px;color:#00ff88;margin-bottom:6px">SENSOR: ESRI HIGH-RES ORBITAL OPTICS</div>
+                <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${targetLat},${targetLon}" target="_blank" rel="noreferrer"
+                  style="display:inline-block;padding:2px 6px;background:#ffaa00;color:#000;text-decoration:none;font-weight:bold;border-radius:2px;font-size:8px">
+                  🌐 STREET VIEW 360° ↗
+                </a>
+              </div>
+            `);
+            markersRef.current.push(satMarker);
+
+            if (map.getZoom() < 8) {
+              map.flyTo([targetLat, targetLon], 14, { duration: 1.5 });
+            }
+          }
+          break;
         case "SHIP TRACKER":
           // Handled via iframe rendering
           break;
@@ -1097,6 +1259,11 @@ export default function GeoTracker() {
 
   useEffect(() => {
     activeTabRef.current = activeTab;
+    if (activeTab === "SATELLITE VIEW") {
+      setBasemapMode(true);
+    } else {
+      setBasemapMode(false);
+    }
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
@@ -1167,12 +1334,101 @@ export default function GeoTracker() {
           }
           break;
         case "SATELLITE VIEW":
-          if (searchLat && searchLon) {
-            res = await axios.get(`${API}/geo/reverse?lat=${searchLat}&lon=${searchLon}`);
+          let finalLat = null;
+          let finalLon = null;
+
+          // Check if user entered a place name (e.g. "Taj Mahal", "Presidency University", "Times Square")
+          if (searchInput && searchInput.trim()) {
+            try {
+              const geoRes = await axios.get(`${API}/geo/geocode?query=${encodeURIComponent(searchInput.trim())}`);
+              if (geoRes.data?.data?.results?.length > 0) {
+                const first = geoRes.data.data.results[0];
+                finalLat = first.latitude;
+                finalLon = first.longitude;
+              }
+            } catch (err) {}
+          }
+
+          // Otherwise parse coordinates from lat/lon inputs
+          if (finalLat === null || finalLon === null) {
+            finalLat = parseCoord(searchLat, true);
+            finalLon = parseCoord(searchLon, false);
+          }
+
+          // If still null, fall back to current map center
+          if (finalLat === null || finalLon === null) {
+            const curCenter = leafletMapRef.current ? leafletMapRef.current.getCenter() : { lat: 28.6139, lng: 77.2090 };
+            finalLat = curCenter.lat;
+            finalLon = curCenter.lng;
+          }
+
+          if (Math.abs(finalLat) > 90 || Math.abs(finalLon) > 180) {
+            setError("COORDINATE RANGE ERROR: Latitude must be between -90 and 90, Longitude between -180 and 180 (e.g. 28.6139, 77.2090)");
+            setLoading(false);
+            return;
+          }
+
+          setLat(finalLat.toFixed(4));
+          setLon(finalLon.toFixed(4));
+          setBasemapMode(true);
+
+          try {
+            res = await axios.get(`${API}/geo/reverse?lat=${finalLat.toFixed(4)}&lon=${finalLon.toFixed(4)}`);
             setResults(res.data);
-            if (leafletMapRef.current) {
-              leafletMapRef.current.flyTo([parseFloat(searchLat), parseFloat(searchLon)], 14);
-            }
+          } catch (e) {
+            res = {
+              data: {
+                location: { display_name: `Target Coordinates [${finalLat.toFixed(4)}, ${finalLon.toFixed(4)}]` },
+                satellite: {
+                  google_maps: `https://www.google.com/maps/@${finalLat},${finalLon},15z/data=!3m1!1e3`,
+                  openstreetmap: `https://www.openstreetmap.org/#map=15/${finalLat}/${finalLon}`,
+                  sentinel_hub: `https://apps.sentinel-hub.com/eo-browser/?zoom=12&lat=${finalLat}&lng=${finalLon}`,
+                  nasa_worldview: `https://worldview.earthdata.nasa.gov/?v=${finalLon-1},${finalLat-1},${finalLon+1},${finalLat+1}`
+                }
+              }
+            };
+            setResults(res.data);
+          }
+
+          if (leafletMapRef.current && window.L) {
+            const map = leafletMapRef.current;
+            const L = window.L;
+
+            markersRef.current.forEach(m => m.remove());
+            markersRef.current = [];
+
+            const satIcon = L.divIcon({
+              html: `
+                <div style="position:relative;width:40px;height:40px;display:flex;align-items:center;justify-content:center">
+                  <div style="position:absolute;inset:0;border:2px solid #00ffff;border-radius:50%;animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;opacity:0.6"></div>
+                  <div style="position:absolute;inset:4px;border:1px dashed #00ffff;border-radius:50%"></div>
+                  <div style="width:8px;height:8px;background:#00ffff;border-radius:50%;box-shadow:0 0 8px #00ffff"></div>
+                </div>
+              `,
+              className: "",
+              iconSize: [40, 40],
+              iconAnchor: [20, 20]
+            });
+
+            const marker = L.marker([finalLat, finalLon], { icon: satIcon }).addTo(map);
+            marker.bindPopup(`
+              <div style="background:#050505;color:#00ffff;font-family:Courier New;font-size:10px;padding:8px;border:1px solid #00aaaa;width:220px;box-shadow:0 0 12px rgba(0,255,255,0.4)">
+                <div style="font-weight:bold;color:#00ffff;margin-bottom:4px;letter-spacing:1px">🛰️ SATELLITE TARGET ACQUIRED</div>
+                <div style="font-size:9px;color:#fff;margin-bottom:4px">${res?.data?.location?.display_name || 'ORBITAL TARGET LOCK'}</div>
+                <div style="font-size:8px;color:#aaa;margin-bottom:4px">LAT: ${finalLat.toFixed(4)} | LON: ${finalLon.toFixed(4)}</div>
+                <div style="font-size:8px;color:#00ff88;margin-bottom:6px">OPTICAL GROUND SENSOR: ACTIVE</div>
+                <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${finalLat},${finalLon}" target="_blank" rel="noreferrer"
+                  style="display:inline-block;padding:2px 6px;background:#ffaa00;color:#000;text-decoration:none;font-weight:bold;border-radius:2px;font-size:8px">
+                  🌐 STREET VIEW 360° ↗
+                </a>
+              </div>
+            `);
+            markersRef.current.push(marker);
+
+            map.flyTo([finalLat, finalLon], 15, { duration: 1.5 });
+            setTimeout(() => {
+              marker.openPopup();
+            }, 1200);
           }
           break;
         case "WEATHER":
@@ -1292,10 +1548,27 @@ export default function GeoTracker() {
         }} className={activeStyle === "FLIR" ? "hud-grid" : "hud-grid-cyan"}>
           
           {/* Top Panel HUD */}
-          <div style={{ display: "flex", justifyContent: "space-between", background: "rgba(0,0,0,0.6)", padding: "4px 8px", border: "1px solid rgba(0,255,200,0.2)" }}>
-            <div>SYSTEM: OMNIVISION_V1 // SATELLITE_FEED</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(0,0,0,0.75)", padding: "4px 8px", border: "1px solid rgba(0,255,200,0.3)" }}>
+            <div>SYSTEM: OMNIVISION_V1 // {isSatelliteBasemap || activeTab === "SATELLITE VIEW" ? "ORBITAL_SATELLITE_OPTICS" : "VECTOR_TACTICAL_GRID"}</div>
             <div>SECTOR: {activeTab}</div>
-            <div>ZOOM: {mapZoom}x</div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div>ZOOM: {mapZoom}x</div>
+              <button onClick={() => setBasemapMode(!isSatelliteBasemap)}
+                style={{
+                  padding: "2px 6px",
+                  fontSize: "8px",
+                  fontFamily: "Courier New",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  background: isSatelliteBasemap ? "#00ffff" : "#0d0000",
+                  color: isSatelliteBasemap ? "#000" : "#00ffff",
+                  border: "1px solid #00ffff",
+                  borderRadius: "2px",
+                  pointerEvents: "auto"
+                }}>
+                {isSatelliteBasemap ? "🛰️ SATELLITE ACTIVE" : "🛰️ SATELLITE OVERLAY"}
+              </button>
+            </div>
           </div>
           
           {/* Center crosshair */}
@@ -1482,25 +1755,107 @@ export default function GeoTracker() {
 
   const renderSatellite = () => (
     <div>
-      {results?.satellite && (
+      <div style={s.section}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+          <div style={{ ...s.title, color: "#00ffff" }}>🛰️ ORBITAL SATELLITE RECON</div>
+          <DataIntegrityBadge state="LIVE" />
+        </div>
+        
+        <div style={{ color: "#00ffcc", fontSize: "10px", marginBottom: "8px", fontWeight: "bold" }}>
+          TARGET: {results?.location?.display_name || `SECTOR [${lat || "28.6139"}, ${lon || "77.2090"}]`}
+        </div>
+
+        <div style={{ padding: "8px", background: "rgba(0,255,255,0.06)", border: "1px solid #008888", marginBottom: "10px" }}>
+          <div style={{ color: "#00ffff", fontSize: "9px", fontWeight: "bold", marginBottom: "3px" }}>
+            PRIMARY SENSOR: ESRI WORLD IMAGERY (SUB-METER OPTICS)
+          </div>
+          <div style={{ color: "#88aaaa", fontSize: "8px", lineHeight: "1.3" }}>
+            Sub-meter aerial and commercial satellite imagery from Maxar, Airbus, GeoEye, and USGS. Active orbital telemetry rendered directly on the primary viewport.
+          </div>
+        </div>
+
+        {/* Telemetry Grid */}
+        <div style={{ ...s.grid2, marginBottom: "10px" }}>
+          <div style={s.row}><span style={s.label}>LATITUDE: </span><span style={{ color: "#00ffff" }}>{lat || "28.6139"}</span></div>
+          <div style={s.row}><span style={s.label}>LONGITUDE: </span><span style={{ color: "#00ffff" }}>{lon || "77.2090"}</span></div>
+          <div style={s.row}><span style={s.label}>ZOOM LEVEL: </span><span style={{ color: "#00ffff" }}>{mapZoom}x</span></div>
+          <div style={s.row}><span style={s.label}>GROUND RES: </span><span style={{ color: "#00ff66" }}>~0.3m/px</span></div>
+        </div>
+
+        {/* Zoom Controls */}
+        <div style={{ display: "flex", gap: "6px", marginBottom: "12px" }}>
+          <button onClick={() => { if (leafletMapRef.current) leafletMapRef.current.zoomIn(); }}
+            style={{ flex: 1, padding: "6px", background: "#002222", border: "1px solid #00ffff", color: "#00ffff", fontSize: "9px", fontFamily: "Courier New", cursor: "pointer", fontWeight: "bold" }}>
+            ➕ ZOOM IN (OPTICAL)
+          </button>
+          <button onClick={() => { if (leafletMapRef.current) leafletMapRef.current.zoomOut(); }}
+            style={{ flex: 1, padding: "6px", background: "#002222", border: "1px solid #00ffff", color: "#00ffff", fontSize: "9px", fontFamily: "Courier New", cursor: "pointer", fontWeight: "bold" }}>
+            ➖ ZOOM OUT
+          </button>
+        </div>
+
+        {/* Quick Target Presets */}
+        <div style={{ color: "#ffaa00", fontSize: "9px", fontWeight: "bold", marginBottom: "6px", letterSpacing: "1px" }}>
+          ORBITAL TARGET PRESETS
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginBottom: "12px" }}>
+          {[
+            { name: "🇪🇬 Pyramids", lat: "29.9792", lon: "31.1342" },
+            { name: "🇮🇳 Taj Mahal", lat: "27.1751", lon: "78.0421" },
+            { name: "🇮🇳 Presidency Univ", lat: "13.1678", lon: "77.5342" },
+            { name: "🇺🇸 Pentagon", lat: "38.8719", lon: "-77.0563" },
+            { name: "🇦🇪 Palm Dubai", lat: "25.1124", lon: "55.1390" },
+            { name: "🇫🇷 Eiffel Tower", lat: "48.8584", lon: "2.2945" },
+          ].map(p => (
+            <button key={p.name} onClick={() => {
+              setLat(p.lat);
+              setLon(p.lon);
+              handleSearch("", p.lat, p.lon, "SATELLITE VIEW");
+            }}
+              style={{
+                padding: "4px 6px",
+                background: "#080808",
+                border: "1px solid #443300",
+                color: "#ffaa00",
+                fontSize: "8px",
+                fontFamily: "Courier New",
+                cursor: "pointer",
+                textAlign: "left"
+              }}>
+              {p.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Deep Recon External Portals */}
+        <div style={{ color: "#00ffcc", fontSize: "9px", fontWeight: "bold", marginBottom: "6px", letterSpacing: "1px" }}>
+          EXTERNAL RECON PLATFORMS
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <a href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat || "28.6139"},${lon || "77.2090"}`} target="_blank" rel="noreferrer"
+            style={{ display: "block", padding: "6px 8px", background: "rgba(255,170,0,0.1)", border: "1px solid #ffaa00", color: "#ffaa00", fontSize: "9px", textDecoration: "none", fontWeight: "bold" }}>
+            🌐 GOOGLE STREET VIEW 360° ↗
+          </a>
+          <a href={`https://apps.sentinel-hub.com/eo-browser/?zoom=14&lat=${lat || "28.6139"}&lng=${lon || "77.2090"}`} target="_blank" rel="noreferrer"
+            style={{ display: "block", padding: "6px 8px", background: "rgba(0,255,255,0.1)", border: "1px solid #00ffff", color: "#00ffff", fontSize: "9px", textDecoration: "none", fontWeight: "bold" }}>
+            🛰️ SENTINEL-2 MULTISPECTRAL BROWSER ↗
+          </a>
+          <a href={`https://worldview.earthdata.nasa.gov/?v=${(parseFloat(lon)||77.2)-0.5},${(parseFloat(lat)||28.6)-0.5},${(parseFloat(lon)||77.2)+0.5},${(parseFloat(lat)||28.6)+0.5}`} target="_blank" rel="noreferrer"
+            style={{ display: "block", padding: "6px 8px", background: "rgba(0,255,100,0.1)", border: "1px solid #00ff66", color: "#00ff66", fontSize: "9px", textDecoration: "none", fontWeight: "bold" }}>
+            🌍 NASA EARTH OBSERVATORY WORLDVIEW ↗
+          </a>
+        </div>
+      </div>
+
+      {results?.weather && (
         <div style={s.section}>
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-            <div style={s.title}>SATELLITE IMAGERY PRESENTS</div>
-            <DataIntegrityBadge state="THIRD-PARTY" />
+          <div style={s.title}>LOCAL SENSOR WEATHER</div>
+          <div style={s.grid2}>
+            <div style={s.row}><span style={s.label}>TEMP: </span><span style={{ color: "#00ff66" }}>{results.weather.temperature}°C</span></div>
+            <div style={s.row}><span style={s.label}>HUMIDITY: </span><span style={{ color: "#00ff66" }}>{results.weather.humidity}%</span></div>
+            <div style={s.row}><span style={s.label}>WIND: </span><span style={{ color: "#00ff66" }}>{results.weather.wind_speed} m/s</span></div>
+            <div style={s.row}><span style={s.label}>CONDITIONS: </span><span style={{ color: "#00ff66" }}>{results.weather.weather}</span></div>
           </div>
-          <div style={{ color: "#882222", fontSize: "11px", marginBottom: "12px" }}>
-            Coordinates: {lat}, {lon}
-          </div>
-          {Object.entries(results.satellite)
-            .filter(([k]) => k !== "status" && k !== "latitude" && k !== "longitude")
-            .map(([k, v]) => (
-              <div key={k} style={{ marginBottom: "8px" }}>
-                <a href={v} target="_blank" rel="noreferrer"
-                  style={{ color: "#ff4400", fontSize: "11px", textDecoration: "none" }}>
-                  {k.toUpperCase().replace(/_/g, " ")} VIEW
-                </a>
-              </div>
-            ))}
         </div>
       )}
     </div>
@@ -1706,20 +2061,74 @@ export default function GeoTracker() {
 
         {/* Input */}
         <div>
-          <div style={{ color: "#882222", fontSize: "11px", marginBottom: "6px", letterSpacing: "1px" }}>
+          <div style={{ color: activeTab === "SATELLITE VIEW" ? "#00ffff" : "#882222", fontSize: "11px", marginBottom: "6px", letterSpacing: "1px" }}>
             {activeTab === "LIVE FLIGHTS" ? "SEARCH CALLSIGN" :
              activeTab === "LOCATION SEARCH" ? "SEARCH LOCATION" :
              activeTab === "WEATHER" ? "CITY NAME OR COORDS" :
+             activeTab === "SATELLITE VIEW" ? "TARGET RECON LOCATION" :
              "COORDINATES"}
           </div>
 
-          {(activeTab === "SATELLITE VIEW" || activeTab === "WEATHER") && (
+          {activeTab === "SATELLITE VIEW" && (
+            <div style={{ marginBottom: "6px" }}>
+              <div style={{ fontSize: "9px", color: "#888", marginBottom: "3px", letterSpacing: "0.5px" }}>
+                SEARCH BY NAME / LANDMARK:
+              </div>
+              <input
+                type="text"
+                placeholder="e.g. Taj Mahal, Pentagon, Dubai"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSearch()}
+                style={{
+                  width: "100%", marginBottom: "6px", background: "#060000",
+                  border: "1px solid #005555", borderLeft: "3px solid #00ffff",
+                  color: "#00ffff", fontFamily: "Courier New",
+                  fontSize: "11px", padding: "6px 10px"
+                }}
+              />
+              <div style={{ fontSize: "9px", color: "#888", marginBottom: "3px", letterSpacing: "0.5px" }}>
+                OR ENTER DIRECT COORDINATES:
+              </div>
+              <div style={{ display: "flex", gap: "4px", marginBottom: "2px" }}>
+                <input
+                  type="text"
+                  placeholder="Lat (e.g. 28.6139)"
+                  value={lat}
+                  onChange={e => setLat(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleSearch()}
+                  style={{
+                    flex: 1, background: "#060000",
+                    border: "1px solid #440000", borderLeft: "3px solid #ff0000",
+                    color: "#ff2222", fontFamily: "Courier New",
+                    fontSize: "11px", padding: "6px 8px"
+                  }}
+                />
+                <input
+                  type="text"
+                  placeholder="Lon (e.g. 77.2090)"
+                  value={lon}
+                  onChange={e => setLon(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleSearch()}
+                  style={{
+                    flex: 1, background: "#060000",
+                    border: "1px solid #440000", borderLeft: "3px solid #ff0000",
+                    color: "#ff2222", fontFamily: "Courier New",
+                    fontSize: "11px", padding: "6px 8px"
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === "WEATHER" && (
             <div style={{ marginBottom: "6px" }}>
               <input
                 type="text"
                 placeholder="Latitude e.g. 28.6139"
                 value={lat}
                 onChange={e => setLat(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSearch()}
                 style={{
                   width: "100%", marginBottom: "4px", background: "#060000",
                   border: "1px solid #440000", borderLeft: "3px solid #ff0000",
@@ -1732,6 +2141,7 @@ export default function GeoTracker() {
                 placeholder="Longitude e.g. 77.2090"
                 value={lon}
                 onChange={e => setLon(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSearch()}
                 style={{
                   width: "100%", background: "#060000",
                   border: "1px solid #440000", borderLeft: "3px solid #ff0000",
@@ -1769,10 +2179,14 @@ export default function GeoTracker() {
                 width: "100%", padding: "8px", marginTop: "6px",
                 fontSize: "11px", letterSpacing: "1px", cursor: "pointer",
                 fontFamily: "Courier New",
-                background: "#1a0000", border: "1px solid #ff0000", color: "#ff0000",
+                background: activeTab === "SATELLITE VIEW" ? "#001a1a" : "#1a0000",
+                border: `1px solid ${activeTab === "SATELLITE VIEW" ? "#00ffff" : "#ff0000"}`,
+                color: activeTab === "SATELLITE VIEW" ? "#00ffff" : "#ff0000",
+                boxShadow: activeTab === "SATELLITE VIEW" ? "0 0 6px rgba(0,255,255,0.3)" : "none"
               }}>
               {loading ? "ACQUIRING..." :
                activeTab === "LIVE FLIGHTS" && !input ? "LOAD DATA LAYER" :
+               activeTab === "SATELLITE VIEW" ? "🛰️ ACQUIRE SATELLITE TARGET" :
                activeTab === "MILITARY FLIGHTS" || activeTab === "EARTHQUAKES" || activeTab === "SATELLITE ORBITS" || activeTab === "BIKESHARE" || activeTab === "RADIO BROWSER" || activeTab === "CCTV MONITOR" ? "RELOAD DATA LAYER" :
                "SEARCH"}
             </button>

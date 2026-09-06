@@ -72,8 +72,16 @@ a {
   background: #050000 !important;
 }
 
-.leaflet-tile {
+.leaflet-tile:not(.satellite-tile):not(.satellite-label-tile) {
   filter: invert(1) hue-rotate(180deg) brightness(0.4) saturate(2);
+}
+
+.satellite-tile {
+  filter: none !important;
+}
+
+.satellite-label-tile {
+  filter: brightness(1.2) contrast(1.1) !important;
 }
 
 .leaflet-popup-content-wrapper {
