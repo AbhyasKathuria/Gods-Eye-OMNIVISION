@@ -37,8 +37,7 @@ const CAMERAS_FALLBACK = [
   { id: "CURATED-HYD-01", name: "Hyderabad City Center Cam", lat: 17.37528, lon: 78.47444, angle: 60, radius: 0.003, source: "windy", sourceLabel: "HYDERABAD OPTICAL", feedType: "refreshing_image", streamUrl: null, imageUrl: "https://imgproxy.windy.com/_/preview/plain/current/1793908737/original.jpg?v=2", lastUpdated: "2026-09-06T13:25:58.000Z", refreshIntervalSeconds: 60, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Hyderabad", country: "India" },
   { id: "CURATED-TRV-01", name: "Tiruvannamalai (Arunachala Hill & Temple Cam)", lat: 12.24056, lon: 79.05757, angle: 90, radius: 0.003, source: "windy", sourceLabel: "TAMIL NADU OPTICAL", feedType: "refreshing_image", streamUrl: null, imageUrl: "https://imgproxy.windy.com/_/preview/plain/current/1234953077/original.jpg?v=2", lastUpdated: "2026-09-06T12:56:16.000Z", refreshIntervalSeconds: 60, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Tiruvannamalai", country: "India" },
   { id: "CURATED-LON-01", name: "Piccadilly Circus & Shaftesbury Avenue (London)", lat: 51.5101, lon: -0.134, angle: 225, radius: 0.003, source: "tfl_jamcam", sourceLabel: "TFL TRAFFIC VIDEO", feedType: "live_video", streamUrl: "https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07380.mp4", imageUrl: "https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07380.jpg", lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "London", country: "United Kingdom" },
-  { id: "CURATED-LON-02", name: "Tower Bridge East Approach (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038, source: "tfl_jamcam", sourceLabel: "TFL TRAFFIC VIDEO", feedType: "live_video", streamUrl: "https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07385.mp4", imageUrl: "https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07385.jpg", lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "London", country: "United Kingdom" },
-  { id: "CURATED-NYC-01", name: "Times Square Broadway 46th St Live", lat: 40.758, lon: -73.9855, angle: 180, radius: 0.003, source: "youtube", sourceLabel: "NYC CIVIC STREAM", feedType: "live_youtube", streamUrl: "https://www.youtube-nocookie.com/embed/1-iS7LArMPA?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1", imageUrl: "https://img.youtube.com/vi/1-iS7LArMPA/hqdefault.jpg", lastUpdated: null, refreshIntervalSeconds: null, verified: false, verifiedAt: "2026-09-06T13:48:58.950Z", city: "New York", country: "United States" }
+  { id: "CURATED-NYC-01", name: "New York City - Manhattan Skyline & Hudson River", lat: 40.758, lon: -73.9855, angle: 180, radius: 0.003, source: "windy", sourceLabel: "NYC OPTICAL WEBCAM", feedType: "refreshing_image", streamUrl: null, imageUrl: "https://imgproxy.windy.com/_/preview/plain/current/1793878134/original.jpg?v=2", lastUpdated: "2026-09-06T13:48:58.950Z", refreshIntervalSeconds: 60, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "New York", country: "United States" }
 ];
 
 function DataIntegrityBadge({ state }) {
@@ -375,16 +374,17 @@ export default function GeoTracker() {
       const isHls = feedType === "live_video" && Boolean(streamUrl) && streamUrl.includes(".m3u8");
 
       let mediaTag = "";
+      const fallbackSatAction = `this.style.display='none';const s=document.getElementById('cctv-sat-${cam.id}');if(s)s.style.display='block';const bs=document.getElementById('cctv-btn-sat-${cam.id}');if(bs){bs.style.background='#00ffff';bs.style.color='#000';}const br=document.getElementById('cctv-btn-real-${cam.id}');if(br){br.style.background='transparent';br.style.color='${badgeColor}';}const bg=document.getElementById('cctv-feedbadge-${cam.id}');if(bg){bg.innerText='● SATELLITE BACKUP';bg.style.color='#00ffff';bg.style.borderColor='#00aaaa';}`;
       if (feedType === "live_video" && streamUrl) {
         const posterAttr = imageUrl ? `poster="${imageUrl}"` : "";
         const fallbackAction = imageUrl
-          ? `if('${imageUrl}'){this.outerHTML='<img id=\\'cctv-media-${cam.id}\\' src=\\'${imageUrl}\\' style=\\'display:block;width:100%;height:100%;object-fit:cover;\\' />';}else{this.style.display='none';const f=document.getElementById('cctv-fallback-${cam.id}');if(f)f.style.display='flex';}`
-          : `this.style.display='none';const f=document.getElementById('cctv-fallback-${cam.id}');if(f)f.style.display='flex';`;
+          ? `if('${imageUrl}'){this.outerHTML='<img id=\\'cctv-media-${cam.id}\\' src=\\'${imageUrl}\\' style=\\'display:block;width:100%;height:100%;object-fit:cover;\\' />';}else{${fallbackSatAction}}`
+          : fallbackSatAction;
         mediaTag = `<video id="cctv-media-${cam.id}" autoplay loop muted playsinline preload="auto" ${posterAttr} style="display:block;width:100%;height:100%;object-fit:cover;" onerror="${fallbackAction}"><source src="${streamUrl}" type="${isHls ? 'application/x-mpegURL' : 'video/mp4'}" /></video>`;
       } else if (feedType === "refreshing_image" && imageUrl) {
-        mediaTag = `<img id="cctv-media-${cam.id}" src="${imageUrl}" style="display:block;width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';const f=document.getElementById('cctv-fallback-${cam.id}');if(f)f.style.display='flex';" />`;
+        mediaTag = `<img id="cctv-media-${cam.id}" src="${imageUrl}" style="display:block;width:100%;height:100%;object-fit:cover;" onerror="${fallbackSatAction}" />`;
       } else if (feedType === "live_youtube" && streamUrl) {
-        mediaTag = `<iframe id="cctv-media-${cam.id}" src="${streamUrl}" style="display:block;width:100%;height:100%;border:none;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
+        mediaTag = `<iframe id="cctv-media-${cam.id}" src="${streamUrl}" style="display:block;width:100%;height:100%;border:none;pointer-events:auto;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="eager"></iframe>`;
       } else {
         mediaTag = `<div id="cctv-media-${cam.id}" style="display:none"></div>`;
       }
@@ -392,13 +392,13 @@ export default function GeoTracker() {
       // Type-specific honest badge
       let feedTypeBadge = "";
       if (feedType === "live_video") {
-        feedTypeBadge = `<div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#00ff66;font-size:9px;font-weight:bold;padding:2px 6px;border:1px solid #00aa44;z-index:15;pointer-events:none;letter-spacing:0.5px">● LIVE</div>`;
+        feedTypeBadge = `<div id="cctv-feedbadge-${cam.id}" style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#00ff66;font-size:9px;font-weight:bold;padding:2px 6px;border:1px solid #00aa44;z-index:15;pointer-events:none;letter-spacing:0.5px">● LIVE</div>`;
       } else if (feedType === "refreshing_image") {
-        feedTypeBadge = `<div id="cctv-freshness-${cam.id}" style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#00e5ff;font-size:8px;font-weight:bold;padding:2px 6px;border:1px solid #0088aa;z-index:15;pointer-events:none;letter-spacing:0.5px">STILL SNAPSHOT</div>`;
+        feedTypeBadge = `<div id="cctv-feedbadge-${cam.id}" style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#00e5ff;font-size:8px;font-weight:bold;padding:2px 6px;border:1px solid #0088aa;z-index:15;pointer-events:none;letter-spacing:0.5px">STILL SNAPSHOT</div>`;
       } else if (feedType === "live_youtube") {
-        feedTypeBadge = `<div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#ff0055;font-size:8px;font-weight:bold;padding:2px 6px;border:1px solid #cc0044;z-index:15;pointer-events:none;letter-spacing:0.5px">LIVE VIA YOUTUBE</div>`;
+        feedTypeBadge = `<div id="cctv-feedbadge-${cam.id}" style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#ff0055;font-size:8px;font-weight:bold;padding:2px 6px;border:1px solid #cc0044;z-index:15;pointer-events:none;letter-spacing:0.5px">LIVE VIA YOUTUBE</div>`;
       } else {
-        feedTypeBadge = `<div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#00ffff;font-size:8px;font-weight:bold;padding:2px 6px;border:1px solid #00aaaa;z-index:15;pointer-events:none;letter-spacing:0.5px">● SATELLITE TELEMETRY</div>`;
+        feedTypeBadge = `<div id="cctv-feedbadge-${cam.id}" style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#00ffff;font-size:8px;font-weight:bold;padding:2px 6px;border:1px solid #00aaaa;z-index:15;pointer-events:none;letter-spacing:0.5px">● SATELLITE TELEMETRY</div>`;
       }
 
       const verifiedBadge = !isVerified ? `<span style="background:rgba(255,170,0,0.18);color:#ffaa00;border:1px solid #cc8800;padding:1px 5px;font-size:8px;margin-left:6px;border-radius:2px;font-weight:bold">UNVERIFIED SOURCE</span>` : "";
@@ -520,18 +520,55 @@ export default function GeoTracker() {
           updateStatus();
           const tickerInterval = setInterval(updateStatus, 1000);
 
+          const fallbackToSatellite = () => {
+            if (media) media.style.display = "none";
+            if (sat) sat.style.display = "block";
+            if (canvas) canvas.style.display = "none";
+            if (btnSat) {
+              btnSat.style.background = "#00ffff";
+              btnSat.style.color = "#000";
+            }
+            if (btnReal) {
+              btnReal.style.background = "transparent";
+              btnReal.style.color = badgeColor;
+            }
+            const fb = document.getElementById(`cctv-fallback-${cam.id}`);
+            if (fb) fb.style.display = "none";
+            const badge = document.getElementById(`cctv-feedbadge-${cam.id}`);
+            if (badge) {
+              badge.innerText = "● SATELLITE BACKUP (OPTICAL OFFLINE)";
+              badge.style.color = "#00ffff";
+              badge.style.borderColor = "#00aaaa";
+            }
+          };
+
           // Video stream initialization (HLS and native MP4)
           if (media && media.tagName === "VIDEO") {
             media.defaultMuted = true;
             media.muted = true;
+            media.playsInline = true;
+            media.setAttribute("muted", "");
+            media.setAttribute("playsinline", "");
+            media.setAttribute("autoplay", "");
+
             if (isHls) {
               if (window.Hls && window.Hls.isSupported()) {
                 try {
-                  const hls = new window.Hls({ enableWorker: true });
+                  const hls = new window.Hls({
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    backBufferLength: 30
+                  });
                   hls.loadSource(streamUrl);
                   hls.attachMedia(media);
                   hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
-                    media.play().catch(() => {});
+                    const playPromise = media.play();
+                    if (playPromise !== undefined) {
+                      playPromise.catch(() => {
+                        media.muted = true;
+                        media.play().catch(() => {});
+                      });
+                    }
                   });
                   hls.on(window.Hls.Events.ERROR, (e, data) => {
                     if (data && data.fatal) {
@@ -539,21 +576,12 @@ export default function GeoTracker() {
                       if (imageUrl) {
                         media.outerHTML = `<img id="cctv-media-${cam.id}" src="${imageUrl}" style="display:block;width:100%;height:100%;object-fit:cover;" />`;
                       } else {
-                        media.style.display = "none";
-                        const fb = document.getElementById(`cctv-fallback-${cam.id}`);
-                        if (fb) fb.style.display = "flex";
+                        fallbackToSatellite();
                       }
                     }
                   });
                 } catch (err) {
-                  console.warn("HLS init error:", err);
-                  if (imageUrl) {
-                    media.outerHTML = `<img id="cctv-media-${cam.id}" src="${imageUrl}" style="display:block;width:100%;height:100%;object-fit:cover;" />`;
-                  } else {
-                    media.style.display = "none";
-                    const fb = document.getElementById(`cctv-fallback-${cam.id}`);
-                    if (fb) fb.style.display = "flex";
-                  }
+                  fallbackToSatellite();
                 }
               } else if (media.canPlayType("application/vnd.apple.mpegurl")) {
                 media.src = streamUrl;
@@ -563,13 +591,43 @@ export default function GeoTracker() {
               // Standard native MP4 video loop
               const p = media.play();
               if (p !== undefined) {
-                p.catch((err) => {
-                  console.warn("Autoplay deferred:", err);
+                p.catch(() => {
                   media.muted = true;
                   media.play().catch(() => {});
                 });
               }
             }
+          }
+
+          // YouTube iframe autoplay and error listener
+          if (media && media.tagName === "IFRAME") {
+            const triggerYtPlay = () => {
+              try {
+                media.contentWindow?.postMessage(JSON.stringify({ event: "listening" }), "*");
+                media.contentWindow?.postMessage(JSON.stringify({ event: "command", func: "mute", args: [] }), "*");
+                media.contentWindow?.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
+              } catch (e) {}
+            };
+
+            media.addEventListener("load", () => {
+              triggerYtPlay();
+              setTimeout(triggerYtPlay, 200);
+              setTimeout(triggerYtPlay, 600);
+              setTimeout(triggerYtPlay, 1500);
+            });
+            triggerYtPlay();
+            setTimeout(triggerYtPlay, 300);
+            setTimeout(triggerYtPlay, 1000);
+
+            const ytMsgHandler = (evt) => {
+              try {
+                const data = typeof evt.data === "string" ? JSON.parse(evt.data) : evt.data;
+                if (data && (data.event === "onError" || (data.info && data.info.playerState === -1 && data.info.error))) {
+                  fallbackToSatellite();
+                }
+              } catch (err) {}
+            };
+            window.addEventListener("message", ytMsgHandler);
           }
 
           // Live frame auto-refresh timer for image webcams

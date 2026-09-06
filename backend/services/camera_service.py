@@ -68,13 +68,13 @@ def format_video_stream(url: str, url_type: str) -> tuple[str, str, str]:
     """Format stream URL and determine streamType and feedType for direct playback."""
     if "youtube.com/watch?v=" in url:
         v_id = url.split("watch?v=")[-1].split("&")[0]
-        return f"https://www.youtube-nocookie.com/embed/{v_id}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1", "youtube", "live_youtube"
+        return f"https://www.youtube-nocookie.com/embed/{v_id}?autoplay=1&mute=1&controls=0&playsinline=1&enablejsapi=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0", "youtube", "live_youtube"
     elif "youtu.be/" in url:
         v_id = url.split("youtu.be/")[-1].split("?")[0]
-        return f"https://www.youtube-nocookie.com/embed/{v_id}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1", "youtube", "live_youtube"
+        return f"https://www.youtube-nocookie.com/embed/{v_id}?autoplay=1&mute=1&controls=0&playsinline=1&enablejsapi=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0", "youtube", "live_youtube"
     elif "youtube.com/embed/" in url:
         clean_url = url.split("?")[0]
-        return f"{clean_url}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1", "youtube", "live_youtube"
+        return f"{clean_url}?autoplay=1&mute=1&controls=0&playsinline=1&enablejsapi=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0", "youtube", "live_youtube"
     elif url_type == "hls" or ".m3u8" in url:
         return url, "hls", "live_video"
     else:
@@ -92,10 +92,17 @@ def fetch_geojson_streams(
     Fetch live HLS / video streams from the GeoJSON dataset.
     Only returns direct playable video streams (HLS .m3u8, YouTube live, MP4).
     Filters out dead token streams (balticlivecam, skylinewebcams, token=).
+    Prioritizes native HLS .m3u8 streams for guaranteed autoplay.
     """
-    features = get_all_geojson_streams()
-    if not features:
+    raw_features = get_all_geojson_streams()
+    if not raw_features:
         return []
+
+    # Prioritize direct HLS .m3u8 streams over embeds for seamless HTML5 video autoplay
+    features = sorted(
+        raw_features,
+        key=lambda f: 0 if ('.m3u8' in (f.get('properties', {}).get('url') or '') or f.get('properties', {}).get('url_type') == 'hls') else 1
+    )
 
     cams: List[Dict[str, Any]] = []
 
