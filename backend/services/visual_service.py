@@ -153,26 +153,20 @@ async def extract_metadata(image_data: str, filename: str = "image.jpg") -> dict
 
 async def analyze_image_ai(image_data: str) -> dict:
     try:
-        from groq import Groq
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
-        response = client.chat.completions.create(
-            model="qwen/qwen3.6-27b",
+        from services.claude_service import safe_groq_completion
+        analysis = await safe_groq_completion(
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are an intelligence analyst. Analyze images for OSINT purposes. Identify objects, locations, people, text, logos, vehicles, landmarks, and any intelligence value. Be specific and analytical."
-                },
                 {
                     "role": "user",
                     "content": "Analyze this image for intelligence value. What can you identify? What objects, locations, text, or people are visible? What intelligence can be derived?"
                 }
             ],
+            system="You are an intelligence analyst. Analyze images for OSINT purposes. Identify objects, locations, people, text, logos, vehicles, landmarks, and any intelligence value. Be specific and analytical.",
             max_tokens=800
         )
         return {
             "status": "success",
-            "analysis": response.choices[0].message.content
+            "analysis": analysis
         }
     except Exception as e:
         return {"status": "error", "error": str(e)}

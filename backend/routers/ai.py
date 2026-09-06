@@ -4,39 +4,32 @@ from services.claude_service import (
     analyze_cyber_threat,
     generate_geo_report,
     analyze_news_sentiment,
-    generate_osint_summary
+    generate_osint_summary,
+    safe_groq_completion
 )
 from services.news_service import search_news, get_reddit_posts
 from services.cyber_service import ip_lookup, domain_lookup, virustotal_scan
 from services.geo_service import geocode_location, get_weather
 import pathlib
 import os
-from groq import Groq
 from dotenv import load_dotenv
 
-env_path = pathlib.Path(__file__).parent.parent / ".env"
-load_dotenv(dotenv_path=env_path)
+# Ensure .env is loaded from root or backend
+for p in [
+    pathlib.Path(__file__).resolve().parents[2] / ".env",
+    pathlib.Path(__file__).resolve().parents[1] / ".env",
+    pathlib.Path.cwd() / ".env",
+    pathlib.Path.cwd() / "backend" / ".env"
+]:
+    if p.exists():
+        load_dotenv(dotenv_path=p)
 
 router = APIRouter(prefix="/ai", tags=["AI Brain"])
 
 
-def get_groq():
-    return Groq(api_key=os.getenv("GROQ_API_KEY"))
-
-
 async def groq_chat(messages: list, system: str = None) -> str:
     try:
-        client = get_groq()
-        all_messages = []
-        if system:
-            all_messages.append({"role": "system", "content": system})
-        all_messages.extend(messages)
-        response = client.chat.completions.create(
-            model="qwen/qwen3.6-27b",
-            messages=all_messages,
-            max_tokens=2048
-        )
-        return response.choices[0].message.content
+        return await safe_groq_completion(messages=messages, system=system, max_tokens=1800)
     except Exception as e:
         return f"ERROR: {str(e)}"
 

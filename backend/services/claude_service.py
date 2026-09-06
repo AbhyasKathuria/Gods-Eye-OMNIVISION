@@ -1,18 +1,100 @@
 import os
 import pathlib
 import json
+import re
+import logging
 from groq import Groq
 from dotenv import load_dotenv
 
-env_path = pathlib.Path(__file__).parent.parent.parent / ".env"
-load_dotenv(dotenv_path=env_path)
+logger = logging.getLogger("godseye.ai")
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# Robust .env discovery across project root and backend dirs
+for p in [
+    pathlib.Path(__file__).resolve().parents[2] / ".env",
+    pathlib.Path(__file__).resolve().parents[1] / ".env",
+    pathlib.Path.cwd() / ".env",
+    pathlib.Path.cwd() / "backend" / ".env"
+]:
+    if p.exists():
+        load_dotenv(dotenv_path=p)
 
 def get_groq():
-    if not GROQ_API_KEY:
-        raise ValueError("GROQ_API_KEY not found")
-    return Groq(api_key=GROQ_API_KEY)
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY not found in environment or .env file")
+    return Groq(api_key=api_key)
+
+MODELS_CASCADE = [
+    os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b"),
+    "openai/gpt-oss-120b",
+    "groq/compound-mini",
+    "qwen/qwen3.6-27b"
+]
+
+def clean_llm_response(text: str) -> str:
+    """Strips internal reasoning scratchpad tags like <think>...</think> from output."""
+    if not text:
+        return ""
+    cleaned = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    cleaned = re.sub(r'</?think>', '', cleaned)
+    return cleaned.strip()
+
+async def safe_groq_completion(messages: list, system: str = None, max_tokens: int = 1500, temperature: float = 0.5) -> str:
+    """
+    Executes a chat completion against Groq with automatic model cascade,
+    dynamic token limits, 429 rate limit fallback, and think-tag filtering.
+    """
+    try:
+        client = get_groq()
+    except Exception as e:
+        return f"ERROR: Groq client initialization failed: {str(e)}"
+
+    all_messages = []
+    if system:
+        all_messages.append({"role": "system", "content": system})
+    all_messages.extend(messages)
+
+    candidate_models = []
+    for m in MODELS_CASCADE:
+        if m and m not in candidate_models:
+            candidate_models.append(m)
+
+    last_error = None
+    for model in candidate_models:
+        # Enforce conservative token caps for restricted models
+        if "qwen3.6" in model:
+            effective_tokens = min(max_tokens, 900)
+        else:
+            effective_tokens = min(max_tokens, 2048)
+
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=all_messages,
+                max_tokens=effective_tokens,
+                temperature=temperature
+            )
+            raw = response.choices[0].message.content or ""
+            return clean_llm_response(raw)
+        except Exception as e:
+            err_msg = str(e)
+            last_error = err_msg
+            logger.warning(f"Groq completion failed on model {model}: {err_msg}. Cascading to next model...")
+            continue
+
+    # Final emergency attempt with low token limit and lightweight model
+    try:
+        emergency = client.chat.completions.create(
+            model="groq/compound-mini",
+            messages=all_messages,
+            max_tokens=400,
+            temperature=0.3
+        )
+        return clean_llm_response(emergency.choices[0].message.content or "")
+    except Exception:
+        pass
+
+    return f"ERROR: AI intelligence service temporarily rate-limited. Details: {last_error}"
 
 def truncate_data_dict(data, max_chars=6000) -> str:
     """
@@ -61,7 +143,6 @@ def truncate_data_dict(data, max_chars=6000) -> str:
 
 async def generate_identity_report(data: dict) -> str:
     try:
-        client = get_groq()
         clean_data = truncate_data_dict(data)
         prompt = f"""
 You are Gods Eye, an advanced OSINT intelligence system.
@@ -82,19 +163,16 @@ Format it like a real intelligence report.
 Be specific, analytical and professional.
 Mark all data as sourced from PUBLIC SOURCES ONLY.
 """
-        response = client.chat.completions.create(
-            model="qwen/qwen3.6-27b",
+        return await safe_groq_completion(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1500
         )
-        return response.choices[0].message.content
     except Exception as e:
         return f"ERROR GENERATING REPORT: {str(e)}"
 
 
 async def analyze_cyber_threat(data: dict) -> str:
     try:
-        client = get_groq()
         clean_data = truncate_data_dict(data)
         prompt = f"""
 You are Gods Eye cyber intelligence module.
@@ -111,19 +189,16 @@ Provide:
 
 Be specific and professional.
 """
-        response = client.chat.completions.create(
-            model="qwen/qwen3.6-27b",
+        return await safe_groq_completion(
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=1024
+            max_tokens=1200
         )
-        return response.choices[0].message.content
     except Exception as e:
         return f"ERROR: {str(e)}"
 
 
 async def analyze_news_sentiment(data: dict) -> str:
     try:
-        client = get_groq()
         clean_data = truncate_data_dict(data)
         prompt = f"""
 Analyze the sentiment and key themes from these news articles:
@@ -135,19 +210,16 @@ Provide:
 3. NOTABLE MENTIONS
 4. RISK INDICATORS
 """
-        response = client.chat.completions.create(
-            model="qwen/qwen3.6-27b",
+        return await safe_groq_completion(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1024
         )
-        return response.choices[0].message.content
     except Exception as e:
         return f"ERROR: {str(e)}"
 
 
 async def generate_geo_report(data: dict) -> str:
     try:
-        client = get_groq()
         clean_data = truncate_data_dict(data)
         prompt = f"""
 You are Gods Eye geo intelligence module.
@@ -161,19 +233,16 @@ Provide:
 3. POINTS OF INTEREST
 4. RISK ASSESSMENT
 """
-        response = client.chat.completions.create(
-            model="qwen/qwen3.6-27b",
+        return await safe_groq_completion(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1024
         )
-        return response.choices[0].message.content
     except Exception as e:
         return f"ERROR: {str(e)}"
 
 
 async def generate_osint_summary(query: str, data: dict) -> str:
     try:
-        client = get_groq()
         clean_data = truncate_data_dict(data)
         prompt = f"""
 You are Gods Eye OSINT module.
@@ -190,11 +259,9 @@ Generate a complete OSINT summary including:
 5. INTELLIGENCE GAPS
 6. CONFIDENCE LEVEL
 """
-        response = client.chat.completions.create(
-            model="qwen/qwen3.6-27b",
+        return await safe_groq_completion(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1500
         )
-        return response.choices[0].message.content
     except Exception as e:
         return f"ERROR: {str(e)}"

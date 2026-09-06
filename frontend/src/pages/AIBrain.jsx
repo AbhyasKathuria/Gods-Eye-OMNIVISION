@@ -181,7 +181,7 @@ Type a question or use the INVESTIGATE tool for automated multi-source analysis.
           <div style={{ color: "#882222", fontSize: "11px", marginBottom: "6px", letterSpacing: "1px" }}>
             AUTO INVESTIGATE
           </div>
-          <select value={investigateType} onChange={e => setInvestigateType(e.target.value)}
+          <select value={investigateType || "person"} onChange={e => setInvestigateType(e.target.value)}
             style={{
               width: "100%", marginBottom: "6px", padding: "6px",
               background: "#060000", border: "1px solid #440000",
@@ -195,7 +195,7 @@ Type a question or use the INVESTIGATE tool for automated multi-source analysis.
           <input
             type="text"
             placeholder="Enter target..."
-            value={investigateTarget}
+            value={investigateTarget || ""}
             onChange={e => setInvestigateTarget(e.target.value)}
             onKeyDown={e => e.key === "Enter" && runInvestigation()}
             style={{
@@ -263,7 +263,7 @@ Type a question or use the INVESTIGATE tool for automated multi-source analysis.
             {activeTab === "CHAT" ? "AI INTELLIGENCE CHAT" : "AUTO INVESTIGATION"}
           </div>
           <div style={{ color: "#440000", fontSize: "11px" }}>
-            POWERED BY LLAMA 3.3 70B
+            POWERED BY GROQ / QWEN 3.8 & OSS-120B
           </div>
           <div style={{ marginLeft: "auto", display: "flex", gap: "8px" }}>
             <div style={{ width: "6px", height: "6px", borderRadius: "50%",
@@ -333,7 +333,7 @@ Type a question or use the INVESTIGATE tool for automated multi-source analysis.
               <input
                 type="text"
                 placeholder="Ask Gods Eye anything..."
-                value={input}
+                value={input || ""}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && !loading && sendMessage()}
                 style={{
