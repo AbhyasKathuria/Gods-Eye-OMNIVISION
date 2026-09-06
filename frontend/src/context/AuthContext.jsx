@@ -1,9 +1,37 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
 const API = "http://localhost:8000";
 const AuthContext = createContext(null);
+
+// Global Axios request interceptor: automatically attaches Bearer token from localStorage
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem("ge_token");
+  if (token) {
+    config.headers = config.headers || {};
+    if (!config.headers["Authorization"]) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+  return config;
+}, (error) => Promise.reject(error));
+
+// Global Axios response interceptor: intercepts 401 on protected resources
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      const url = error.config?.url || "";
+      const isPublic = url.includes("/auth/login") || url.includes("/auth/init-status") || url.includes("/auth/register-admin");
+      if (!isPublic) {
+        console.warn("[Auth] Protected endpoint returned 401 Unauthorized:", url);
+        window.dispatchEvent(new CustomEvent("ge_auth_unauthorized", { detail: { url } }));
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -21,7 +49,19 @@ export function AuthProvider({ children }) {
     }
     return null;
   });
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Listen for global 401 unauthorized events to sync logout
+    const handleUnauthorized = () => {
+      localStorage.removeItem("ge_token");
+      localStorage.removeItem("ge_user");
+      delete axios.defaults.headers.common["Authorization"];
+      setUser(null);
+    };
+    window.addEventListener("ge_auth_unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("ge_auth_unauthorized", handleUnauthorized);
+  }, []);
 
   const login = async (username, password, ethics) => {
     const res = await axios.post(`${API}/auth/login`, {

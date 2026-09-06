@@ -8,17 +8,29 @@ export default function Logs() {
   const { user } = useAuth();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filter, setFilter] = useState("ALL");
 
   const MODULES = ["ALL", "AUTH", "IDENTITY", "CYBER", "GEO", "NEWS", "AI"];
 
   const loadLogs = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await axios.get(`${API}/auth/logs?limit=200`);
+      const token = localStorage.getItem("ge_token");
+      const res = await axios.get(`${API}/auth/logs?limit=200`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       setLogs(res.data.logs || []);
     } catch (e) {
-      console.error(e);
+      console.error("Activity logs fetch failed:", e);
+      if (e.response?.status === 401) {
+        setError("SESSION EXPIRED OR UNAUTHORIZED (401). PLEASE RE-AUTHENTICATE.");
+      } else if (e.response?.status === 403) {
+        setError("INSUFFICIENT CLEARANCE: ADMIN OR RESEARCHER REQUIRED (403).");
+      } else {
+        setError(e.response?.data?.detail || e.message || "FAILED TO ACQUIRE ACTIVITY LOGS");
+      }
     }
     setLoading(false);
   };
@@ -107,7 +119,39 @@ export default function Logs() {
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", padding: "12px" }}>
-          {loading ? (
+          {error ? (
+            <div style={{
+              margin: "30px auto", maxWidth: "460px", padding: "16px",
+              background: "#150000", border: "1px solid #ff0000",
+              borderLeft: "4px solid #ff0000", textAlign: "center",
+              boxShadow: "0 0 15px rgba(255,0,0,0.2)"
+            }}>
+              <div style={{ color: "#ff0000", fontSize: "12px", letterSpacing: "2px", fontWeight: "bold", marginBottom: "8px" }}>
+                SECURITY CLEARANCE / SESSION NOTICE
+              </div>
+              <div style={{ color: "#ff8888", fontSize: "11px", marginBottom: "16px", lineHeight: "1.5" }}>
+                {error}
+              </div>
+              <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                <button onClick={loadLogs}
+                  style={{
+                    padding: "6px 14px", background: "#060000", border: "1px solid #ff0000",
+                    color: "#ff0000", fontFamily: "Courier New", fontSize: "10px", cursor: "pointer",
+                    letterSpacing: "1px"
+                  }}>
+                  🔄 RETRY
+                </button>
+                <button onClick={() => window.location.href = "/login"}
+                  style={{
+                    padding: "6px 14px", background: "#220000", border: "1px solid #ff4400",
+                    color: "#ffaa00", fontFamily: "Courier New", fontSize: "10px", cursor: "pointer",
+                    letterSpacing: "1px"
+                  }}>
+                  🔒 RE-AUTHENTICATE
+                </button>
+              </div>
+            </div>
+          ) : loading ? (
             <div style={{ color: "#ff0000", fontSize: "11px",
               letterSpacing: "3px", textAlign: "center", marginTop: "40px" }}
               className="animate-pulse">

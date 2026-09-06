@@ -24,39 +24,58 @@ async def login(payload: dict):
     return result
 
 
+def extract_token(authorization: Optional[str] = None, token: Optional[str] = None) -> Optional[str]:
+    if authorization:
+        parts = authorization.strip().split(" ", 1)
+        if len(parts) == 2 and parts[0].lower() == "bearer":
+            return parts[1].strip()
+        return authorization.strip()
+    if token:
+        return token.strip()
+    return None
+
+
 @router.get("/verify")
-async def verify(authorization: Optional[str] = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
+async def verify(authorization: Optional[str] = Header(None), token: Optional[str] = None):
+    raw_token = extract_token(authorization, token)
+    if not raw_token:
         raise HTTPException(status_code=401, detail="No token provided")
-    token = authorization.replace("Bearer ", "")
-    result = verify_token(token)
+    result = verify_token(raw_token)
     if not result["valid"]:
         raise HTTPException(status_code=401, detail=result.get("error", "Invalid token"))
     return result
 
 
 @router.get("/logs")
-async def activity_logs(authorization: Optional[str] = Header(None), limit: int = 100):
-    if not authorization or not authorization.startswith("Bearer "):
+async def activity_logs(
+    authorization: Optional[str] = Header(None),
+    token: Optional[str] = None,
+    limit: int = 100
+):
+    raw_token = extract_token(authorization, token)
+    if not raw_token:
         raise HTTPException(status_code=401, detail="Authentication required")
-    token = authorization.replace("Bearer ", "")
-    result = verify_token(token)
+    result = verify_token(raw_token)
     if not result["valid"]:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    if result["role"] not in ["ADMIN", "RESEARCHER"]:
+        raise HTTPException(status_code=401, detail=result.get("error", "Invalid token"))
+    if result["role"].upper() not in ["ADMIN", "RESEARCHER"]:
         raise HTTPException(status_code=403, detail="Insufficient permissions")
     logs = get_logs(limit)
     return {"status": "success", "logs": logs, "total": len(logs)}
 
 
 @router.post("/log")
-async def add_log(payload: dict, authorization: Optional[str] = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
+async def add_log(
+    payload: dict,
+    authorization: Optional[str] = Header(None),
+    token: Optional[str] = None
+):
+    raw_token = extract_token(authorization, token)
+    if not raw_token:
         raise HTTPException(status_code=401, detail="Authentication required")
-    token = authorization.replace("Bearer ", "")
-    result = verify_token(token)
+    result = verify_token(raw_token)
     if not result["valid"]:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail=result.get("error", "Invalid token"))
     log_activity(
         username=result["username"],
         module=payload.get("module", "UNKNOWN"),

@@ -16,13 +16,14 @@ export default function ThreatScore() {
   const [loading, setLoading] = useState(false);
 
   const calculate = async (overrideInputs = null) => {
-    const targetInputs = overrideInputs || inputs;
+    const isPayload = overrideInputs && typeof overrideInputs === "object" && !("target" in overrideInputs) && !("nativeEvent" in overrideInputs);
+    const targetInputs = isPayload ? overrideInputs : inputs;
     setLoading(true);
     try {
       const res = await axios.post(`${API}/recon/threat-score`, targetInputs);
       setResult(res.data.data);
     } catch (e) {
-      console.error(e);
+      console.error("Threat score calculation error:", e);
     }
     setLoading(false);
   };
@@ -139,7 +140,7 @@ export default function ThreatScore() {
           </select>
         </div>
 
-        <button onClick={calculate} disabled={loading}
+        <button onClick={() => calculate()} disabled={loading}
           style={{ width: "100%", padding: "10px", fontSize: "11px", letterSpacing: "2px",
             cursor: "pointer", fontFamily: "Courier New",
             background: "#1a0000", border: "1px solid #ff0000", color: "#ff0000" }}>
