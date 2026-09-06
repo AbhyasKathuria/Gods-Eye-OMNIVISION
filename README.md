@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI Build](https://github.com/AbhyasKathuria/Gods-Eye-OMNIVISION/actions/workflows/ci.yml/badge.svg)](https://github.com/AbhyasKathuria/Gods-Eye-OMNIVISION/actions)
-[![Backend Tests](https://img.shields.io/badge/Tests-13%20Passed-brightgreen.svg)](backend/tests/)
+[![Backend Tests](https://img.shields.io/badge/Tests-15%20Passed-brightgreen.svg)](backend/tests/)
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](backend/requirements.txt)
 [![Docker Support](https://img.shields.io/badge/Docker-Supported-blue.svg)](docker-compose.yml)
 
@@ -210,11 +210,12 @@ God's_Eye/
 
 ### 4. Geo Tracker `/geo`
 **Tactical Overlay & Controls:**
+- **High-Resolution Orbital Satellite Basemap & Recon HUD:** Seamless sub-meter natural color orbital photography via **Esri World Imagery** combined with high-contrast tactical boundary and reference vectors. Features scoped CSS tile rendering (no negative color inversions), automated coordinate auto-correction (`206139` $\rightarrow$ `20.6139`), optical ground resolution telemetry (~0.3m/px), optical zoom steps, landmark search (e.g. Taj Mahal, Pentagon), and 1-click Google 360° Street View & Sentinel portals.
 - **Split-Layout Control Panel:** Search coordinates, satellite links, and weather telemetry render in a 350px left column next to the full-height Leaflet map on the right, ensuring clean scrollability and display integrity.
 - **Tactical Visual Reskins:** NVG (Night Vision), FLIR (Thermal Gradients), Noir (Gray Surveillance), and CRT scanlines with animated sweeps.
 - **Surveillance HUD:** Interactive display tracking coordinates under the cursor, map sector centers, zoom scales, and elevation/speed rulers.
 - **OmniVoice Speech Control:** Hands-free speech recognition (Web Speech API) for map zoom, styles, layer switching, and travel controls.
-- **Multi-Provider Live Optical Webcams & CCTV Networks:** Real-time optical video feeds integrating **Windy Webcams API v3 (70,000+ global webcams)** and **TfL JamCams (800+ London traffic MP4/JPEG streams)**, with curated municipal feeds across India (Bengaluru, Delhi, Mumbai, Hyderabad) and international hubs. Includes interactive viewshed cones, live auto-refresh frames, provider tags (`WINDY LIVE`, `TFL TRAFFIC`, `METRO DOT`, `OSM SENSOR`), and full legal compliance under India IT Act §43/66 and global open-data standards.
+- **Multi-Provider Live Optical Webcams & CCTV Networks:** Real-time optical video feeds integrating **Windy Webcams API v3 (70,000+ global webcams)** and **TfL JamCams (800+ London traffic MP4/JPEG streams)**, with curated municipal feeds across India (Bengaluru, Delhi, Mumbai, Hyderabad) and international hubs. Includes interactive viewshed cones, automated HTML5 muted autoplay with low-latency manifest recovery, and instant sub-meter satellite backup fallback on offline optical sensors.
 
 **Data Feeds & Layers:**
 - **USGS Earthquakes (New):** Live global seismic events mapping (last 24h).
@@ -244,7 +245,7 @@ God's_Eye/
 - URL-based reverse search links
 
 ### 7. AI Brain `/ai`
-- Natural language intelligence chat (LLaMA 3.3 70B)
+- **Resilient Multi-Model Cascade:** Driven by high-performance Groq cloud inference with an automatic fallback cascade (`qwen/qwen3.8-27b` $\rightarrow$ `openai/gpt-oss-120b` $\rightarrow$ `groq/compound-mini` $\rightarrow$ `qwen/qwen3.6-27b`). Completely eliminates 429 rate limit errors with token boundary clamping and automatic think-tag filtering.
 - **Map Grounding Context:** Telemetry variables (lat, lon, zoom, active layer) flow automatically from Leaflet to Groq payload context.
 - Auto-investigation: PERSON / IP / DOMAIN / LOCATION
 - Multi-source data fusion
