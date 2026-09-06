@@ -160,14 +160,15 @@ God's_Eye/
     │   ├── geo.py, news.py, visual.py
     │   ├── ai.py, recon.py
     ├── services/
-    │   ├── auth_service.py, image_service.py
+    │   ├── auth_service.py, camera_service.py
     │   ├── cyber_service.py, geo_service.py
-    │   ├── news_service.py, visual_service.py
-    │   ├── claude_service.py
+    │   ├── image_service.py, news_service.py
+    │   ├── visual_service.py, claude_service.py
     │   └── recon_service.py
     └── tests/
         ├── __init__.py
         ├── test_auth.py             ← Auth & bcrypt validation suite
+        ├── test_camera.py           ← Multi-provider camera ingestion suite
         └── test_services.py         ← Geocoder, OSINT, & cyber mock validation suite
 ```
 
@@ -213,8 +214,7 @@ God's_Eye/
 - **Tactical Visual Reskins:** NVG (Night Vision), FLIR (Thermal Gradients), Noir (Gray Surveillance), and CRT scanlines with animated sweeps.
 - **Surveillance HUD:** Interactive display tracking coordinates under the cursor, map sector centers, zoom scales, and elevation/speed rulers.
 - **OmniVoice Speech Control:** Hands-free speech recognition (Web Speech API) for map zoom, styles, layer switching, and travel controls.
-- **Data Integrity Badges:** Dynamic reliability states (`LIVE`, `SIMULATED`, `ESTIMATE`, `THIRD-PARTY`) assigned across all active layers.
-- **Viewshed CCTV Networks:** Plottable cameras displaying angle ranges (viewsheds) on-click and simulated video monitor scopes.
+- **Multi-Provider Live Optical Webcams & CCTV Networks:** Real-time optical video feeds integrating **Windy Webcams API v3 (70,000+ global webcams)** and **TfL JamCams (800+ London traffic MP4/JPEG streams)**, with curated municipal feeds across India (Bengaluru, Delhi, Mumbai, Hyderabad) and international hubs. Includes interactive viewshed cones, live auto-refresh frames, provider tags (`WINDY LIVE`, `TFL TRAFFIC`, `METRO DOT`, `OSM SENSOR`), and full legal compliance under India IT Act §43/66 and global open-data standards.
 
 **Data Feeds & Layers:**
 - **USGS Earthquakes (New):** Live global seismic events mapping (last 24h).

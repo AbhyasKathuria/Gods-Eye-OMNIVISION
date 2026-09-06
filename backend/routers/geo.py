@@ -137,56 +137,33 @@ async def streetview(request: Request, lat: float, lon: float):
 
 
 @router.get("/cameras")
-async def get_cctv_cameras(lat: float, lon: float, radius: float = 5000):
+async def get_cctv_cameras(
+    lat: float,
+    lon: float,
+    radius: float = 50.0,
+    provider: str = "all",
+    limit: int = 100
+):
     try:
-        overpass_url = "https://overpass-api.de/api/interpreter"
-        query = f"""
-        [out:json][timeout:15];
-        (
-          node["man_made"="surveillance"](around:{radius},{lat},{lon});
-          way["man_made"="surveillance"](around:{radius},{lat},{lon});
-        );
-        out center;
-        """
-        async with httpx.AsyncClient() as client:
-            res = await client.post(overpass_url, data={"data": query}, timeout=15.0)
-            if res.status_code == 200:
-                elements = res.json().get("elements", [])
-                cameras = []
-                for idx, elem in enumerate(elements):
-                    cam_lat = elem.get("lat") or elem.get("center", {}).get("lat")
-                    cam_lon = elem.get("lon") or elem.get("center", {}).get("lon")
-                    if not cam_lat or not cam_lon:
-                        continue
-                    
-                    tags = elem.get("tags", {})
-                    cam_id = f"CAM-OSM-{elem.get('id')}"
-                    
-                    name = tags.get("name") or tags.get("description")
-                    if not name:
-                        operator = tags.get("operator")
-                        zone = tags.get("surveillance:zone")
-                        if operator and zone:
-                            name = f"{operator} Camera ({zone})"
-                        elif operator:
-                            name = f"{operator} Camera"
-                        elif zone:
-                            name = f"Public Camera ({zone})"
-                        else:
-                            name = f"Public Traffic Surveillance Camera"
-                    
-                    angle = int(tags.get("camera:direction") or tags.get("direction") or "90")
-                    cameras.append({
-                        "id": cam_id,
-                        "name": name,
-                        "lat": cam_lat,
-                        "lon": cam_lon,
-                        "angle": angle,
-                        "radius": 0.003,
-                        "realImg": f"/api/geo/streetview?lat={cam_lat}&lon={cam_lon}"
-                    })
-                return {"status": "success", "data": cameras}
-            else:
-                return {"status": "error", "message": "Failed to fetch from Overpass"}
+        from services.camera_service import get_unified_cameras
+        # Support both meters (e.g. 50000m) and kilometers (e.g. 15000km)
+        # Earth half-circumference is ~20,000km; values above 20,000 are meters.
+        radius_km = radius / 1000.0 if radius > 20000 else radius
+        # Ensure a minimum search radius of 15km for good live camera discovery
+        radius_km = max(radius_km, 15.0)
+
+        cameras = await get_unified_cameras(
+            lat=lat,
+            lon=lon,
+            radius_km=radius_km,
+            provider=provider,
+            limit=limit
+        )
+        return {
+            "status": "success",
+            "count": len(cameras),
+            "data": cameras
+        }
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": str(e), "data": []}
+

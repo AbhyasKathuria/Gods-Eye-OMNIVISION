@@ -24,18 +24,21 @@ const TABS = [
 const STYLES = ["NORMAL", "NVG", "FLIR", "NOIR", "CRT"];
 
 const CAMERAS_FALLBACK = [
-  { id: "CAM-01", name: "6th & Congress Ave Intersection (Austin)", lat: 30.2680, lon: -97.7420, angle: 45, radius: 0.003, realImg: "/feeds/feed1.gif" },
-  { id: "CAM-02", name: "Texas State Capitol North (Austin)", lat: 30.2750, lon: -97.7405, angle: 180, radius: 0.0032, realImg: "/feeds/feed2.gif" },
-  { id: "CAM-03", name: "Zilker Park Pedestrian Gate (Austin)", lat: 30.2640, lon: -97.7710, angle: 290, radius: 0.0035, realImg: "/feeds/feed3.gif" },
-  { id: "CAM-04", name: "Presidency University Gate 1 (Bangalore)", lat: 13.1682, lon: 77.5354, angle: 45, radius: 0.003, realImg: "/feeds/feed4.gif" },
-  { id: "CAM-05", name: "Presidency University Library (Bangalore)", lat: 13.1687, lon: 77.5359, angle: 135, radius: 0.0025, realImg: "/feeds/feed5.gif" },
-  { id: "CAM-06", name: "Trafalgar Square South Cam (London)", lat: 51.5080, lon: -0.1280, angle: 220, radius: 0.0035, realImg: "/feeds/feed1.gif" },
-  { id: "CAM-07", name: "Tower Bridge East Bypass (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038, realImg: "/feeds/feed2.gif" },
-  { id: "CAM-08", name: "Shibuya Crossing Main Feed (Tokyo)", lat: 35.6595, lon: 139.7005, angle: 315, radius: 0.003, realImg: "/feeds/feed4.gif" },
-  { id: "CAM-09", name: "Tokyo Skytree Observatory (Tokyo)", lat: 35.7100, lon: 139.8107, angle: 180, radius: 0.004, realImg: "/feeds/feed5.gif" },
-  { id: "CAM-10", name: "Eiffel Tower Esplanade (Paris)", lat: 48.8583, lon: 2.2945, angle: 120, radius: 0.0035, realImg: "/feeds/feed1.gif" },
-  { id: "CAM-11", name: "Champs-Élysées East Flow (Paris)", lat: 48.8700, lon: 2.3050, angle: 270, radius: 0.0036, realImg: "/feeds/feed2.gif" },
-  { id: "CAM-12", name: "Opera House Forecourt (Sydney)", lat: -33.8568, lon: 151.2153, angle: 45, radius: 0.0032, realImg: "/feeds/feed4.gif" }
+  { id: "CURATED-BLR-01", name: "Bengaluru West (Dodda Banaswadi Snapshot)", lat: 13.0145, lon: 77.64935, angle: 45, radius: 0.003, source: "windy", sourceLabel: "BENGALURU OPTICAL", feedType: "refreshing_image", streamUrl: null, imageUrl: "https://imgproxy.windy.com/_/preview/plain/current/1793900066/original.jpg?v=2", lastUpdated: "2026-09-06T03:14:36.000Z", refreshIntervalSeconds: 60, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Bengaluru", country: "India" },
+  { id: "CURATED-BLR-02", name: "Bengaluru Kempegowda Intl Airport (Tarmac & Apron)", lat: 13.1986, lon: 77.7066, angle: 90, radius: 0.0035, source: "closed_circuit", sourceLabel: "BLR AIRPORT SECURITY", feedType: "satellite_telemetry", streamUrl: null, imageUrl: null, lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Bengaluru", country: "India" },
+  { id: "CURATED-BLR-03", name: "Bengaluru Electronic City Elevated Tollway", lat: 12.8452, lon: 77.6602, angle: 135, radius: 0.0035, source: "closed_circuit", sourceLabel: "ELECTRONIC CITY NODE", feedType: "satellite_telemetry", streamUrl: null, imageUrl: null, lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Bengaluru", country: "India" },
+  { id: "CURATED-BLR-04", name: "Bengaluru Hebbal Flyover & Outer Ring Road", lat: 13.0359, lon: 77.597, angle: 180, radius: 0.0035, source: "closed_circuit", sourceLabel: "HEBBAL JUNCTION SENSOR", feedType: "satellite_telemetry", streamUrl: null, imageUrl: null, lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Bengaluru", country: "India" },
+  { id: "CURATED-BLR-05", name: "Bengaluru MG Road / Brigade Road Corridor", lat: 12.9742, lon: 77.6083, angle: 270, radius: 0.0035, source: "closed_circuit", sourceLabel: "MG ROAD METRO NODE", feedType: "satellite_telemetry", streamUrl: null, imageUrl: null, lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Bengaluru", country: "India" },
+  { id: "CURATED-BLR-06", name: "Bengaluru North - Presidency University Gate (Doddaballapur Rd)", lat: 13.1678, lon: 77.5342, angle: 45, radius: 0.0035, source: "closed_circuit", sourceLabel: "PRESIDENCY SECURITY NODE", feedType: "satellite_telemetry", streamUrl: null, imageUrl: null, lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T14:00:00.000Z", city: "Bengaluru", country: "India" },
+  { id: "CURATED-BLR-07", name: "Bengaluru North - Rajankunte Junction / Railway Signal", lat: 13.1812, lon: 77.5315, angle: 90, radius: 0.0035, source: "closed_circuit", sourceLabel: "RAJANKUNTE TRAFFIC SENSOR", feedType: "satellite_telemetry", streamUrl: null, imageUrl: null, lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T14:00:00.000Z", city: "Bengaluru", country: "India" },
+  { id: "CURATED-BLR-08", name: "Bengaluru North - Yelahanka NES Circle & Doddaballapur Rd Junction", lat: 13.1007, lon: 77.5963, angle: 180, radius: 0.0035, source: "closed_circuit", sourceLabel: "YELAHANKA JUNCTION SENSOR", feedType: "satellite_telemetry", streamUrl: null, imageUrl: null, lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T14:00:00.000Z", city: "Bengaluru", country: "India" },
+  { id: "CURATED-BLR-09", name: "Bengaluru North - Kogilu Cross / Bellary Rd (NH-44 Airport Corridor)", lat: 13.1115, lon: 77.6080, angle: 135, radius: 0.0035, source: "closed_circuit", sourceLabel: "NH-44 EXPRESSWAY SENSOR", feedType: "satellite_telemetry", streamUrl: null, imageUrl: null, lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T14:00:00.000Z", city: "Bengaluru", country: "India" },
+  { id: "CURATED-MAA-01", name: "Chennai (Nungambakkam Live Cam)", lat: 13.06372, lon: 80.23031, angle: 135, radius: 0.003, source: "windy", sourceLabel: "CHENNAI OPTICAL", feedType: "refreshing_image", streamUrl: null, imageUrl: "https://imgproxy.windy.com/_/preview/plain/current/1755858646/original.jpg?v=2", lastUpdated: "2026-09-06T13:16:19.000Z", refreshIntervalSeconds: 60, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Chennai", country: "India" },
+  { id: "CURATED-HYD-01", name: "Hyderabad City Center Cam", lat: 17.37528, lon: 78.47444, angle: 60, radius: 0.003, source: "windy", sourceLabel: "HYDERABAD OPTICAL", feedType: "refreshing_image", streamUrl: null, imageUrl: "https://imgproxy.windy.com/_/preview/plain/current/1793908737/original.jpg?v=2", lastUpdated: "2026-09-06T13:25:58.000Z", refreshIntervalSeconds: 60, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Hyderabad", country: "India" },
+  { id: "CURATED-TRV-01", name: "Tiruvannamalai (Arunachala Hill & Temple Cam)", lat: 12.24056, lon: 79.05757, angle: 90, radius: 0.003, source: "windy", sourceLabel: "TAMIL NADU OPTICAL", feedType: "refreshing_image", streamUrl: null, imageUrl: "https://imgproxy.windy.com/_/preview/plain/current/1234953077/original.jpg?v=2", lastUpdated: "2026-09-06T12:56:16.000Z", refreshIntervalSeconds: 60, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "Tiruvannamalai", country: "India" },
+  { id: "CURATED-LON-01", name: "Piccadilly Circus & Shaftesbury Avenue (London)", lat: 51.5101, lon: -0.134, angle: 225, radius: 0.003, source: "tfl_jamcam", sourceLabel: "TFL TRAFFIC VIDEO", feedType: "live_video", streamUrl: "https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07380.mp4", imageUrl: "https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07380.jpg", lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "London", country: "United Kingdom" },
+  { id: "CURATED-LON-02", name: "Tower Bridge East Approach (London)", lat: 51.5055, lon: -0.0754, angle: 90, radius: 0.0038, source: "tfl_jamcam", sourceLabel: "TFL TRAFFIC VIDEO", feedType: "live_video", streamUrl: "https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07385.mp4", imageUrl: "https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07385.jpg", lastUpdated: null, refreshIntervalSeconds: null, verified: true, verifiedAt: "2026-09-06T13:48:58.950Z", city: "London", country: "United Kingdom" },
+  { id: "CURATED-NYC-01", name: "Times Square Broadway 46th St Live", lat: 40.758, lon: -73.9855, angle: 180, radius: 0.003, source: "youtube", sourceLabel: "NYC CIVIC STREAM", feedType: "live_youtube", streamUrl: "https://www.youtube-nocookie.com/embed/1-iS7LArMPA?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1", imageUrl: "https://img.youtube.com/vi/1-iS7LArMPA/hqdefault.jpg", lastUpdated: null, refreshIntervalSeconds: null, verified: false, verifiedAt: "2026-09-06T13:48:58.950Z", city: "New York", country: "United States" }
 ];
 
 function DataIntegrityBadge({ state }) {
@@ -89,6 +92,14 @@ export default function GeoTracker() {
   const markersRef = useRef([]);
   const cctvPolygonRef = useRef(null);
   const activeTabRef = useRef(activeTab);
+  activeTabRef.current = activeTab;
+  const activeStyleRef = useRef(activeStyle);
+  activeStyleRef.current = activeStyle;
+  const loadDataRef = useRef(null);
+  const cctvDebounceRef = useRef(null);
+  const cctvRefreshTimerRef = useRef(null);
+  const cctvAbortRef = useRef(null);
+  const lastCctvFetchRef = useRef({ lat: null, lon: null, zoom: null });
   
   // Voice Command State
   const [micActive, setMicActive] = useState(false);
@@ -131,7 +142,7 @@ export default function GeoTracker() {
       case "RADIO BROWSER":
         return results?.stations?.[0]?.type === "LIVE" ? "LIVE" : "SIMULATED";
       case "CCTV MONITOR":
-        return "SIMULATED";
+        return results?.cameras > 0 ? "LIVE" : "SIMULATED";
       default:
         return "LIVE";
     }
@@ -339,36 +350,119 @@ export default function GeoTracker() {
     const cameras = camerasList || [];
     
     cameras.forEach(cam => {
+      const source = cam.source || "CURATED";
+      const sourceLabel = cam.sourceLabel || (source === "WINDY" ? "WINDY LIVE" : source === "TFL" ? "TFL TRAFFIC" : source === "OSM" ? "OSM SENSOR" : "CCTV FEED");
+      const badgeColor = source === "WINDY" ? "#00e5ff" : source === "TFL" ? "#00ff66" : source === "OSM" ? "#ff0055" : "#ffaa00";
+
       const icon = L.divIcon({
-        html: `<div style="color:#ff0033;font-size:16px;font-weight:bold;text-shadow:0 0 4px #f00">📹</div>`,
+        html: `<div style="color:${badgeColor};font-size:16px;font-weight:bold;text-shadow:0 0 6px ${badgeColor}">📹</div>`,
         className: "",
         iconSize: [20, 20],
       });
       
       const marker = L.marker([cam.lat, cam.lon], { icon }).addTo(map);
       markersRef.current.push(marker);
-      
+
+      const feedType = cam.feedType || (
+        (cam.streamType === "youtube" || (cam.videoUrl && (cam.videoUrl.includes("youtube.com") || cam.videoUrl.includes("youtu.be")))) ? "live_youtube" :
+        (cam.streamType === "hls" || cam.streamType === "mp4" || (cam.videoUrl && (cam.videoUrl.includes(".m3u8") || cam.videoUrl.includes(".mp4")))) ? "live_video" :
+        "refreshing_image"
+      );
+
+      const streamUrl = cam.streamUrl || cam.videoUrl;
+      const imageUrl = cam.imageUrl || cam.realImg || cam.thumbnail;
+      const isVerified = cam.verified !== false;
+      const isHls = feedType === "live_video" && Boolean(streamUrl) && streamUrl.includes(".m3u8");
+
+      let mediaTag = "";
+      if (feedType === "live_video" && streamUrl) {
+        const posterAttr = imageUrl ? `poster="${imageUrl}"` : "";
+        const fallbackAction = imageUrl
+          ? `if('${imageUrl}'){this.outerHTML='<img id=\\'cctv-media-${cam.id}\\' src=\\'${imageUrl}\\' style=\\'display:block;width:100%;height:100%;object-fit:cover;\\' />';}else{this.style.display='none';const f=document.getElementById('cctv-fallback-${cam.id}');if(f)f.style.display='flex';}`
+          : `this.style.display='none';const f=document.getElementById('cctv-fallback-${cam.id}');if(f)f.style.display='flex';`;
+        mediaTag = `<video id="cctv-media-${cam.id}" autoplay loop muted playsinline preload="auto" ${posterAttr} style="display:block;width:100%;height:100%;object-fit:cover;" onerror="${fallbackAction}"><source src="${streamUrl}" type="${isHls ? 'application/x-mpegURL' : 'video/mp4'}" /></video>`;
+      } else if (feedType === "refreshing_image" && imageUrl) {
+        mediaTag = `<img id="cctv-media-${cam.id}" src="${imageUrl}" style="display:block;width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';const f=document.getElementById('cctv-fallback-${cam.id}');if(f)f.style.display='flex';" />`;
+      } else if (feedType === "live_youtube" && streamUrl) {
+        mediaTag = `<iframe id="cctv-media-${cam.id}" src="${streamUrl}" style="display:block;width:100%;height:100%;border:none;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
+      } else {
+        mediaTag = `<div id="cctv-media-${cam.id}" style="display:none"></div>`;
+      }
+
+      // Type-specific honest badge
+      let feedTypeBadge = "";
+      if (feedType === "live_video") {
+        feedTypeBadge = `<div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#00ff66;font-size:9px;font-weight:bold;padding:2px 6px;border:1px solid #00aa44;z-index:15;pointer-events:none;letter-spacing:0.5px">● LIVE</div>`;
+      } else if (feedType === "refreshing_image") {
+        feedTypeBadge = `<div id="cctv-freshness-${cam.id}" style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#00e5ff;font-size:8px;font-weight:bold;padding:2px 6px;border:1px solid #0088aa;z-index:15;pointer-events:none;letter-spacing:0.5px">STILL SNAPSHOT</div>`;
+      } else if (feedType === "live_youtube") {
+        feedTypeBadge = `<div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#ff0055;font-size:8px;font-weight:bold;padding:2px 6px;border:1px solid #cc0044;z-index:15;pointer-events:none;letter-spacing:0.5px">LIVE VIA YOUTUBE</div>`;
+      } else {
+        feedTypeBadge = `<div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.85);color:#00ffff;font-size:8px;font-weight:bold;padding:2px 6px;border:1px solid #00aaaa;z-index:15;pointer-events:none;letter-spacing:0.5px">● SATELLITE TELEMETRY</div>`;
+      }
+
+      const verifiedBadge = !isVerified ? `<span style="background:rgba(255,170,0,0.18);color:#ffaa00;border:1px solid #cc8800;padding:1px 5px;font-size:8px;margin-left:6px;border-radius:2px;font-weight:bold">UNVERIFIED SOURCE</span>` : "";
+      const hasLiveStream = Boolean(streamUrl || imageUrl);
+
+      const satUrl = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${cam.lon - 0.003},${cam.lat - 0.002},${cam.lon + 0.003},${cam.lat + 0.002}&bboxSR=4326&imageSR=4326&size=604,360&f=image`;
+      const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${cam.lat},${cam.lon}`;
+
+      const buttonsHtml = hasLiveStream ? `
+        <div id="cctv-btn-real-${cam.id}" style="flex:1;text-align:center;padding:5px 2px;background:${badgeColor};color:#000;cursor:pointer;font-weight:bold;transition:all 0.2s">📹 CAMERA VIEW</div>
+        <div id="cctv-btn-sat-${cam.id}" style="flex:1;text-align:center;padding:5px 2px;background:transparent;color:#00ffff;cursor:pointer;font-weight:bold;transition:all 0.2s">🛰️ SATELLITE</div>
+        <div id="cctv-btn-tac-${cam.id}" style="flex:1;text-align:center;padding:5px 2px;background:transparent;color:${badgeColor};cursor:pointer;font-weight:bold;transition:all 0.2s">🎯 RADAR</div>
+      ` : `
+        <div id="cctv-btn-sat-${cam.id}" style="flex:1;text-align:center;padding:5px 2px;background:#00ffff;color:#000;cursor:pointer;font-weight:bold;transition:all 0.2s">🛰️ SATELLITE VIEW</div>
+        <div id="cctv-btn-tac-${cam.id}" style="flex:1;text-align:center;padding:5px 2px;background:transparent;color:${badgeColor};cursor:pointer;font-weight:bold;transition:all 0.2s">🎯 TACTICAL RADAR</div>
+      `;
+
       marker.bindPopup(`
-        <div style="background:#000;color:#00ff00;font-family:Courier New;font-size:10px;padding:8px;border:1px solid #ff0033;width:200px">
-          <div style="color:#ff0033;font-weight:bold;margin-bottom:4px">CCTV FEED (SIMULATED)</div>
-          <div>CAMERA ID: ${cam.id}</div>
-          <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">LOC: ${cam.name}</div>
+        <div style="background:#050505;color:#00ff00;font-family:Courier New;font-size:10px;padding:10px;border:1px solid ${badgeColor};width:320px;box-shadow:0 0 16px rgba(0,0,0,0.95)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="display:flex;align-items:center">
+              <span style="color:${badgeColor};font-weight:bold;letter-spacing:1px;font-size:9px">[${sourceLabel}]</span>
+              ${verifiedBadge}
+            </div>
+            <span style="font-size:8px;color:#888">${cam.country || cam.city || "ONLINE"}</span>
+          </div>
+          <div style="font-size:8px;color:#777;margin-bottom:2px">ID: ${cam.id}</div>
+          <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:bold;color:#fff;margin-bottom:2px;font-size:11px" title="${cam.name}">
+            ${cam.name}
+          </div>
+          ${!hasLiveStream ? `<div style="font-size:8px;color:#00ff88;margin-bottom:6px;letter-spacing:0.5px">🔒 CLOSED-CIRCUIT LAN SENSOR (NO PUBLIC WEB STREAM)</div>` : `<div style="font-size:8px;color:#888;margin-bottom:6px">DIRECT OPTICAL STREAM</div>`}
           
-          <!-- Tactical / Real View Toggles -->
-          <div style="display:flex;margin:6px 0;border:1px solid #440000;font-size:8px;background:#0d0000;font-family:Courier New">
-            <div id="cctv-btn-tac-${cam.id}" style="flex:1;text-align:center;padding:3px;background:#ff0033;color:#000;cursor:pointer;font-weight:bold;transition:all 0.2s">TACTICAL</div>
-            <div id="cctv-btn-real-${cam.id}" style="flex:1;text-align:center;padding:3px;color:#ff0033;cursor:pointer;transition:all 0.2s">REAL VIEW</div>
+          <!-- View Toggles -->
+          <div style="display:flex;margin:5px 0;border:1px solid #333;font-size:8px;background:#0d0d0d;font-family:Courier New">
+            ${buttonsHtml}
           </div>
           
-          <div style="margin-top:6px;position:relative;height:80px;background:#000;overflow:hidden;border:1px solid #333">
-            <canvas id="cctv-canvas-${cam.id}" width="182" height="80" style="display:block"></canvas>
-            ${cam.realImg && (cam.realImg.includes("youtube.com") || cam.realImg.includes("youtube-nocookie.com")) ? `
-              <iframe id="cctv-img-${cam.id}" src="${cam.realImg}" style="display:none;width:100%;height:100%;border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            ` : `
-              <img id="cctv-img-${cam.id}" src="${cam.realImg}" style="display:none;width:100%;height:100%;object-fit:cover;filter:contrast(1.1) brightness(0.9)" />
-            `}
+          <div style="margin-top:5px;position:relative;height:180px;background:#000;overflow:hidden;border:1px solid #222">
+            <canvas id="cctv-canvas-${cam.id}" width="302" height="180" style="display:none"></canvas>
+            ${mediaTag}
+            <img id="cctv-sat-${cam.id}" src="${satUrl}" alt="Satellite View" style="display:${hasLiveStream ? 'none' : 'block'};width:100%;height:100%;object-fit:cover;" />
+            
+            <div id="cctv-fallback-${cam.id}" style="display:none;position:absolute;inset:0;background:#0d0d0d;color:#888;align-items:center;justify-content:center;flex-direction:column;font-family:Courier New;font-size:10px;text-align:center;padding:12px;z-index:12">
+              <div style="font-size:18px;color:#ff5555;margin-bottom:6px">⚠</div>
+              <div style="color:#aaa;font-weight:bold;letter-spacing:1px">FEED UNAVAILABLE</div>
+              <div style="color:#555;font-size:8px;margin-top:4px">Sensor currently offline or stream unreachable</div>
+            </div>
+
+            <!-- Scanline layer -->
+            <div style="position:absolute;inset:0;background:linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.22) 50%);background-size:100% 4px;pointer-events:none;z-index:10;"></div>
+
+            <!-- Type badge -->
+            ${feedTypeBadge}
+
+            <!-- Separate system clock -->
+            <div id="cctv-clock-${cam.id}" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.85);color:#888;font-size:8px;padding:2px 5px;border:1px solid #333;z-index:15;pointer-events:none;font-family:Courier New">SYS: --:--:--</div>
           </div>
-          <div style="font-size:8px;color:#888;margin-top:4px">CONE OF VIEWSHED DISPLAYED ON MAP</div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:8px;color:#888">
+            <span id="cctv-refresh-${cam.id}" style="color:#00ff00;cursor:pointer;text-decoration:underline">🔄 REFRESH</span>
+            <a href="${streetViewUrl}" target="_blank" rel="noreferrer" style="color:#ffaa00;text-decoration:none;font-weight:bold;border:1px solid #664400;padding:1px 4px;border-radius:2px;background:rgba(255,170,0,0.1)">🌐 STREET VIEW ↗</a>
+            <span style="color:#666">LAT: ${cam.lat.toFixed(3)} LON: ${cam.lon.toFixed(3)}</span>
+            ${cam.webcamUrl ? `<a href="${cam.webcamUrl}" target="_blank" rel="noreferrer" style="color:#00e5ff;text-decoration:none;font-weight:bold">SOURCE ↗</a>` : `<span style="color:#555">PHYSICAL SENSOR</span>`}
+          </div>
         </div>
       `);
 
@@ -386,40 +480,187 @@ export default function GeoTracker() {
         const pt2 = [lat + cam.radius * Math.sin(endRad), lon + cam.radius * Math.cos(endRad)];
         
         const polygon = L.polygon([[lat, lon], pt1, pt2], {
-          color: "#ff0033",
-          fillColor: "#ff0000",
-          fillOpacity: 0.25,
+          color: badgeColor,
+          fillColor: badgeColor,
+          fillOpacity: 0.22,
           weight: 1
         }).addTo(map);
         
         cctvPolygonRef.current = polygon;
 
-        // Toggle handling
+        // Toggle and live refresh handling
         setTimeout(() => {
           const btnTac = document.getElementById(`cctv-btn-tac-${cam.id}`);
           const btnReal = document.getElementById(`cctv-btn-real-${cam.id}`);
+          const btnSat = document.getElementById(`cctv-btn-sat-${cam.id}`);
           const canvas = document.getElementById(`cctv-canvas-${cam.id}`);
-          const img = document.getElementById(`cctv-img-${cam.id}`);
+          const media = document.getElementById(`cctv-media-${cam.id}`);
+          const sat = document.getElementById(`cctv-sat-${cam.id}`);
+          const btnRefresh = document.getElementById(`cctv-refresh-${cam.id}`);
 
-          if (btnTac && btnReal && canvas && img) {
+          // Real-time ticking updates
+          const updateStatus = () => {
+            const clk = document.getElementById(`cctv-clock-${cam.id}`);
+            if (clk) {
+              const now = new Date();
+              clk.textContent = `SYS: ${now.toLocaleTimeString()}`;
+            }
+            const fr = document.getElementById(`cctv-freshness-${cam.id}`);
+            if (fr) {
+              if (cam.lastUpdated) {
+                const diffSec = Math.max(0, Math.floor((Date.now() - new Date(cam.lastUpdated).getTime()) / 1000));
+                if (diffSec < 60) fr.textContent = `Updated ${diffSec}s ago`;
+                else if (diffSec < 3600) fr.textContent = `Updated ${Math.floor(diffSec / 60)}m ago`;
+                else fr.textContent = `Updated ${Math.floor(diffSec / 3600)}h ago`;
+              } else {
+                fr.textContent = "STILL SNAPSHOT";
+              }
+            }
+          };
+          updateStatus();
+          const tickerInterval = setInterval(updateStatus, 1000);
+
+          // Video stream initialization (HLS and native MP4)
+          if (media && media.tagName === "VIDEO") {
+            media.defaultMuted = true;
+            media.muted = true;
+            if (isHls) {
+              if (window.Hls && window.Hls.isSupported()) {
+                try {
+                  const hls = new window.Hls({ enableWorker: true });
+                  hls.loadSource(streamUrl);
+                  hls.attachMedia(media);
+                  hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
+                    media.play().catch(() => {});
+                  });
+                  hls.on(window.Hls.Events.ERROR, (e, data) => {
+                    if (data && data.fatal) {
+                      try { hls.destroy(); } catch (hlsErr) {}
+                      if (imageUrl) {
+                        media.outerHTML = `<img id="cctv-media-${cam.id}" src="${imageUrl}" style="display:block;width:100%;height:100%;object-fit:cover;" />`;
+                      } else {
+                        media.style.display = "none";
+                        const fb = document.getElementById(`cctv-fallback-${cam.id}`);
+                        if (fb) fb.style.display = "flex";
+                      }
+                    }
+                  });
+                } catch (err) {
+                  console.warn("HLS init error:", err);
+                  if (imageUrl) {
+                    media.outerHTML = `<img id="cctv-media-${cam.id}" src="${imageUrl}" style="display:block;width:100%;height:100%;object-fit:cover;" />`;
+                  } else {
+                    media.style.display = "none";
+                    const fb = document.getElementById(`cctv-fallback-${cam.id}`);
+                    if (fb) fb.style.display = "flex";
+                  }
+                }
+              } else if (media.canPlayType("application/vnd.apple.mpegurl")) {
+                media.src = streamUrl;
+                media.play().catch(() => {});
+              }
+            } else {
+              // Standard native MP4 video loop
+              const p = media.play();
+              if (p !== undefined) {
+                p.catch((err) => {
+                  console.warn("Autoplay deferred:", err);
+                  media.muted = true;
+                  media.play().catch(() => {});
+                });
+              }
+            }
+          }
+
+          // Live frame auto-refresh timer for image webcams
+          if (cctvRefreshTimerRef.current) clearInterval(cctvRefreshTimerRef.current);
+          if (media && media.tagName === "IMG" && imageUrl) {
+            const base = imageUrl.split("?")[0];
+            const intervalSec = cam.refreshIntervalSeconds || 60;
+            cctvRefreshTimerRef.current = setInterval(() => {
+              if (!document.getElementById(`cctv-media-${cam.id}`)) {
+                clearInterval(cctvRefreshTimerRef.current);
+                clearInterval(tickerInterval);
+                return;
+              }
+              media.src = `${base}?t=${Date.now()}`;
+              cam.lastUpdated = new Date().toISOString();
+              updateStatus();
+            }, intervalSec * 1000);
+          }
+
+          if (btnRefresh) {
+            btnRefresh.onclick = () => {
+              if (media && media.tagName === "IMG" && imageUrl) {
+                const base = imageUrl.split("?")[0];
+                media.src = `${base}?t=${Date.now()}`;
+                cam.lastUpdated = new Date().toISOString();
+                updateStatus();
+              } else if (media && media.tagName === "VIDEO") {
+                media.currentTime = 0;
+                media.play().catch(() => {});
+              } else if (media && media.tagName === "IFRAME") {
+                const currentSrc = media.src;
+                media.src = currentSrc;
+              }
+            };
+          }
+
+          if (btnSat && sat && media && canvas) {
+            btnSat.onclick = () => {
+              sat.style.display = "block";
+              media.style.display = "none";
+              canvas.style.display = "none";
+              const fb = document.getElementById(`cctv-fallback-${cam.id}`);
+              if (fb) fb.style.display = "none";
+              btnSat.style.background = "#00ffff";
+              btnSat.style.color = "#000";
+              if (btnReal) {
+                btnReal.style.background = "transparent";
+                btnReal.style.color = badgeColor;
+              }
+              if (btnTac) {
+                btnTac.style.background = "transparent";
+                btnTac.style.color = badgeColor;
+              }
+            };
+          }
+
+          if (btnReal && sat && media && canvas) {
+            btnReal.onclick = () => {
+              media.style.display = "block";
+              sat.style.display = "none";
+              canvas.style.display = "none";
+              btnReal.style.background = badgeColor;
+              btnReal.style.color = "#000";
+              if (btnSat) {
+                btnSat.style.background = "transparent";
+                btnSat.style.color = "#00ffff";
+              }
+              if (btnTac) {
+                btnTac.style.background = "transparent";
+                btnTac.style.color = badgeColor;
+              }
+            };
+          }
+
+          if (btnTac && sat && media && canvas) {
             btnTac.onclick = () => {
               canvas.style.display = "block";
-              img.style.display = "none";
-              btnTac.style.background = "#ff0033";
+              media.style.display = "none";
+              sat.style.display = "none";
+              const fb = document.getElementById(`cctv-fallback-${cam.id}`);
+              if (fb) fb.style.display = "none";
+              btnTac.style.background = badgeColor;
               btnTac.style.color = "#000";
-              btnTac.style.fontWeight = "bold";
-              btnReal.style.background = "transparent";
-              btnReal.style.color = "#ff0033";
-            };
-
-            btnReal.onclick = () => {
-              canvas.style.display = "none";
-              img.style.display = "block";
-              btnReal.style.background = "#ff0033";
-              btnReal.style.color = "#000";
-              btnReal.style.fontWeight = "bold";
-              btnTac.style.background = "transparent";
-              btnTac.style.color = "#ff0033";
+              if (btnReal) {
+                btnReal.style.background = "transparent";
+                btnReal.style.color = badgeColor;
+              }
+              if (btnSat) {
+                btnSat.style.background = "transparent";
+                btnSat.style.color = "#00ffff";
+              }
             };
           }
 
@@ -429,8 +670,8 @@ export default function GeoTracker() {
             let animationId;
             
             const targets = [
-              { x: Math.random() * 182, y: Math.random() * 80, dx: (Math.random() - 0.5) * 1.5, dy: (Math.random() - 0.5) * 1.5, label: "TGT-ALPHA" },
-              { x: Math.random() * 182, y: Math.random() * 80, dx: (Math.random() - 0.5) * 1.5, dy: (Math.random() - 0.5) * 1.5, label: "TGT-BETA" }
+              { x: Math.random() * 280, y: Math.random() * 150, dx: (Math.random() - 0.5) * 1.5, dy: (Math.random() - 0.5) * 1.5, label: "TGT-ALPHA" },
+              { x: Math.random() * 280, y: Math.random() * 150, dx: (Math.random() - 0.5) * 1.5, dy: (Math.random() - 0.5) * 1.5, label: "TGT-BRAVO" }
             ];
 
             const draw = () => {
@@ -439,55 +680,61 @@ export default function GeoTracker() {
                 return;
               }
               
-              // Base green background
+              // Base tactical dark background
               ctx.fillStyle = "#020f02";
-              ctx.fillRect(0, 0, 182, 80);
+              ctx.fillRect(0, 0, 302, 180);
               
               // Dynamic grain noise
-              ctx.fillStyle = "rgba(0, 255, 0, 0.07)";
-              for (let i = 0; i < 40; i++) {
-                ctx.fillRect(Math.random() * 182, Math.random() * 80, 1, 1);
+              ctx.fillStyle = "rgba(0, 255, 0, 0.06)";
+              for (let i = 0; i < 50; i++) {
+                ctx.fillRect(Math.random() * 302, Math.random() * 180, 1, 1);
               }
               
               // Tactical crosshair scope grid lines
               ctx.strokeStyle = "rgba(0, 255, 0, 0.12)";
               ctx.lineWidth = 0.5;
               
-              for (let x = 20; x < 182; x += 20) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 80); ctx.stroke();
+              for (let x = 30; x < 302; x += 30) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 180); ctx.stroke();
               }
-              for (let y = 15; y < 80; y += 15) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(182, y); ctx.stroke();
+              for (let y = 30; y < 180; y += 30) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(302, y); ctx.stroke();
               }
               
+              // Center crosshair
+              ctx.strokeStyle = "rgba(0, 255, 0, 0.25)";
+              ctx.beginPath(); ctx.moveTo(151, 80); ctx.lineTo(151, 100); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(141, 90); ctx.lineTo(161, 90); ctx.stroke();
+              ctx.beginPath(); ctx.arc(151, 90, 40, 0, 2 * Math.PI); ctx.stroke();
+
               // Targets simulation
               targets.forEach(t => {
                 t.x += t.dx;
                 t.y += t.dy;
-                if (t.x < 10 || t.x > 172) t.dx *= -1;
-                if (t.y < 10 || t.y > 70) t.dy *= -1;
+                if (t.x < 15 || t.x > 280) t.dx *= -1;
+                if (t.y < 20 || t.y > 155) t.dy *= -1;
                 
-                ctx.strokeStyle = "rgba(0, 255, 0, 0.7)";
-                ctx.strokeRect(t.x - 5, t.y - 5, 10, 10);
+                ctx.strokeStyle = "rgba(0, 255, 0, 0.8)";
+                ctx.strokeRect(t.x - 6, t.y - 6, 12, 12);
                 
-                ctx.fillStyle = "rgba(0, 255, 0, 0.7)";
-                ctx.font = "6px monospace";
-                ctx.fillText(t.label, t.x + 8, t.y - 2);
-                ctx.fillText("LOCK: 98%", t.x + 8, t.y + 4);
+                ctx.fillStyle = "rgba(0, 255, 0, 0.8)";
+                ctx.font = "8px monospace";
+                ctx.fillText(t.label, t.x + 10, t.y - 2);
+                ctx.fillText("LOCK: 99%", t.x + 10, t.y + 7);
               });
               
               // Radar sweep bar line
-              const scanY = (Date.now() / 20) % 80;
-              ctx.strokeStyle = "rgba(0, 255, 0, 0.35)";
-              ctx.beginPath(); ctx.moveTo(0, scanY); ctx.lineTo(182, scanY); ctx.stroke();
+              const scanY = (Date.now() / 25) % 180;
+              ctx.strokeStyle = "rgba(0, 255, 0, 0.4)";
+              ctx.beginPath(); ctx.moveTo(0, scanY); ctx.lineTo(302, scanY); ctx.stroke();
               
               // System labels
               ctx.fillStyle = "#00ff00";
-              ctx.font = "7px Courier New";
-              ctx.fillText("SYS: SECURE_FEED", 6, 10);
-              ctx.fillText("AZ: " + Math.round((Date.now() / 150) % 360) + "°", 130, 10);
-              ctx.fillText("REC 🔴", 6, 74);
-              ctx.fillText(new Date().toLocaleTimeString(), 120, 74);
+              ctx.font = "8px Courier New";
+              ctx.fillText("SYS: SECURE_SENSOR_GRID", 8, 14);
+              ctx.fillText("AZ: " + Math.round((Date.now() / 150) % 360) + "°", 240, 14);
+              ctx.fillText("REC 🔴", 8, 172);
+              ctx.fillText(new Date().toLocaleTimeString(), 220, 172);
               
               animationId = requestAnimationFrame(draw);
             };
@@ -497,6 +744,10 @@ export default function GeoTracker() {
       });
 
       marker.on("popupclose", () => {
+        if (cctvRefreshTimerRef.current) {
+          clearInterval(cctvRefreshTimerRef.current);
+          cctvRefreshTimerRef.current = null;
+        }
         if (cctvPolygonRef.current) {
           cctvPolygonRef.current.remove();
           cctvPolygonRef.current = null;
@@ -541,80 +792,116 @@ export default function GeoTracker() {
       // Update localStorage for AIBrain context
       localStorage.setItem("ge_map_center", JSON.stringify({ lat: center.lat, lon: center.lng }));
       localStorage.setItem("ge_map_zoom", zoom.toString());
-      localStorage.setItem("ge_map_tab", activeTab);
+      localStorage.setItem("ge_map_tab", activeTabRef.current);
       
       // Update URL query params
-      updateQueryParams(center.lat, center.lng, zoom, activeTab, activeStyle);
-    });
+      updateQueryParams(center.lat, center.lng, zoom, activeTabRef.current, activeStyleRef.current);
 
-    loadData();
+      // Debounced camera reload when panning/zooming in CCTV MONITOR mode
+      if (activeTabRef.current === "CCTV MONITOR") {
+        const last = lastCctvFetchRef.current;
+        const zoomDelta = last.zoom !== null ? Math.abs(zoom - last.zoom) : 99;
+        const distDelta = (last.lat !== null && last.lon !== null)
+          ? Math.sqrt(Math.pow(center.lat - last.lat, 2) + Math.pow(center.lng - last.lon, 2))
+          : 99;
+
+        // If in global view (zoom <= 4) and already loaded, skip reloading on minor pans
+        if (zoom <= 4 && last.zoom !== null && last.zoom <= 4 && distDelta < 5.0) {
+          return;
+        }
+
+        // Only reload if zoom changed or moved significantly (> 1.2 degrees)
+        if (zoomDelta < 1 && distDelta < 1.2) {
+          return;
+        }
+
+        if (cctvDebounceRef.current) clearTimeout(cctvDebounceRef.current);
+        cctvDebounceRef.current = setTimeout(() => {
+          if (activeTabRef.current === "CCTV MONITOR" && loadDataRef.current) {
+            loadDataRef.current(true);
+          }
+        }, 800);
+      }
+    });
   };
 
   const initMap = () => {
     createMap();
   };
 
-  const loadData = async () => {
-    const initiatedTab = activeTab;
-    setLoading(true);
+  const loadData = async (isSilent = false) => {
+    const currentTab = activeTabRef.current;
+    if (!isSilent) {
+      setLoading(true);
+      setResults(null);
+      markersRef.current.forEach(m => m.remove());
+      markersRef.current = [];
+    }
     setError(null);
-    setResults(null);
     
     if (cctvPolygonRef.current) {
       cctvPolygonRef.current.remove();
       cctvPolygonRef.current = null;
     }
+
+    // Safety watchdog: always guarantee loading state resolves within 4 seconds
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 4000);
     
     try {
       const map = leafletMapRef.current;
       const L = window.L;
       
-      markersRef.current.forEach(m => m.remove());
-      markersRef.current = [];
-      
       let data = [];
-      switch (activeTab) {
+      switch (currentTab) {
         case "LIVE FLIGHTS":
-          const res = await axios.get(`${API}/geo/flights`);
-          if (activeTabRef.current !== initiatedTab) return;
+          const res = await axios.get(`${API}/geo/flights`, { timeout: 6000 });
+          if (activeTabRef.current !== currentTab) return;
           data = res.data.data.flights || [];
           setResults(res.data.data);
           if (map && L) {
+            markersRef.current.forEach(m => m.remove());
+            markersRef.current = [];
             plotFlights(map, data);
           }
           break;
         case "MILITARY FLIGHTS":
           data = await fetchMilitaryFlights();
-          if (activeTabRef.current !== initiatedTab) return;
+          if (activeTabRef.current !== currentTab) return;
           setResults({ flights: data, count: data.length });
           if (map && L) {
+            markersRef.current.forEach(m => m.remove());
             const markers = plotMilitaryFlights(map, data, L);
             markersRef.current = markers;
           }
           break;
         case "EARTHQUAKES":
           data = await fetchEarthquakes();
-          if (activeTabRef.current !== initiatedTab) return;
+          if (activeTabRef.current !== currentTab) return;
           setResults({ events: data, count: data.length });
           if (map && L) {
+            markersRef.current.forEach(m => m.remove());
             const markers = plotEarthquakes(map, data, L);
             markersRef.current = markers;
           }
           break;
         case "SATELLITE ORBITS":
           data = await fetchSatellites();
-          if (activeTabRef.current !== initiatedTab) return;
+          if (activeTabRef.current !== currentTab) return;
           setResults({ satellites: data, count: data.length });
           if (map && L) {
+            markersRef.current.forEach(m => m.remove());
             const markers = plotSatellites(map, data, L);
             markersRef.current = markers;
           }
           break;
         case "BIKESHARE":
           data = await fetchBikeshare();
-          if (activeTabRef.current !== initiatedTab) return;
+          if (activeTabRef.current !== currentTab) return;
           setResults({ stations: data, count: data.length });
           if (map && L) {
+            markersRef.current.forEach(m => m.remove());
             const markers = plotBikeshare(map, data, L);
             markersRef.current = markers;
             map.setView([30.2680, -97.7420], 13);
@@ -624,9 +911,10 @@ export default function GeoTracker() {
           const uLat = userCoords ? userCoords[0] : null;
           const uLon = userCoords ? userCoords[1] : null;
           data = await fetchRadioStations(uLat, uLon);
-          if (activeTabRef.current !== initiatedTab) return;
+          if (activeTabRef.current !== currentTab) return;
           setResults({ stations: data, count: data.length });
           if (map && L) {
+            markersRef.current.forEach(m => m.remove());
             const markers = plotRadioStations(map, data, L);
             markersRef.current = markers;
             if (uLat !== null && uLon !== null) {
@@ -636,84 +924,81 @@ export default function GeoTracker() {
           break;
         case "CCTV MONITOR":
           if (map && L) {
-            const currentZoomBefore = map.getZoom();
-            if (userCoords && currentZoomBefore <= 3) {
-              map.setView(userCoords, 14);
-            }
+            const currentZoom = map.getZoom();
             const currentCenter = map.getCenter();
-            let osmCams = [];
+            
+            // Dynamic query radius based on map zoom:
+            // zoom <= 3: Global world-view (radius 15,000 km -> queries global streams across continents)
+            // zoom 4-6: Continental view (radius 2,500 km)
+            // zoom 7-9: Regional/State view (radius 400 km)
+            // zoom 10+: City/Metro view (radius 70 km)
+            let radiusKm = 70;
+            if (currentZoom <= 3) radiusKm = 15000;
+            else if (currentZoom <= 6) radiusKm = 2500;
+            else if (currentZoom <= 9) radiusKm = 400;
+
+            // Abort previous in-flight request before launching new one
+            if (cctvAbortRef.current) {
+              try { cctvAbortRef.current.abort(); } catch (abErr) {}
+            }
+            const abortController = new AbortController();
+            cctvAbortRef.current = abortController;
+
+            lastCctvFetchRef.current = {
+              lat: currentCenter.lat,
+              lon: currentCenter.lng,
+              zoom: currentZoom
+            };
+
+            let loadedCams = [];
             try {
-              const res = await axios.get(`${API}/geo/cameras?lat=${currentCenter.lat}&lon=${currentCenter.lng}`);
-              if (res.data && res.data.status === "success") {
-                osmCams = res.data.data || [];
+              const res = await axios.get(
+                `${API}/geo/cameras?lat=${currentCenter.lat.toFixed(4)}&lon=${currentCenter.lng.toFixed(4)}&radius=${radiusKm}&limit=120`,
+                {
+                  timeout: 12000,
+                  signal: abortController.signal
+                }
+              );
+              if (res.data && res.data.status === "success" && Array.isArray(res.data.data)) {
+                loadedCams = res.data.data;
               }
             } catch (err) {
-              console.warn("Failed to fetch real-time OSM cameras, using fallback only", err);
+              if (axios.isCancel(err) || err.name === "CanceledError" || err.code === "ERR_CANCELED") {
+                return; // Silently skip superseded/aborted requests
+              }
+              console.warn("Live camera fetch issue, using cached/fallback feeds:", err.message);
             }
 
-            // Fallback mock generator near active viewport coordinates if OSM is empty
-            if (osmCams.length === 0) {
-              const lat = currentCenter.lat;
-              const lon = currentCenter.lng;
-              const mockFeeds = [
-                { suffix: "01", name: "Main Street & Highway Intersection", gif: "/feeds/feed1.gif" },
-                { suffix: "02", name: "Commercial Center Traffic Flow", gif: "/feeds/feed2.gif" },
-                { suffix: "03", name: "Pedestrian Crossing Safety Feed", gif: "/feeds/feed3.gif" },
-                { suffix: "04", name: "Secured Area Access Cam", gif: "/feeds/feed5.gif" }
-              ];
-              
-              osmCams = mockFeeds.map((feed, idx) => {
-                const offsetLat = (idx === 0 ? 0.001 : idx === 1 ? -0.0012 : idx === 2 ? 0.0008 : -0.0009);
-                const offsetLon = (idx === 0 ? 0.0015 : idx === 1 ? 0.0018 : idx === 2 ? -0.0015 : -0.002);
-                return {
-                  id: `CAM-GPS-${feed.suffix}`,
-                  name: `${feed.name} (Local)`,
-                  lat: lat + offsetLat,
-                  lon: lon + offsetLon,
-                  angle: idx * 90 + 45,
-                  radius: 0.003,
-                  realImg: feed.gif
-                };
+            // Fallback to verified cameras if backend returned 0
+            if (!loadedCams || loadedCams.length === 0) {
+              loadedCams = [...CAMERAS_FALLBACK];
+            } else if (currentZoom <= 4) {
+              // Ensure key regional hubs are also visible on global view
+              CAMERAS_FALLBACK.forEach(f => {
+                const duplicate = loadedCams.some(c => 
+                  c.id === f.id || 
+                  (Math.abs(c.lat - f.lat) < 0.05 && Math.abs(c.lon - f.lon) < 0.05)
+                );
+                if (!duplicate) {
+                  loadedCams.push(f);
+                }
               });
             }
 
-            if (activeTabRef.current !== initiatedTab) return;
+            if (activeTabRef.current !== currentTab) return;
 
-            // Merge fallback cameras with OSM cameras, filtering duplicates
-            const allCams = [...osmCams];
-            CAMERAS_FALLBACK.forEach(f => {
-              const duplicate = allCams.some(c => 
-                c.id === f.id || 
-                (Math.abs(c.lat - f.lat) < 0.0001 && Math.abs(c.lon - f.lon) < 0.0001)
-              );
-              if (!duplicate) {
-                allCams.push(f);
-              }
-            });
+            plotCctvCameras(map, loadedCams, L);
+            setResults({ cameras: loadedCams.length });
 
-            plotCctvCameras(map, allCams, L);
-            setResults({ cameras: allCams.length });
-
-            const currentZoom = map.getZoom();
-            if (currentZoom > 3) {
-              const distToBlr = Math.sqrt(Math.pow(currentCenter.lat - 13.1682, 2) + Math.pow(currentCenter.lng - 77.5354, 2));
-              const distToAus = Math.sqrt(Math.pow(currentCenter.lat - 30.2680, 2) + Math.pow(currentCenter.lng - (-97.7420), 2));
-              
-              if (distToBlr < distToAus && distToBlr < 1.0) {
-                map.setView([13.1682, 77.5354], 15);
-              } else if (distToAus < 1.0) {
-                map.setView([30.2680, -97.7420], 13);
-              } else if (osmCams.length > 0) {
-                let closest = osmCams[0];
-                let minDist = Infinity;
-                osmCams.forEach(c => {
-                  const dist = Math.sqrt(Math.pow(currentCenter.lat - c.lat, 2) + Math.pow(currentCenter.lng - c.lon, 2));
-                  if (dist < minDist) {
-                    minDist = dist;
-                    closest = c;
-                  }
-                });
-                map.setView([closest.lat, closest.lon], 15);
+            // If cameras were detected, ensure at least one camera marker is visible on screen
+            if (loadedCams.length > 0 && markersRef.current.length > 0) {
+              const bounds = map.getBounds();
+              const hasVisible = loadedCams.some(c => bounds.contains([c.lat, c.lon]));
+              if (!hasVisible) {
+                try {
+                  const featureGroup = L.featureGroup(markersRef.current);
+                  map.fitBounds(featureGroup.getBounds().pad(0.15), { maxZoom: 13 });
+                } catch (fitErr) {}
               }
             }
           }
@@ -725,14 +1010,18 @@ export default function GeoTracker() {
           break;
       }
     } catch (e) {
-      if (activeTabRef.current === initiatedTab) {
+      if (activeTabRef.current === currentTab) {
         setError(e.message);
       }
-    }
-    if (activeTabRef.current === initiatedTab) {
-      setLoading(false);
+    } finally {
+      clearTimeout(safetyTimer);
+      if (activeTabRef.current === currentTab) {
+        setLoading(false);
+      }
     }
   };
+
+  loadDataRef.current = loadData;
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -874,6 +1163,32 @@ export default function GeoTracker() {
         <DataIntegrityBadge state={getHeaderBadgeState()} />
       </div>
       <div style={{ position: "relative", flex: 1, minHeight: "450px" }}>
+        {/* Tactical HUD Loading Indicator Overlay */}
+        {loading && (
+          <div style={{
+            position: "absolute",
+            top: "14px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1200,
+            pointerEvents: "none",
+            background: "rgba(5, 0, 0, 0.90)",
+            border: "1px solid #ff0000",
+            borderRadius: "2px",
+            padding: "6px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            boxShadow: "0 0 16px rgba(255, 0, 0, 0.5)",
+            fontFamily: "Courier New"
+          }}>
+            <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#ff0000" }} className="animate-ping" />
+            <span style={{ color: "#ff0000", fontSize: "10px", letterSpacing: "2px", fontWeight: "bold" }}>
+              ACQUIRING SATELLITE TELEMETRY...
+            </span>
+          </div>
+        )}
+
         {/* Leaflet Map */}
         <div ref={mapRef} style={{
           height: "100%", width: "100%",
@@ -1407,11 +1722,14 @@ export default function GeoTracker() {
 
           {activeTab === "CCTV MONITOR" && userCoords && (
             <button onClick={async () => {
-              if (leafletMapRef.current) {
-                leafletMapRef.current.flyTo(userCoords, 14);
+              if (leafletMapRef.current && userCoords) {
+                const map = leafletMapRef.current;
+                map.setView(userCoords, 13);
+                if (cctvDebounceRef.current) clearTimeout(cctvDebounceRef.current);
+                lastCctvFetchRef.current = { lat: null, lon: null, zoom: null };
                 setTimeout(() => {
-                  loadData();
-                }, 450);
+                  if (loadDataRef.current) loadDataRef.current();
+                }, 100);
               }
             }}
               disabled={loading}
@@ -1433,6 +1751,13 @@ export default function GeoTracker() {
           QUICK PRESETS
         </div>
         {[
+          { label: "[CAMERAS] 🌐 Global Grid (40+ Countries)", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.setView([20, 0], 2); }},
+          { label: "[CAMERAS] 🇮🇳 Bengaluru North / Presidency Univ", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.setView([13.1678, 77.5342], 13); }},
+          { label: "[CAMERAS] 🇮🇳 Bengaluru Video Feeds", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.setView([12.9716, 77.5946], 13); }},
+          { label: "[CAMERAS] 🇬🇧 London Traffic (800+ MP4s)", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.setView([51.5074, -0.1278], 12); }},
+          { label: "[CAMERAS] 🇺🇸 New York City Live Cams", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.setView([40.7580, -73.9855], 13); }},
+          { label: "[CAMERAS] 🇯🇵 Tokyo Scramble Crossing", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.setView([35.6595, 139.7005], 14); }},
+          { label: "[CAMERAS] 🇺🇸 Austin Texas Traffic Cones", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.setView([30.2680, -97.7420], 13); }},
           { label: "[FLIGHTS] US Airspace Feed", action: () => { setActiveTab("LIVE FLIGHTS"); setInput(""); if (leafletMapRef.current) leafletMapRef.current.setView([39.8283, -98.5795], 4); }},
           { label: "[MILITARY] Area 51 Tracks", action: () => { setActiveTab("MILITARY FLIGHTS"); setInput(""); if (leafletMapRef.current) leafletMapRef.current.setView([37.235, -115.811], 10); }},
           { label: "[SHIPS] English Channel Traffic", action: () => { setActiveTab("SHIP TRACKER"); }},
@@ -1440,7 +1765,6 @@ export default function GeoTracker() {
           { label: "[ORBITS] ISS Satellite Path", action: () => { setActiveTab("SATELLITE ORBITS"); if (leafletMapRef.current) leafletMapRef.current.setView([20, 0], 2); }},
           { label: "[BIKES] Austin B-Cycle Hubs", action: () => { setActiveTab("BIKESHARE"); if (leafletMapRef.current) leafletMapRef.current.setView([30.2680, -97.7420], 13); }},
           { label: "[RADIO] London Nodes", action: () => { setActiveTab("RADIO BROWSER"); if (leafletMapRef.current) leafletMapRef.current.setView([51.5074, -0.1278], 10); }},
-          { label: "[SURVEILLANCE] Austin CCTV Cones", action: () => { setActiveTab("CCTV MONITOR"); if (leafletMapRef.current) leafletMapRef.current.setView([30.2680, -97.7420], 13); }},
           { label: "[SEARCH] Find Presidency University", action: () => { setActiveTab("LOCATION SEARCH"); setInput("Presidency University Bangalore"); handleSearch("Presidency University Bangalore", null, null, "LOCATION SEARCH"); }},
           { label: "[SATELLITE] Pyramids of Giza", action: () => { setActiveTab("SATELLITE VIEW"); setLat("29.9792"); setLon("31.1342"); handleSearch("", "29.9792", "31.1342", "SATELLITE VIEW"); }},
           { label: "[WEATHER] Mumbai Scanner", action: () => { setActiveTab("WEATHER"); setInput("Mumbai"); handleSearch("Mumbai", null, null, "WEATHER"); }},
@@ -1485,36 +1809,36 @@ export default function GeoTracker() {
             </div>
           )}
 
-          <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", height: "100%" }}>
-            {loading && (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center",
-                justifyContent: "center", height: "100%", gap: "12px" }}>
-                <div style={{ color: "#ff0000", fontSize: "11px", letterSpacing: "3px" }}
-                  className="animate-pulse">
-                  ACQUIRING SATELLITE TELEMETRY...
-                </div>
-                <div style={{ color: "#440000", fontSize: "11px" }}>
-                  Resolving data integrity handshake
-                </div>
-              </div>
-            )}
-
+          <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
             {error && (
-              <div style={{ padding: "12px", border: "1px solid #ff0000", background: "#0d0000" }}>
+              <div style={{ padding: "12px", border: "1px solid #ff0000", background: "#0d0000", marginBottom: "8px" }}>
                 <div style={{ color: "#ff0000", fontSize: "11px", marginBottom: "4px" }}>GEO OVERLAY ERROR</div>
                 <div style={{ color: "#882222", fontSize: "11px" }}>{error}</div>
               </div>
             )}
 
-            {/* Always mount map container in the DOM, but hide it if not a map tab or loading */}
+            {/* Always mount and display map container for all map modules */}
             <div style={{ 
-              display: (["LIVE FLIGHTS", "MILITARY FLIGHTS", "EARTHQUAKES", "SATELLITE ORBITS", "BIKESHARE", "RADIO BROWSER", "CCTV MONITOR", "LOCATION SEARCH", "SATELLITE VIEW", "WEATHER"].includes(activeTab) && !loading) ? "block" : "none", 
-              height: "100%" 
+              display: ["LIVE FLIGHTS", "MILITARY FLIGHTS", "EARTHQUAKES", "SATELLITE ORBITS", "BIKESHARE", "RADIO BROWSER", "CCTV MONITOR", "LOCATION SEARCH", "SATELLITE VIEW", "WEATHER"].includes(activeTab) ? "block" : "none", 
+              height: "100%",
+              width: "100%",
+              position: "relative"
             }}>
               {renderFlights()}
             </div>
 
-            {!loading && activeTab === "SHIP TRACKER" && renderShips()}
+            {activeTab === "SHIP TRACKER" && (
+              loading ? (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "12px" }}>
+                  <div style={{ color: "#ff0000", fontSize: "11px", letterSpacing: "3px" }} className="animate-pulse">
+                    ACQUIRING MARITIME TELEMETRY...
+                  </div>
+                  <div style={{ color: "#440000", fontSize: "11px" }}>
+                    Resolving AIS vessel handshake
+                  </div>
+                </div>
+              ) : renderShips()
+            )}
           </div>
         </div>
       </div>

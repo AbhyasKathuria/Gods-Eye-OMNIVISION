@@ -88,6 +88,10 @@ class Settings(BaseSettings):
     BLOCKCYPHER_TOKEN: Optional[str] = None
     ALIENVAULT_OTX_KEY: Optional[str] = None
     
+    # Cameras & Live Feeds
+    WINDY_API_KEY: Optional[str] = None
+    TFL_APP_KEY: Optional[str] = None
+    
     # Auth
     JWT_SECRET: str = "godseyeomnivision2025supersecret"
     
