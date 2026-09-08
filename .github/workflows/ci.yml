@@ -23,8 +23,10 @@ jobs:
         pip install -r backend/requirements.txt
 
     - name: Run Pytest
+      env:
+        PYTHONPATH: backend
       run: |
-        pytest backend/
+        pytest backend/tests/
 
   frontend-build:
     runs-on: ubuntu-latest

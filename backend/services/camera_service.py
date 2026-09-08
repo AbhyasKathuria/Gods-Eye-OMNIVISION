@@ -344,7 +344,7 @@ async def fetch_windy_cameras(lat: float, lon: float, radius_km: float = 50.0, l
     }
 
     try:
-        async with httpx.AsyncClient(timeout=3.5) as client:
+        async with httpx.AsyncClient(timeout=8.0) as client:
             resp = await client.get(url, headers=headers)
             if resp.status_code != 200:
                 print(f"[CameraService] Windy nearby status: {resp.status_code}")
@@ -380,7 +380,7 @@ async def fetch_windy_by_countries(countries: str = "IN", limit: int = 50, lat: 
     }
 
     try:
-        async with httpx.AsyncClient(timeout=3.5) as client:
+        async with httpx.AsyncClient(timeout=8.0) as client:
             resp = await client.get(url, headers=headers)
             if resp.status_code != 200:
                 print(f"[CameraService] Windy countries={countries} status: {resp.status_code}")
@@ -412,7 +412,7 @@ async def fetch_tfl_cameras(lat: float, lon: float, radius_km: float = 40.0, lim
     # Refresh TfL cache if older than 300 seconds (5 min)
     if now - _tfl_cache["timestamp"] > 300 or not _tfl_cache["cameras"]:
         try:
-            async with httpx.AsyncClient(timeout=4.0) as client:
+            async with httpx.AsyncClient(timeout=8.0) as client:
                 url = "https://api.tfl.gov.uk/Place/Type/JamCam"
                 tfl_key = os.getenv("TFL_APP_KEY") or TFL_KEY_DEFAULT
                 params = {"app_key": tfl_key} if tfl_key else {}

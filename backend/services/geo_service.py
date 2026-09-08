@@ -28,12 +28,27 @@ async def get_access_token() -> str:
         return None
 
 
+import time
+
+_FLIGHTS_CACHE = {
+    "timestamp": 0,
+    "data": None
+}
+
+
 async def get_flights() -> dict:
+    global _FLIGHTS_CACHE
+    now = time.time()
+
+    # Serve from in-memory cache if fresh (< 45s) to avoid OpenSky rate limits and latency
+    if _FLIGHTS_CACHE["data"] and (now - _FLIGHTS_CACHE["timestamp"] < 45):
+        return _FLIGHTS_CACHE["data"]
+
     try:
         token = await get_access_token()
         headers = {"Authorization": f"Bearer {token}"} if token else {}
 
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=25) as client:
             resp = await client.get(
                 "https://opensky-network.org/api/states/all",
                 headers=headers,
@@ -59,18 +74,27 @@ async def get_flights() -> dict:
                             })
                     except Exception:
                         continue
-                return {
+
+                result = {
                     "status": "success",
                     "total": len(states),
                     "showing": len(flights),
                     "flights": flights
                 }
+                _FLIGHTS_CACHE["timestamp"] = now
+                _FLIGHTS_CACHE["data"] = result
+                return result
             else:
+                # If rate limited (429) or upstream error, fallback to cache if available
+                if _FLIGHTS_CACHE["data"]:
+                    return _FLIGHTS_CACHE["data"]
                 return {
                     "error": f"OpenSky returned {resp.status_code}",
                     "flights": [], "total": 0, "showing": 0
                 }
     except Exception as e:
+        if _FLIGHTS_CACHE["data"]:
+            return _FLIGHTS_CACHE["data"]
         return {
             "error": str(e),
             "flights": [], "total": 0, "showing": 0

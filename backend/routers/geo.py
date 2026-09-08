@@ -128,7 +128,7 @@ async def streetview(request: Request, lat: float, lon: float):
     origin = "/".join(referer.split("/")[:3])
     
     key = settings.GOOGLE_MAPS_API_KEY
-    if not key or len(key) < 20 or key.startswith("YOUR_") or key.startswith("AIzaSyCpEUg1AEtMcjVKEV0ROlRdmhnIFO_pU-w"):
+    if not key or len(key) < 20 or key.startswith("YOUR_") or "dummy" in key.lower() or "example" in key.lower():
         num = random.randint(1, 5)
         return RedirectResponse(f"{origin}/feeds/feed{num}.gif")
         

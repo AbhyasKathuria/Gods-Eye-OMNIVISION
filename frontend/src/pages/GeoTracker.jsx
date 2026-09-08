@@ -1001,10 +1001,10 @@ export default function GeoTracker() {
       cctvPolygonRef.current = null;
     }
 
-    // Safety watchdog: always guarantee loading state resolves within 4 seconds
+    // Safety watchdog: guarantee loading state resolves even if slow network
     const safetyTimer = setTimeout(() => {
       setLoading(false);
-    }, 4000);
+    }, 25000);
     
     try {
       const map = leafletMapRef.current;
@@ -1013,10 +1013,10 @@ export default function GeoTracker() {
       let data = [];
       switch (currentTab) {
         case "LIVE FLIGHTS":
-          const res = await axios.get(`${API}/geo/flights`, { timeout: 6000 });
+          const res = await axios.get(`${API}/geo/flights`, { timeout: 25000 });
           if (activeTabRef.current !== currentTab) return;
-          data = res.data.data.flights || [];
-          setResults(res.data.data);
+          data = res.data?.data?.flights || [];
+          setResults(res.data?.data);
           if (map && L) {
             markersRef.current.forEach(m => m.remove());
             markersRef.current = [];
@@ -1172,7 +1172,7 @@ export default function GeoTracker() {
           setLon(targetLon.toFixed(4));
 
           try {
-            const revRes = await axios.get(`${API}/geo/reverse?lat=${targetLat.toFixed(4)}&lon=${targetLon.toFixed(4)}`, { timeout: 6000 });
+            const revRes = await axios.get(`${API}/geo/reverse?lat=${targetLat.toFixed(4)}&lon=${targetLon.toFixed(4)}`, { timeout: 15000 });
             if (activeTabRef.current !== currentTab) return;
             setResults(revRes.data);
           } catch (e) {
